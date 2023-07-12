@@ -88,6 +88,7 @@ class HomeScreen extends StatelessWidget {
               return FloatingActionButton(
                 child: const Icon(Icons.search),
                 onPressed: () => FlutterBluePlus.instance.startScan(
+                  withServices: serviceGuids,
                   timeout: const Duration(seconds: 10),
                 ),
               );

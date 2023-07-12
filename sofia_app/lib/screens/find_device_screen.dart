@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:provider/provider.dart';
+import 'package:sofia_app/providers/home_provider.dart';
 
 import '../configs/index.dart';
 import '../widgets/widget_tiles.dart';
@@ -83,33 +85,53 @@ class FindDevicesScreen extends StatelessWidget {
                       );
                     },
                   ),
-                  StreamBuilder<List<ScanResult>>(
-                    stream: FlutterBluePlus.instance.scanResults,
-                    initialData: const [],
-                    builder: (c, snapshot) {
-                      return snapshot.hasData
-                          ? Column(
-                              children: snapshot.data!.map(
-                                (result) {
-                                  log('Psk 1 ${result.toString()}');
-                                  return ScanResultTile(
-                                    result: result,
-                                    onTap: () => Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) {
-                                          result.device.connect();
-                                          return DeviceScreen(
-                                              device: result.device);
-                                        },
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ).toList(),
-                            )
-                          : const SizedBox.shrink();
-                    },
+                  Consumer<HomeProvider>(
+                    builder: (context, provider, _) => ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: provider.scanResult.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return ScanResultTile(
+                          result: provider.scanResult[index],
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                provider.scanResult[index].device.connect();
+                                return DeviceScreen(
+                                    device: provider.scanResult[index].device);
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
+                  // StreamBuilder<List<ScanResult>>(
+                  //   stream: FlutterBluePlus.instance.scanResults,
+                  //   initialData: const [],
+                  //   builder: (c, snapshot) {
+                  //     return snapshot.hasData
+                  //         ? Column(
+                  //             children: snapshot.data!.map(
+                  //               (result) {
+                  //                 log('Psk 1 ${result.toString()}');
+                  //                 return ScanResultTile(
+                  //                   result: result,
+                  //                   onTap: () => Navigator.of(context).push(
+                  //                     MaterialPageRoute(
+                  //                       builder: (context) {
+                  //                         result.device.connect();
+                  //                         return DeviceScreen(
+                  //                             device: result.device);
+                  //                       },
+                  //                     ),
+                  //                   ),
+                  //                 );
+                  //               },
+                  //             ).toList(),
+                  //           )
+                  //         : const SizedBox.shrink();
+                  //   },
+                  // ),
                 ],
               ),
             ),
