@@ -7,7 +7,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import 'package:sofia_app/configs/index.dart';
 import 'package:sofia_app/providers/home_provider.dart';
 
 import 'screens/home/home_screen.dart';
@@ -37,13 +36,14 @@ class SofiaApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: appName,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
       home: ChangeNotifierProvider(
-        create: (_) => HomeProvider(),
+        create: (_) => HomeProvider()
+          ..periodicScan()
+          ..getScanResults(),
         child: const HomeScreen(),
       ),
     );

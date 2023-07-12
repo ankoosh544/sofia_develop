@@ -21,20 +21,9 @@ class HomeScreen extends StatelessWidget {
       initialIndex: 0,
       length: tabsCount,
       child: Scaffold(
-        appBar: AppBar(
-          title: Consumer<HomeProvider>(
-            builder: (_, provider, __) => Text(provider.title),
-          ),
-          notificationPredicate: (notification) => notification.depth == 1,
-          scrolledUnderElevation: 4.0,
-          shadowColor: Theme.of(context).shadowColor,
-          elevation: 1,
-        ),
         bottomNavigationBar: Container(
           color: Colors.white,
           child: TabBar(
-            onTap: (index) =>
-                context.read<HomeProvider>().setTitle(titles[index]),
             tabs: <Widget>[
               _buildTab(
                 const Icon(Icons.home_filled),
@@ -80,17 +69,14 @@ class HomeScreen extends StatelessWidget {
           builder: (c, snapshot) {
             if (snapshot.data!) {
               return FloatingActionButton(
-                onPressed: () => FlutterBluePlus.instance.stopScan(),
+                onPressed: () => context.read<HomeProvider>().stopScan(),
                 backgroundColor: Colors.red,
                 child: const Icon(Icons.stop),
               );
             } else {
               return FloatingActionButton(
                 child: const Icon(Icons.search),
-                onPressed: () => FlutterBluePlus.instance.startScan(
-                  withServices: serviceGuids,
-                  timeout: const Duration(seconds: 10),
-                ),
+                onPressed: () => context.read<HomeProvider>().periodicScan(),
               );
             }
           },
