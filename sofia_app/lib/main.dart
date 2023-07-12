@@ -6,8 +6,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
+import 'package:sofia_app/configs/index.dart';
+import 'package:sofia_app/providers/home_provider.dart';
 
-import 'sofia_app.dart';
+import 'screens/home/home_screen.dart';
+import 'screens/index.dart';
 
 void main() {
   if (Platform.isAndroid) {
@@ -23,5 +27,25 @@ void main() {
     });
   } else {
     runApp(const SofiaApp());
+  }
+}
+
+class SofiaApp extends StatelessWidget {
+  const SofiaApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: appName,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home: ChangeNotifierProvider(
+        create: (_) => HomeProvider(),
+        child: const HomeScreen(),
+      ),
+    );
   }
 }
