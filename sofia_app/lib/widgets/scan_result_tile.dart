@@ -19,16 +19,20 @@ class ScanResultTile extends StatelessWidget {
         children: <Widget>[
           Text(
             result.device.name,
+            style: Theme.of(context).textTheme.bodyLarge,
             overflow: TextOverflow.ellipsis,
           ),
           Text(
             result.device.id.toString(),
-            style: Theme.of(context).textTheme.bodySmall,
+            style: Theme.of(context).textTheme.bodyLarge,
           )
         ],
       );
     } else {
-      return Text(result.device.id.toString());
+      return Text(
+        result.device.id.toString(),
+        style: Theme.of(context).textTheme.bodyLarge,
+      );
     }
   }
 
@@ -89,7 +93,10 @@ class ScanResultTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ExpansionTile(
       title: _buildTitle(context),
-      leading: Text(result.rssi.toString()),
+      leading: Text(
+        result.rssi.toString(),
+        style: Theme.of(context).textTheme.bodyLarge,
+      ),
       trailing: ElevatedButton(
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.white,

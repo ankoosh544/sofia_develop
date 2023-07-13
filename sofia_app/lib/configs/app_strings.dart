@@ -12,3 +12,9 @@ const List<String> titles = <String>[
   tabProfile,
   tabTesting,
 ];
+
+const String scannedDevices = 'Scanned Devices';
+const String stopSearching = 'STOP SEARCHING';
+const String hiThere = 'Hi There';
+const String scan = 'Scan';
+const String stop = 'Stop';

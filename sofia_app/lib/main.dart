@@ -7,10 +7,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import 'package:sofia_app/providers/home_provider.dart';
+import 'package:sofia_app/providers/ble_provider.dart';
 
 import 'screens/home/home_screen.dart';
-import 'screens/index.dart';
 
 void main() {
   if (Platform.isAndroid) {
@@ -41,9 +40,9 @@ class SofiaApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: ChangeNotifierProvider(
-        create: (_) => HomeProvider()
-          ..periodicScan()
-          ..getScanResults(),
+        create: (_) => BleProvider()
+          ..initialScan()
+          ..periodicScan(),
         child: const HomeScreen(),
       ),
     );

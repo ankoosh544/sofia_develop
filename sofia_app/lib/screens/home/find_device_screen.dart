@@ -1,14 +1,13 @@
 import 'dart:developer';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:provider/provider.dart';
-import 'package:sofia_app/providers/home_provider.dart';
+import 'package:sofia_app/providers/ble_provider.dart';
 
-import '../configs/index.dart';
-import '../widgets/index.dart';
-import 'index.dart';
+import '../../configs/index.dart';
+import '../../widgets/index.dart';
+import 'bluetooth_off_screen.dart';
+import 'device_screen.dart';
 
 class FindDevicesScreen extends StatelessWidget {
   const FindDevicesScreen({Key? key}) : super(key: key);
@@ -20,8 +19,8 @@ class FindDevicesScreen extends StatelessWidget {
         title: tabHome,
       ),
       body: StreamBuilder<BluetoothState>(
-        stream: FlutterBluePlus.instance.state,
-        initialData: BluetoothState.unknown,
+        stream: context.read<BleProvider>().bluetoothStateStream,
+        initialData: context.read<BleProvider>().bluetoothState,
         builder: (c, snapshot) {
           final state = snapshot.data;
           if (state == BluetoothState.on) {
@@ -29,25 +28,11 @@ class FindDevicesScreen extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        const Text(
-                          'Find Devices',
-                          style: textStyle,
-                        ),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.black,
-                          ),
-                          onPressed: Platform.isAndroid
-                              ? () => FlutterBluePlus.instance.turnOff()
-                              : null,
-                          child: const Text('TURN OFF'),
-                        ),
-                      ],
+                    Text(
+                      scannedDevices,
+                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     const Divider(
                       thickness: 2,
@@ -90,35 +75,15 @@ class FindDevicesScreen extends StatelessWidget {
                         );
                       },
                     ),
-                    // Consumer<HomeProvider>(
-                    //   builder: (context, provider, _) => ListView.builder(
-                    //     shrinkWrap: true,
-                    //     itemCount: provider.scanResult.length,
-                    //     itemBuilder: (BuildContext context, int index) {
-                    //       return ScanResultTile(
-                    //         result: provider.scanResult[index],
-                    //         onTap: () => Navigator.of(context).push(
-                    //           MaterialPageRoute(
-                    //             builder: (context) {
-                    //               provider.scanResult[index].device.connect();
-                    //               return DeviceScreen(
-                    //                   device: provider.scanResult[index].device);
-                    //             },
-                    //           ),
-                    //         ),
-                    //       );
-                    //     },
-                    //   ),
-                    // ),
                     StreamBuilder<List<ScanResult>>(
-                      stream: context.read<HomeProvider>().scanResult,
+                      stream: context.read<BleProvider>().scanResult,
                       initialData: const [],
                       builder: (c, snapshot) {
-                        return snapshot.hasData
+                        return snapshot.hasData && snapshot.data!.isNotEmpty
                             ? Column(
                                 children: snapshot.data!.map(
                                   (result) {
-                                    log('Psk 1 ${result.toString()}');
+                                    log('Sofia : ${result.toString()}');
                                     return ScanResultTile(
                                       result: result,
                                       onTap: () => Navigator.of(context).push(
@@ -134,7 +99,23 @@ class FindDevicesScreen extends StatelessWidget {
                                   },
                                 ).toList(),
                               )
-                            : const SizedBox.shrink();
+                            : Column(
+                                children: [
+                                  SizedBox(
+                                    height: MediaQuery.of(context).size.height *
+                                        .26,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'Please start scanning the devices',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineSmall,
+                                    ),
+                                  ),
+                                ],
+                              );
                       },
                     ),
                   ],

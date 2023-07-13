@@ -39,6 +39,7 @@ dependencies:
   permission_handler: ^10.2.0
   provider: ^6.0.5
   rxdart: ^0.27.7
+  avatar_glow: ^2.0.2
 
 dev_dependencies:
   flutter_test:

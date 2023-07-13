@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:provider/provider.dart';
-import 'package:sofia_app/providers/home_provider.dart';
+import 'package:sofia_app/providers/ble_provider.dart';
 import 'package:sofia_app/providers/profile_provider.dart';
 import 'package:sofia_app/providers/settings_provider.dart';
 import 'package:sofia_app/providers/testing_provider.dart';
@@ -10,7 +9,7 @@ import 'package:sofia_app/screens/settings/settings_screen.dart';
 import 'package:sofia_app/screens/testing/testing_screen.dart';
 
 import '../../configs/index.dart';
-import '../index.dart';
+import 'find_device_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -64,19 +63,34 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
         floatingActionButton: StreamBuilder<bool>(
-          stream: FlutterBluePlus.instance.isScanning,
-          initialData: false,
+          stream: context.read<BleProvider>().isScanningStream,
+          initialData: context.read<BleProvider>().isScanning,
           builder: (c, snapshot) {
             if (snapshot.data!) {
-              return FloatingActionButton(
-                onPressed: () => context.read<HomeProvider>().stopScan(),
-                backgroundColor: Colors.red,
-                child: const Icon(Icons.stop),
+              return FloatingActionButton.extended(
+                onPressed: () => context.read<BleProvider>().stopScan(),
+                label: Text(
+                  stop,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                icon: const Icon(
+                  Icons.stop_circle_outlined,
+                  color: Colors.redAccent,
+                ),
               );
             } else {
-              return FloatingActionButton(
-                child: const Icon(Icons.search),
-                onPressed: () => context.read<HomeProvider>().periodicScan(),
+              return FloatingActionButton.extended(
+                onPressed: () => context.read<BleProvider>()
+                  ..initialScan()
+                  ..periodicScan(),
+                label: Text(
+                  scan,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                icon: const Icon(
+                  Icons.search_outlined,
+                  color: Colors.blueAccent,
+                ),
               );
             }
           },

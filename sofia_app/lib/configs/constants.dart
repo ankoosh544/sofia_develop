@@ -1,6 +1,7 @@
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 const bool showTestingMenu = true;
+const bool isServiceGuid = false;
 final List<Guid> serviceGuids = [
   Guid('6c962546-6011-4e1b-9d8c-05027adb3a01'), // FLOOR_SERVICE_GUID
   Guid('6c962546-6011-4e1b-9d8c-05027adb3a02'), // CAR_SERVICE_GUID
