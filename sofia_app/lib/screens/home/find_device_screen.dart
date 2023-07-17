@@ -39,9 +39,7 @@ class FindDevicesScreen extends StatelessWidget {
                       color: Colors.lightBlue,
                     ),
                     StreamBuilder<List<BluetoothDevice>>(
-                      stream: Stream.periodic(const Duration(seconds: 2))
-                          .asyncMap(
-                              (_) => FlutterBluePlus.instance.connectedDevices),
+                      stream: context.read<BleProvider>().connectedDevice,
                       initialData: const [],
                       builder: (c, snapshot) {
                         return Column(
