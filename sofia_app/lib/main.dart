@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:sofia_app/providers/ble_provider.dart';
 
 import 'screens/home/home_screen.dart';
+import 'screens/login/login_screen.dart';
 
 void main() {
   if (Platform.isAndroid) {
@@ -43,7 +44,7 @@ class SofiaApp extends StatelessWidget {
         create: (_) => BleProvider()
           ..initialScan()
           ..periodicScan(),
-        child: const HomeScreen(),
+        child: LoginScreen(),
       ),
     );
   }
