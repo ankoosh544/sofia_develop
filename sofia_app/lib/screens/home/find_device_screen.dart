@@ -15,9 +15,6 @@ class FindDevicesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const SofiaAppBar(
-        title: tabHome,
-      ),
       body: StreamBuilder<BluetoothState>(
         stream: context.read<BleProvider>().bluetoothStateStream,
         initialData: context.read<BleProvider>().bluetoothState,
@@ -39,7 +36,7 @@ class FindDevicesScreen extends StatelessWidget {
                       color: Colors.lightBlue,
                     ),
                     StreamBuilder<List<BluetoothDevice>>(
-                      stream: context.read<BleProvider>().connectedDevice,
+                      stream: context.read<BleProvider>().connectedDeviceStream,
                       initialData: const [],
                       builder: (c, snapshot) {
                         return Column(

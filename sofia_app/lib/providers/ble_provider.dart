@@ -10,49 +10,39 @@ import '../configs/index.dart';
 
 class BleProvider extends ChangeNotifier {
   final _scanResult = BehaviorSubject<List<ScanResult>>.seeded([]);
-
   Stream<List<ScanResult>> get scanResult => _scanResult.stream;
   StreamSubscription? _subscription;
 
   final _connectedDevice = BehaviorSubject<List<BluetoothDevice>>.seeded([]);
-
-  Stream<List<BluetoothDevice>> get connectedDevice => _connectedDevice.stream;
+  Stream<List<BluetoothDevice>> get connectedDeviceStream =>
+      _connectedDevice.stream;
+  BluetoothDevice? get connectedDevice =>
+      _connectedDevice.value.isEmpty ? null : _connectedDevice.value.first;
 
   final _bluetoothState =
       BehaviorSubject<BluetoothState>.seeded(BluetoothState.unknown);
-
   Stream<BluetoothState> get bluetoothStateStream => _bluetoothState.stream;
-
   BluetoothState get bluetoothState => _bluetoothState.value;
 
   final _isScanning = BehaviorSubject<bool>.seeded(false);
-
   Stream<bool> get isScanningStream => _isScanning.stream;
-
   bool get isScanning => _isScanning.value;
 
   BleProvider() {
     _getBluetoothState();
     _getScanResults();
-    // _getConnectedDevice();
     _scanResult.listen((scanResults) {
       if (scanResults.isNotEmpty) {
-        final device = scanResults
+        final nearestDevice = scanResults
             .reduce((curr, next) => curr.rssi > next.rssi ? curr : next);
-        scanResults.forEach((scannedDevice) {
-          log('Disconnecting... ${scannedDevice.device.id}');
+        for (var scannedDevice in scanResults) {
+          //if (nearestDevice.device.id != scannedDevice.device.id) {
           scannedDevice.device.disconnect();
-        });
-        //_connectedDevice.add([]);
-        log(device.toString());
-        //log('connectable: ${device.advertisementData.connectable}');
-        //if (device.advertisementData.connectable) {
-        device.device.connect();
-        //print(String.fromCharCodes(device.devic))
-        log('Scanned Device connected ${device.advertisementData.localName}');
-        //} else {
-        //  log('Not connectable: ${device.advertisementData.connectable}');
-        //}
+          //}
+        }
+
+        nearestDevice.device.connect();
+        log('Scanned Device connected ${nearestDevice.toString()}');
       }
     });
   }
@@ -63,8 +53,8 @@ class BleProvider extends ChangeNotifier {
     }
   }
 
-  void periodicScan() =>
-      _subscription = Stream.periodic(const Duration(seconds: 10), (_) => _)
+  void periodicScan() => _subscription =
+      Stream.periodic(const Duration(seconds: periodicDuration), (_) => _)
           .listen((_) => startScan());
 
   void startScan() {
@@ -72,7 +62,7 @@ class BleProvider extends ChangeNotifier {
       setIsScanning(true);
       FlutterBluePlus.instance.startScan(
         withServices: isServiceGuid ? serviceGuids : [],
-        timeout: const Duration(seconds: 5),
+        timeout: const Duration(seconds: timeoutDuration),
       );
     }
     _getConnectedDevice();
@@ -92,14 +82,14 @@ class BleProvider extends ChangeNotifier {
 
   void setIsScanning(bool value) => _isScanning.add(value);
 
-  void _getScanResults() =>
-      FlutterBluePlus.instance.scanResults.listen((results) => _scanResult
-          .add([results, _scanResult.value].expand((x) => x).toSet().toList()));
+  void _getScanResults() {
+    FlutterBluePlus.instance.scanResults.listen((results) => _scanResult
+        .add([results, _scanResult.value].expand((x) => x).toSet().toList()));
+  }
 
   void _getConnectedDevice() async {
     final devices = await FlutterBluePlus.instance.connectedDevices;
-    print('Psk : ${devices.length}');
-    _connectedDevice.add([]);
+    _connectedDevice.value.clear();
     _connectedDevice.add(devices);
   }
 

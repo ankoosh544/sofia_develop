@@ -3,13 +3,12 @@ import 'package:provider/provider.dart';
 import 'package:sofia_app/providers/ble_provider.dart';
 import 'package:sofia_app/providers/profile_provider.dart';
 import 'package:sofia_app/providers/settings_provider.dart';
-import 'package:sofia_app/providers/testing_provider.dart';
 import 'package:sofia_app/screens/profile/profile_screen.dart';
 import 'package:sofia_app/screens/settings/settings_screen.dart';
 import 'package:sofia_app/screens/testing/testing_screen.dart';
 
 import '../../configs/index.dart';
-import 'find_device_screen.dart';
+import 'device_connected.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -46,7 +45,7 @@ class HomeScreen extends StatelessWidget {
         ),
         body: TabBarView(
           children: <Widget>[
-            const FindDevicesScreen(),
+            const DeviceConnected(),
             ChangeNotifierProvider(
               create: (_) => SettingsProvider(),
               child: const SettingScreen(),
@@ -55,11 +54,7 @@ class HomeScreen extends StatelessWidget {
               create: (_) => ProfileProvider(),
               child: const ProfileScreen(),
             ),
-            if (showTestingMenu)
-              ChangeNotifierProvider(
-                create: (_) => TestingProvider(),
-                child: const TestingScreen(),
-              ),
+            if (showTestingMenu) const TestingScreen(),
           ],
         ),
         floatingActionButton: StreamBuilder<bool>(
@@ -81,7 +76,7 @@ class HomeScreen extends StatelessWidget {
             } else {
               return FloatingActionButton.extended(
                 onPressed: () => context.read<BleProvider>()
-                  ..initialScan()
+                  //..initialScan()
                   ..periodicScan(),
                 label: Text(
                   scan,

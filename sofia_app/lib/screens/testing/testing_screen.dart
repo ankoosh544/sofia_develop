@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sofia_app/configs/index.dart';
 
+import '../home/find_device_screen.dart';
+
 class TestingScreen extends StatelessWidget {
   const TestingScreen({super.key});
 
@@ -14,7 +16,7 @@ class TestingScreen extends StatelessWidget {
         shadowColor: Theme.of(context).shadowColor,
         elevation: 1,
       ),
-      body: const Text('Testing'),
+      body: const FindDevicesScreen(),
     );
   }
 }
