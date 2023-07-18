@@ -31,20 +31,6 @@ class BleProvider extends ChangeNotifier {
   BleProvider() {
     _getBluetoothState();
     _getScanResults();
-    _scanResult.listen((scanResults) {
-      if (scanResults.isNotEmpty) {
-        final nearestDevice = scanResults
-            .reduce((curr, next) => curr.rssi > next.rssi ? curr : next);
-        for (var scannedDevice in scanResults) {
-          //if (nearestDevice.device.id != scannedDevice.device.id) {
-          scannedDevice.device.disconnect();
-          //}
-        }
-
-        nearestDevice.device.connect();
-        log('Scanned Device connected ${nearestDevice.toString()}');
-      }
-    });
   }
 
   void initialScan() {
@@ -54,7 +40,7 @@ class BleProvider extends ChangeNotifier {
   }
 
   void periodicScan() => _subscription =
-      Stream.periodic(const Duration(seconds: periodicDuration), (_) => _)
+      Stream.periodic(const Duration(milliseconds: periodicDuration), (_) => _)
           .listen((_) => startScan());
 
   void startScan() {
@@ -62,7 +48,7 @@ class BleProvider extends ChangeNotifier {
       setIsScanning(true);
       FlutterBluePlus.instance.startScan(
         withServices: isServiceGuid ? serviceGuids : [],
-        timeout: const Duration(seconds: timeoutDuration),
+        timeout: const Duration(milliseconds: timeoutDuration),
       );
     }
     _getConnectedDevice();
@@ -85,12 +71,30 @@ class BleProvider extends ChangeNotifier {
   void _getScanResults() {
     FlutterBluePlus.instance.scanResults.listen((results) => _scanResult
         .add([results, _scanResult.value].expand((x) => x).toSet().toList()));
+
+    _scanResult.listen((scanResults) {
+      if (scanResults.isNotEmpty) {
+        final nearestDevice = scanResults
+            .reduce((curr, next) => curr.rssi > next.rssi ? curr : next);
+        for (var scannedDevice in scanResults) {
+          scannedDevice.device.disconnect();
+        }
+
+        nearestDevice.device.connect();
+        _getConnectedDevice(nearestDevice.device);
+        log('Scanned Device connected ${nearestDevice.toString()}');
+      }
+    });
   }
 
-  void _getConnectedDevice() async {
-    final devices = await FlutterBluePlus.instance.connectedDevices;
+  void _getConnectedDevice([BluetoothDevice? device]) async {
+    if (device == null) return;
+
     _connectedDevice.value.clear();
-    _connectedDevice.add(devices);
+
+    log('DD: ${device.toString()}');
+
+    _connectedDevice.add([device]);
   }
 
   void clearSubscription() {
