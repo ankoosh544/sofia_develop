@@ -85,7 +85,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `users` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `email` TEXT NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `User` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `email` TEXT NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL, `rememberMe` INTEGER NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -106,32 +106,35 @@ class _$UserDao extends UserDao {
   )   : _queryAdapter = QueryAdapter(database),
         _userInsertionAdapter = InsertionAdapter(
             database,
-            'users',
+            'User',
             (User item) => <String, Object?>{
                   'id': item.id,
                   'email': item.email,
                   'username': item.username,
-                  'password': item.password
+                  'password': item.password,
+                  'rememberMe': item.rememberMe ? 1 : 0
                 }),
         _userUpdateAdapter = UpdateAdapter(
             database,
-            'users',
+            'User',
             ['id'],
             (User item) => <String, Object?>{
                   'id': item.id,
                   'email': item.email,
                   'username': item.username,
-                  'password': item.password
+                  'password': item.password,
+                  'rememberMe': item.rememberMe ? 1 : 0
                 }),
         _userDeletionAdapter = DeletionAdapter(
             database,
-            'users',
+            'User',
             ['id'],
             (User item) => <String, Object?>{
                   'id': item.id,
                   'email': item.email,
                   'username': item.username,
-                  'password': item.password
+                  'password': item.password,
+                  'rememberMe': item.rememberMe ? 1 : 0
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -150,20 +153,22 @@ class _$UserDao extends UserDao {
   Future<List<User>> getAllUsers() async {
     return _queryAdapter.queryList('SELECT * FROM User',
         mapper: (Map<String, Object?> row) => User(
-            row['id'] as int,
+            row['id'] as int?,
             row['email'] as String,
             row['username'] as String,
-            row['password'] as String));
+            row['password'] as String,
+            (row['rememberMe'] as int) != 0));
   }
 
   @override
   Future<User?> getUserById(int id) async {
     return _queryAdapter.query('SELECT * FROM User WHERE id = ?1',
         mapper: (Map<String, Object?> row) => User(
-            row['id'] as int,
+            row['id'] as int?,
             row['email'] as String,
             row['username'] as String,
-            row['password'] as String),
+            row['password'] as String,
+            (row['rememberMe'] as int) != 0),
         arguments: [id]);
   }
 
@@ -171,10 +176,11 @@ class _$UserDao extends UserDao {
   Future<User?> getUserByUsername(String username) async {
     return _queryAdapter.query('SELECT * FROM User WHERE username = ?1',
         mapper: (Map<String, Object?> row) => User(
-            row['id'] as int,
+            row['id'] as int?,
             row['email'] as String,
             row['username'] as String,
-            row['password'] as String),
+            row['password'] as String,
+            (row['rememberMe'] as int) != 0),
         arguments: [username]);
   }
 
