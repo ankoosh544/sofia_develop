@@ -9,3 +9,4 @@ final List<Guid> serviceGuids = [
 ];
 const periodicDuration = 300; //milliseconds
 const timeoutDuration = 150; //milliseconds
+const demo = 'demo';
