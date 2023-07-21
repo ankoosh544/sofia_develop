@@ -9,6 +9,7 @@ import 'package:rxdart/rxdart.dart';
 import '../configs/index.dart';
 
 class BleProvider extends ChangeNotifier {
+  final _ble = FlutterBluePlus.instance;
   final _scanResult = BehaviorSubject<List<ScanResult>>.seeded([]);
   Stream<List<ScanResult>> get scanResult => _scanResult.stream;
   StreamSubscription? _subscription;
@@ -31,10 +32,59 @@ class BleProvider extends ChangeNotifier {
   BleProvider() {
     _getBluetoothState();
     _getScanResults();
+
+    _scanResult.listen((scanResults) async {
+      //bool shouldConnect = false;
+      if (scanResults.isNotEmpty) {
+        final nearestDevice = scanResults
+            .reduce((curr, next) => curr.rssi > next.rssi ? curr : next);
+
+        final connectedDevices = await _ble.connectedDevices;
+        // for(var device in connectedDevices){
+        //   if(device.id.id.toString() == nearestDevice.device.id.toString()){
+        //
+        //   } else {
+        //     device.disconnect();
+        //   }
+        // }
+        // final bleConnected = connectedDevices.firstWhere((device) =>
+        //     device.id.id.toString() == nearestDevice.device.id.toString());
+        // if (connectedDevices.contains(nearestDevice.device.id))
+        final event = await nearestDevice.device.state.first;
+        // nearestDevice.device.state.listen((event) {
+        if (event != BluetoothDeviceState.connected) {
+          nearestDevice.device.connect();
+          _getConnectedDevice(nearestDevice.device);
+          log('Scanned Device connected $connectedDevices ->> ${nearestDevice.toString()}');
+        } else {
+          log('Device already connected..............');
+        }
+        //});
+
+        //test();
+      }
+    });
+    //test();
+  }
+
+  Future test() async {
+    connectedDevice?.services.listen((event) {
+      if (event.isNotEmpty) {
+        event.forEach((element) {
+          if (element.characteristics.isNotEmpty) {
+            element.characteristics.forEach((data) {
+              data.read();
+              print('0x${data.uuid.toString().toUpperCase().substring(4, 8)}');
+              print('Device Name: ${String.fromCharCodes(data.lastValue)}');
+            });
+          }
+        });
+      }
+    });
   }
 
   void initialScan() {
-    if (!FlutterBluePlus.instance.isScanningNow) {
+    if (!_ble.isScanningNow) {
       startScan();
     }
   }
@@ -46,7 +96,7 @@ class BleProvider extends ChangeNotifier {
   void startScan() {
     if (bluetoothState == BluetoothState.on) {
       setIsScanning(true);
-      FlutterBluePlus.instance.startScan(
+      _ble.startScan(
         withServices: isServiceGuid ? serviceGuids : [],
         timeout: const Duration(milliseconds: timeoutDuration),
       );
@@ -55,7 +105,7 @@ class BleProvider extends ChangeNotifier {
   }
 
   void stopScan() {
-    FlutterBluePlus.instance.stopScan();
+    _ble.stopScan();
     clearSubscription();
     _refresh();
   }
@@ -69,22 +119,8 @@ class BleProvider extends ChangeNotifier {
   void setIsScanning(bool value) => _isScanning.add(value);
 
   void _getScanResults() {
-    FlutterBluePlus.instance.scanResults.listen((results) => _scanResult
+    _ble.scanResults.listen((results) => _scanResult
         .add([results, _scanResult.value].expand((x) => x).toSet().toList()));
-
-    _scanResult.listen((scanResults) {
-      if (scanResults.isNotEmpty) {
-        final nearestDevice = scanResults
-            .reduce((curr, next) => curr.rssi > next.rssi ? curr : next);
-        for (var scannedDevice in scanResults) {
-          scannedDevice.device.disconnect();
-        }
-
-        nearestDevice.device.connect();
-        _getConnectedDevice(nearestDevice.device);
-        log('Scanned Device connected ${nearestDevice.toString()}');
-      }
-    });
   }
 
   void _getConnectedDevice([BluetoothDevice? device]) async {
@@ -102,6 +138,18 @@ class BleProvider extends ChangeNotifier {
     _subscription = null;
   }
 
+  // num getDistance(int rssi, int txPower) {
+  //   /*
+  //    * RSSI = TxPower - 10 * n * lg(d)
+  //    * n = 2 (in free space)
+  //    *
+  //    * d = 10 ^ ((TxPower - RSSI) / (10 * n))
+  //    */
+  //
+  //
+  //   return math.pow(10d, ((double) txPower - rssi) / (10 * 2));
+  // }
+
   @override
   void dispose() {
     clearSubscription();
@@ -116,4 +164,17 @@ class BleProvider extends ChangeNotifier {
         }
         _bluetoothState.add(event);
       });
+
+  Stream<int> rssiStream(BluetoothDevice device) async* {
+    var isConnected = true;
+    final subscription = device.state.listen((state) {
+      isConnected = state == BluetoothDeviceState.connected;
+    });
+    while (isConnected) {
+      yield await device.readRssi();
+      await Future.delayed(const Duration(seconds: 1));
+    }
+    subscription.cancel();
+    // Device disconnected, stopping RSSI stream
+  }
 }

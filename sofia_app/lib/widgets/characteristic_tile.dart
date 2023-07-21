@@ -39,7 +39,7 @@ class CharacteristicTile extends StatelessWidget {
                         color: Theme.of(context).textTheme.bodySmall?.color))
               ],
             ),
-            subtitle: Text(value.toString()),
+            subtitle: Text(String.fromCharCodes(value ?? [])),
             contentPadding: const EdgeInsets.all(0.0),
           ),
           trailing: Row(

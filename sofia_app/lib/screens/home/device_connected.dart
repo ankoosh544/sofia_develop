@@ -32,22 +32,36 @@ class DeviceConnected extends StatelessWidget {
               return Column(
                 children: snapshot.data!.map((device) {
                   log('Connected Device : ${device.toString()}');
-                  return ListTile(
-                    title: Text(device.name),
-                    subtitle: Text(device.id.toString()),
-                    trailing: StreamBuilder<BluetoothDeviceState>(
-                      stream: device.state,
-                      initialData: BluetoothDeviceState.disconnected,
-                      builder: (c, snapshot) {
-                        if (snapshot.data == BluetoothDeviceState.connected) {
-                          return const ElevatedButton(
-                            onPressed: null,
-                            child: Text('Connected'),
-                          );
-                        }
-                        return Text(snapshot.data.toString());
-                      },
-                    ),
+                  return Column(
+                    children: [
+                      ListTile(
+                        title: Text(device.name),
+                        subtitle: Text(device.id.toString()),
+                        trailing: StreamBuilder<BluetoothDeviceState>(
+                          stream: device.state,
+                          initialData: BluetoothDeviceState.disconnected,
+                          builder: (c, snapshot) {
+                            if (snapshot.data ==
+                                BluetoothDeviceState.connected) {
+                              return StreamBuilder<int>(
+                                  stream: context
+                                      .read<BleProvider>()
+                                      .rssiStream(device),
+                                  builder: (context, snapshot) {
+                                    return Text(
+                                        snapshot.hasData
+                                            ? '${snapshot.data}dBm'
+                                            : '',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall);
+                                  });
+                            }
+                            return Text(snapshot.data.toString());
+                          },
+                        ),
+                      ),
+                    ],
                   );
                 }).toList(),
               );
