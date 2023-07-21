@@ -1,19 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sofia_app/dao/user_dao.dart';
+import 'package:sofia_app/providers/auth_provider.dart';
 import 'package:sofia_app/providers/login_provider.dart';
 import 'package:sofia_app/screens/registration/registration_screen.dart';
 
 class LoginScreen extends StatelessWidget {
+  final UserDao userDao;
+  final AuthProvider authProvider;
+
+  const LoginScreen({required this.userDao, required this.authProvider});
+
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => LoginProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<LoginProvider>(
+          create: (_) => LoginProvider(),
+        ),
+        ChangeNotifierProvider<AuthProvider>(
+          create: (_) => AuthProvider(),
+        ),
+      ],
       child: Scaffold(
         appBar: AppBar(
           title: Text('Login Screen'),
         ),
-        body: Consumer<LoginProvider>(
-          builder: (context, loginProvider, _) {
+        body: Consumer2<LoginProvider, AuthProvider>(
+          builder: (context, loginProvider, authProvider, _) {
             return Padding(
               padding: EdgeInsets.all(16.0),
               child: Column(
@@ -57,8 +71,11 @@ class LoginScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 16.0),
                   ElevatedButton(
-                    onPressed: () {
-                      loginProvider.login();
+                    onPressed: () async {
+                      await loginProvider.login(context);
+                      if (authProvider.isLoggedIn) {
+                        Navigator.pushNamed(context, '/home');
+                      }
                     },
                     child: Text('Login'),
                   ),
@@ -67,7 +84,8 @@ class LoginScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => RegistrationScreen(),
+                          builder: (context) =>
+                              RegistrationScreen(userDao: userDao),
                         ),
                       );
                     },

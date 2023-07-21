@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'app_database.dart';
+part of 'database.dart';
 
 // **************************************************************************
 // FloorGenerator
@@ -85,7 +85,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `users` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `email` TEXT NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `User` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `email` TEXT NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -106,7 +106,7 @@ class _$UserDao extends UserDao {
   )   : _queryAdapter = QueryAdapter(database),
         _userInsertionAdapter = InsertionAdapter(
             database,
-            'users',
+            'User',
             (User item) => <String, Object?>{
                   'id': item.id,
                   'email': item.email,
@@ -115,7 +115,7 @@ class _$UserDao extends UserDao {
                 }),
         _userUpdateAdapter = UpdateAdapter(
             database,
-            'users',
+            'User',
             ['id'],
             (User item) => <String, Object?>{
                   'id': item.id,
@@ -125,7 +125,7 @@ class _$UserDao extends UserDao {
                 }),
         _userDeletionAdapter = DeletionAdapter(
             database,
-            'users',
+            'User',
             ['id'],
             (User item) => <String, Object?>{
                   'id': item.id,
@@ -150,7 +150,7 @@ class _$UserDao extends UserDao {
   Future<List<User>> getAllUsers() async {
     return _queryAdapter.queryList('SELECT * FROM User',
         mapper: (Map<String, Object?> row) => User(
-            row['id'] as int,
+            row['id'] as int?,
             row['email'] as String,
             row['username'] as String,
             row['password'] as String));
@@ -160,7 +160,7 @@ class _$UserDao extends UserDao {
   Future<User?> getUserById(int id) async {
     return _queryAdapter.query('SELECT * FROM User WHERE id = ?1',
         mapper: (Map<String, Object?> row) => User(
-            row['id'] as int,
+            row['id'] as int?,
             row['email'] as String,
             row['username'] as String,
             row['password'] as String),
@@ -171,7 +171,7 @@ class _$UserDao extends UserDao {
   Future<User?> getUserByUsername(String username) async {
     return _queryAdapter.query('SELECT * FROM User WHERE username = ?1',
         mapper: (Map<String, Object?> row) => User(
-            row['id'] as int,
+            row['id'] as int?,
             row['email'] as String,
             row['username'] as String,
             row['password'] as String),
@@ -179,7 +179,7 @@ class _$UserDao extends UserDao {
   }
 
   @override
-  Future<void> registerUser(User user) async {
+  Future<void> insertUser(User user) async {
     await _userInsertionAdapter.insert(user, OnConflictStrategy.abort);
   }
 

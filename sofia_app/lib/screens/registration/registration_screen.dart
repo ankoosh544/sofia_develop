@@ -4,10 +4,13 @@ import 'package:sofia_app/dao/user_dao.dart';
 import 'package:sofia_app/providers/registration_provider.dart';
 
 class RegistrationScreen extends StatelessWidget {
+  final UserDao userDao;
+
+  const RegistrationScreen({required this.userDao});
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => RegistrationProvider(Provider.of<UserDao>(context, listen: false)),
+      create: (_) => RegistrationProvider(),
       child: Scaffold(
         appBar: AppBar(
           title: Text('Registration Screen'),

@@ -1,9 +1,9 @@
 import 'package:floor/floor.dart';
 
-@Entity(tableName: 'users')
+@Entity(tableName: 'User')
 class User {
   @PrimaryKey(autoGenerate: true)
-  final int id;
+  final int? id;
 
   @ColumnInfo(name: 'email')
   final String email;
@@ -14,5 +14,20 @@ class User {
   @ColumnInfo(name: 'password')
   final String password;
 
-  User(this.id, this.email, this.username, this.password); // Generated constructor
+  @ColumnInfo(name: 'Visual')
+  final bool isVisual = false;
+
+  @ColumnInfo(name: 'Audio')
+  final bool isAudio = false;
+
+  @ColumnInfo(name: 'Screen touch')
+  final bool isScreenTouch = false;
+
+  @ColumnInfo(name: 'President')
+  final bool isPresident = false;
+
+  @ColumnInfo(name: 'Disable People')
+  final bool isDisablePeople = false;
+
+  User(this.id, this.email, this.username, this.password);
 }
