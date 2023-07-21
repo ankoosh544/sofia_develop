@@ -5,7 +5,6 @@ import 'package:sofia_app/providers/auth_provider.dart';
 import 'package:sofia_app/providers/ble_provider.dart';
 import 'package:sofia_app/providers/profile_provider.dart';
 import 'package:sofia_app/providers/settings_provider.dart';
-import 'package:sofia_app/providers/testing_provider.dart';
 import 'package:sofia_app/screens/profile/profile_screen.dart';
 import 'package:sofia_app/screens/settings/settings_screen.dart';
 import 'package:sofia_app/screens/testing/testing_screen.dart';
@@ -60,11 +59,11 @@ class HomeScreen extends StatelessWidget {
               const DeviceConnected(),
               ChangeNotifierProvider(
                 create: (_) => SettingsProvider(),
-                child: const SettingScreen(),
+                child: SettingsScreen(),
               ),
               ChangeNotifierProvider(
-                create: (_) => ProfileProvider(),
-                child: const ProfileScreen(),
+                create: (_) => ProfileProvider(userDao, AuthProvider()),
+                child: ProfileScreen(),
               ),
               if (showTestingMenu) const TestingScreen(),
             ],

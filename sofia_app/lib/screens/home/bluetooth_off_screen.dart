@@ -9,7 +9,7 @@ class BluetoothOffScreen extends StatelessWidget {
     this.state,
   }) : super(key: key);
 
-  final BluetoothState? state;
+  final BluetoothAdapterState? state;
 
   @override
   Widget build(BuildContext context) {

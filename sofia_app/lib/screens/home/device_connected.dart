@@ -35,14 +35,14 @@ class DeviceConnected extends StatelessWidget {
                   return Column(
                     children: [
                       ListTile(
-                        title: Text(device.name),
-                        subtitle: Text(device.id.toString()),
-                        trailing: StreamBuilder<BluetoothDeviceState>(
-                          stream: device.state,
-                          initialData: BluetoothDeviceState.disconnected,
+                        title: Text(device.localName),
+                        subtitle: Text(device.remoteId.toString()),
+                        trailing: StreamBuilder<BluetoothConnectionState>(
+                          stream: device.connectionState,
+                          initialData: BluetoothConnectionState.disconnected,
                           builder: (c, snapshot) {
                             if (snapshot.data ==
-                                BluetoothDeviceState.connected) {
+                                BluetoothConnectionState.connected) {
                               return StreamBuilder<int>(
                                   stream: context
                                       .read<BleProvider>()

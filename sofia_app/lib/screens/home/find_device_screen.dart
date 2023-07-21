@@ -15,12 +15,12 @@ class FindDevicesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: StreamBuilder<BluetoothState>(
+      body: StreamBuilder<BluetoothAdapterState>(
         stream: context.read<BleProvider>().bluetoothStateStream,
         initialData: context.read<BleProvider>().bluetoothState,
         builder: (c, snapshot) {
           final state = snapshot.data;
-          if (state == BluetoothState.on) {
+          if (state == BluetoothAdapterState.on) {
             return SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -43,14 +43,15 @@ class FindDevicesScreen extends StatelessWidget {
                           children: snapshot.data!.map((device) {
                             log('Psk : ${device.toString()}');
                             return ListTile(
-                              title: Text(device.name),
-                              subtitle: Text(device.id.toString()),
-                              trailing: StreamBuilder<BluetoothDeviceState>(
-                                stream: device.state,
-                                initialData: BluetoothDeviceState.disconnected,
+                              title: Text(device.localName),
+                              subtitle: Text(device.remoteId.toString()),
+                              trailing: StreamBuilder<BluetoothConnectionState>(
+                                stream: device.connectionState,
+                                initialData:
+                                    BluetoothConnectionState.disconnected,
                                 builder: (c, snapshot) {
                                   if (snapshot.data ==
-                                      BluetoothDeviceState.connected) {
+                                      BluetoothConnectionState.connected) {
                                     return ElevatedButton(
                                       child: const Text('OPEN'),
                                       onPressed: () =>

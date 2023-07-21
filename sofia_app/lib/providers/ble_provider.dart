@@ -20,10 +20,11 @@ class BleProvider extends ChangeNotifier {
   BluetoothDevice? get connectedDevice =>
       _connectedDevice.value.isEmpty ? null : _connectedDevice.value.first;
 
-  final _bluetoothState =
-      BehaviorSubject<BluetoothState>.seeded(BluetoothState.unknown);
-  Stream<BluetoothState> get bluetoothStateStream => _bluetoothState.stream;
-  BluetoothState get bluetoothState => _bluetoothState.value;
+  final _bluetoothState = BehaviorSubject<BluetoothAdapterState>.seeded(
+      BluetoothAdapterState.unknown);
+  Stream<BluetoothAdapterState> get bluetoothStateStream =>
+      _bluetoothState.stream;
+  BluetoothAdapterState get bluetoothState => _bluetoothState.value;
 
   final _isScanning = BehaviorSubject<bool>.seeded(false);
   Stream<bool> get isScanningStream => _isScanning.stream;
@@ -50,9 +51,9 @@ class BleProvider extends ChangeNotifier {
         // final bleConnected = connectedDevices.firstWhere((device) =>
         //     device.id.id.toString() == nearestDevice.device.id.toString());
         // if (connectedDevices.contains(nearestDevice.device.id))
-        final event = await nearestDevice.device.state.first;
+        final event = await nearestDevice.device.connectionState.first;
         // nearestDevice.device.state.listen((event) {
-        if (event != BluetoothDeviceState.connected) {
+        if (event != BluetoothConnectionState.connected) {
           nearestDevice.device.connect();
           _getConnectedDevice(nearestDevice.device);
           log('Scanned Device connected $connectedDevices ->> ${nearestDevice.toString()}');
@@ -94,7 +95,7 @@ class BleProvider extends ChangeNotifier {
           .listen((_) => startScan());
 
   void startScan() {
-    if (bluetoothState == BluetoothState.on) {
+    if (bluetoothState == BluetoothAdapterState.on) {
       setIsScanning(true);
       _ble.startScan(
         withServices: isServiceGuid ? serviceGuids : [],
@@ -157,7 +158,7 @@ class BleProvider extends ChangeNotifier {
   }
 
   void _getBluetoothState() => FlutterBluePlus.instance.state.listen((event) {
-        if (event == BluetoothState.on) {
+        if (event == BluetoothAdapterState.on) {
           startScan();
         } else {
           stopScan();
@@ -167,8 +168,8 @@ class BleProvider extends ChangeNotifier {
 
   Stream<int> rssiStream(BluetoothDevice device) async* {
     var isConnected = true;
-    final subscription = device.state.listen((state) {
-      isConnected = state == BluetoothDeviceState.connected;
+    final subscription = device.connectionState.listen((state) {
+      isConnected = state == BluetoothConnectionState.connected;
     });
     while (isConnected) {
       yield await device.readRssi();

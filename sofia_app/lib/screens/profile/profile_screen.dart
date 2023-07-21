@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sofia_app/dao/user_dao.dart';
 import 'package:sofia_app/providers/auth_provider.dart';
 import 'package:sofia_app/providers/profile_provider.dart';
-import 'package:sofia_app/screens/login/login_screen.dart';
 
 import '../../configs/index.dart';
 import '../../widgets/index.dart';
 
 class ProfileScreen extends StatelessWidget {
-  final UserDao userDao;
-  final AuthProvider authProvider;
-
-  const ProfileScreen({required this.userDao, required this.authProvider});
+  const ProfileScreen();
 
   @override
   Widget build(BuildContext context) {
@@ -64,14 +59,14 @@ class ProfileScreen extends StatelessWidget {
                       Provider.of<AuthProvider>(context, listen: false)
                           .logout();
                       // Navigate to the login screen
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => LoginScreen(
-                                  authProvider: authProvider,
-                                )),
-                        (route) => false,
-                      );
+                      // Navigator.pushAndRemoveUntil(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //       builder: (context) => LoginScreen(
+                      //             authProvider: authProvider,
+                      //           )),
+                      //   (route) => false,
+                      // );
                     },
                     child: Text('Logout'),
                   ),
