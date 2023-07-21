@@ -75,7 +75,8 @@ class BleProvider extends ChangeNotifier {
           if (element.characteristics.isNotEmpty) {
             element.characteristics.forEach((data) {
               data.read();
-              print('0x${data.uuid.toString().toUpperCase().substring(4, 8)}');
+              print(
+                  '0x${data.characteristicUuid.toString().toUpperCase().substring(4, 8)}');
               print('Device Name: ${String.fromCharCodes(data.lastValue)}');
             });
           }
@@ -157,7 +158,7 @@ class BleProvider extends ChangeNotifier {
     super.dispose();
   }
 
-  void _getBluetoothState() => FlutterBluePlus.instance.state.listen((event) {
+  void _getBluetoothState() => _ble.adapterState.listen((event) {
         if (event == BluetoothAdapterState.on) {
           startScan();
         } else {
