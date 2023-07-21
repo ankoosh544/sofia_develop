@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sofia_app/dao/user_dao.dart';
 import 'package:sofia_app/providers/registration_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RegistrationScreen extends StatelessWidget {
-  final UserDao userDao;
-
-  const RegistrationScreen({required this.userDao});
+  const RegistrationScreen({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -23,9 +21,21 @@ class RegistrationScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   TextFormField(
+                    style: TextStyle(color: Colors.black),
                     decoration: InputDecoration(
-                      labelText: 'Email',
-                      errorText: registrationProvider.emailError,
+                      // errorText: registrationProvider.emailError,
+                      hintText: AppLocalizations.of(context)!.email,
+                      hintStyle: TextStyle(color: Colors.grey),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey),
+                      ),
+                      prefixIcon: Icon(
+                        Icons.email,
+                        color: Colors.blue,
+                      ),
                     ),
                     onChanged: (value) {
                       registrationProvider.setEmail(value);
@@ -34,8 +44,19 @@ class RegistrationScreen extends StatelessWidget {
                   SizedBox(height: 16.0),
                   TextFormField(
                     decoration: InputDecoration(
-                      labelText: 'Username',
-                      errorText: registrationProvider.usernameError,
+                      // errorText: registrationProvider.usernameError,
+                      hintText: AppLocalizations.of(context)!.username,
+                      hintStyle: TextStyle(color: Colors.grey),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey),
+                      ),
+                      prefixIcon: Icon(
+                        Icons.person,
+                        color: Colors.blue,
+                      ),
                     ),
                     onChanged: (value) {
                       registrationProvider.setUsername(value);
@@ -43,10 +64,32 @@ class RegistrationScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 16.0),
                   TextFormField(
-                    obscureText: true,
+                    obscureText: !registrationProvider.isPasswordVisible,
+                    style: TextStyle(color: Colors.black),
                     decoration: InputDecoration(
-                      labelText: 'Password',
-                      errorText: registrationProvider.passwordError,
+                      hintText: AppLocalizations.of(context)!.password,
+                      hintStyle: TextStyle(color: Colors.grey),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey),
+                      ),
+                      prefixIcon: Icon(
+                        Icons.lock,
+                        color: Colors.blue,
+                      ),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          registrationProvider.isPasswordVisible
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: Colors.blue,
+                        ),
+                        onPressed: () {
+                          registrationProvider.toggleVisiblePassword();
+                        },
+                      ),
                     ),
                     onChanged: (value) {
                       registrationProvider.setPassword(value);

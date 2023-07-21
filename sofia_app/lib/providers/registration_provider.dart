@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:sofia_app/databases/app_database.dart';
 
-import 'package:sofia_app/databases/database.dart';
 import 'package:sofia_app/models/user.dart';
 
 class RegistrationProvider with ChangeNotifier {
   String _email = '';
   String _username = '';
   String _password = '';
+  bool isPasswordVisible = false;
 
   String get emailError => _validateEmail(_email);
   String get usernameError => _validateUsername(_username);
@@ -27,6 +28,11 @@ class RegistrationProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void toggleVisiblePassword() {
+    isPasswordVisible = !isPasswordVisible;
+    notifyListeners();
+  }
+
   Future<void> registerUser(BuildContext context) async {
     print("==============$context");
     // Validate user input
@@ -37,7 +43,7 @@ class RegistrationProvider with ChangeNotifier {
     }
 
     // Create User object
-    final user = User(null, _email, _username, _password);
+    final user = User(null, _email, _username, _password, false);
 
     // Get the AppDatabase instance
     final database =
@@ -47,7 +53,7 @@ class RegistrationProvider with ChangeNotifier {
     final userDao = database.userDao;
 
     // Insert the user into the database
-    await userDao.insertUser(user);
+    await userDao.registerUser(user);
 
     final allUsers = await userDao.getAllUsers;
     print(allUsers);

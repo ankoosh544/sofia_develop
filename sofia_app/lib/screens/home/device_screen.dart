@@ -149,12 +149,7 @@ class DeviceScreen extends StatelessWidget {
                 .map(
                   (c) => CharacteristicTile(
                     characteristic: c,
-                    onReadPressed: () async {
-                      final list = await c.read();
-                      list.forEach((element) {
-                        print(element);
-                      });
-                    },
+                    onReadPressed: () => c.read(),
                     onWritePressed: () async {
                       await c.write(_getRandomBytes(), withoutResponse: true);
                       await c.read();

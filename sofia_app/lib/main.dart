@@ -1,50 +1,44 @@
-// Copyright 2017, Paul DeMarco.
-// All rights reserved. Use of this source code is governed by a
-// BSD-style license that can be found in the LICENSE file.
-
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:sofia_app/dao/user_dao.dart';
-import 'package:sofia_app/databases/database.dart';
-import 'package:sofia_app/providers/ble_provider.dart';
-
-import 'package:sofia_app/screens/registration/registration_screen.dart';
+import 'package:sofia_app/databases/app_database.dart';
 import 'package:sofia_app/providers/auth_provider.dart';
+import 'package:sofia_app/providers/ble_provider.dart';
+import 'package:sofia_app/screens/login/login_screen.dart';
+import 'package:sofia_app/screens/registration/registration_screen.dart';
+import 'screens/home/home_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
-import 'screens/home/home_screen.dart';
-import 'screens/login/login_screen.dart';
 
 void main() async {
   if (Platform.isAndroid) {
     WidgetsFlutterBinding.ensureInitialized();
-    await [
+    final database =
+        await $FloorAppDatabase.databaseBuilder('app.database.db').build();
+    final userDao = database.userDao;
+    [
       Permission.location,
       Permission.storage,
       Permission.bluetooth,
       Permission.bluetoothConnect,
       Permission.bluetoothScan
-    ].request();
+    ].request().then((status) {
+      runApp(
+        MultiProvider(
+          providers: [
+            Provider<AppDatabase>.value(value: database),
+            Provider<UserDao>.value(value: userDao),
+            ChangeNotifierProvider(create: (_) => AuthProvider()),
+          ],
+          child: const SofiaApp(),
+        ),
+      );
+    });
+  } else {
+    runApp(const SofiaApp());
   }
-
-  final database =
-      await $FloorAppDatabase.databaseBuilder('database.db').build();
-  final userDao = database.userDao;
-
-  runApp(
-    MultiProvider(
-      providers: [
-        Provider<AppDatabase>.value(value: database),
-        Provider<UserDao>.value(value: userDao),
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-      ],
-      child: const SofiaApp(),
-    ),
-  );
 }
 
 class SofiaApp extends StatefulWidget {
@@ -88,33 +82,16 @@ class _SofiaAppState extends State<SofiaApp> {
       ],
       locale: _locale,
       routes: {
-        // '/': (context) => Consumer2<UserDao, AuthProvider>(
-        //   builder: (context, userDao, authProvider, _) => ChangeNotifierProvider(
-        //     create: (_) => BleProvider()
-        //       ..initialScan()
-        //       ..periodicScan(),
-        //     child: LoginScreen(userDao: userDao, authProvider: authProvider),
-        //   ),
-        // ),
-        '/': (context) => Consumer2<UserDao, AuthProvider>(
-              builder: (context, userDao, authProvider, _) =>
-                  LoginScreen(userDao: userDao, authProvider: authProvider),
+        '/': (context) => Consumer<AuthProvider>(
+              builder: (context, authProvider, _) =>
+                  LoginScreen(authProvider: authProvider),
             ),
         '/register': (context) => Consumer<UserDao>(
-              builder: (context, userDao, _) =>
-                  RegistrationScreen(userDao: userDao),
+              builder: (context, userDao, _) => RegistrationScreen(),
             ),
-        // '/home': (context) => Consumer2<UserDao, AuthProvider>(
-        //   builder: (context, userDao, authProvider, _) => ChangeNotifierProvider(
-        //     create: (_) => BleProvider()
-        //       ..initialScan()
-        //       ..periodicScan(),
-        //     child: HomeScreen(userDao: userDao, authProvider: authProvider),
-        //   ),
-        // ),
         '/home': (context) => ChangeNotifierProvider(
               create: (_) => BleProvider()
-                ..initialScan()
+                //..initialScan()
                 ..periodicScan(),
               child: Consumer2<UserDao, AuthProvider>(
                 builder: (context, userDao, authProvider, _) =>
@@ -122,6 +99,15 @@ class _SofiaAppState extends State<SofiaApp> {
               ),
             ),
       },
+      // home: ChangeNotifierProvider(
+      //   create: (_) => BleProvider()
+      //     //..initialScan()
+      //     ..periodicScan(),
+      //   child: Consumer2<UserDao, AuthProvider>(
+      //     builder: (context, userDao, authProvider, _) =>
+      //         HomeScreen(userDao: userDao, authProvider: authProvider),
+      //   ),
+      // ),
     );
   }
 }

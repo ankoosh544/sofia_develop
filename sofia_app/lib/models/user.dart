@@ -14,20 +14,9 @@ class User {
   @ColumnInfo(name: 'password')
   final String password;
 
-  @ColumnInfo(name: 'Visual')
-  final bool isVisual = false;
+  @ColumnInfo(name: 'rememberMe')
+  final bool rememberMe;
 
-  @ColumnInfo(name: 'Audio')
-  final bool isAudio = false;
-
-  @ColumnInfo(name: 'Screen touch')
-  final bool isScreenTouch = false;
-
-  @ColumnInfo(name: 'President')
-  final bool isPresident = false;
-
-  @ColumnInfo(name: 'Disable People')
-  final bool isDisablePeople = false;
-
-  User(this.id, this.email, this.username, this.password);
+  User(this.id, this.email, this.username, this.password,
+      this.rememberMe); // Generated constructor
 }

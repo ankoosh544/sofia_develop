@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'database.dart';
+part of 'app_database.dart';
 
 // **************************************************************************
 // FloorGenerator
@@ -85,7 +85,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `User` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `email` TEXT NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `User` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `email` TEXT NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL, `rememberMe` INTEGER NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -111,7 +111,8 @@ class _$UserDao extends UserDao {
                   'id': item.id,
                   'email': item.email,
                   'username': item.username,
-                  'password': item.password
+                  'password': item.password,
+                  'rememberMe': item.rememberMe ? 1 : 0
                 }),
         _userUpdateAdapter = UpdateAdapter(
             database,
@@ -121,7 +122,8 @@ class _$UserDao extends UserDao {
                   'id': item.id,
                   'email': item.email,
                   'username': item.username,
-                  'password': item.password
+                  'password': item.password,
+                  'rememberMe': item.rememberMe ? 1 : 0
                 }),
         _userDeletionAdapter = DeletionAdapter(
             database,
@@ -131,7 +133,8 @@ class _$UserDao extends UserDao {
                   'id': item.id,
                   'email': item.email,
                   'username': item.username,
-                  'password': item.password
+                  'password': item.password,
+                  'rememberMe': item.rememberMe ? 1 : 0
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -153,7 +156,8 @@ class _$UserDao extends UserDao {
             row['id'] as int?,
             row['email'] as String,
             row['username'] as String,
-            row['password'] as String));
+            row['password'] as String,
+            (row['rememberMe'] as int) != 0));
   }
 
   @override
@@ -163,7 +167,8 @@ class _$UserDao extends UserDao {
             row['id'] as int?,
             row['email'] as String,
             row['username'] as String,
-            row['password'] as String),
+            row['password'] as String,
+            (row['rememberMe'] as int) != 0),
         arguments: [id]);
   }
 
@@ -174,12 +179,13 @@ class _$UserDao extends UserDao {
             row['id'] as int?,
             row['email'] as String,
             row['username'] as String,
-            row['password'] as String),
+            row['password'] as String,
+            (row['rememberMe'] as int) != 0),
         arguments: [username]);
   }
 
   @override
-  Future<void> insertUser(User user) async {
+  Future<void> registerUser(User user) async {
     await _userInsertionAdapter.insert(user, OnConflictStrategy.abort);
   }
 

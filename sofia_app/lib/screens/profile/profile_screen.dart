@@ -68,7 +68,6 @@ class ProfileScreen extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                             builder: (context) => LoginScreen(
-                                  userDao: userDao,
                                   authProvider: authProvider,
                                 )),
                         (route) => false,
