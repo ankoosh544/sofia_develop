@@ -8,6 +8,7 @@ class ProfileProvider extends ChangeNotifier {
   UserDao _userDao;
   AuthProvider _authProvider;
   bool _isDataLoaded = false;
+  String? userName;
 
   ProfileProvider(this._userDao, this._authProvider) {
     loadUserData();
@@ -19,7 +20,8 @@ class ProfileProvider extends ChangeNotifier {
     final loggedUsername = _authProvider.loggedInUsername;
 
     if (loggedUsername != null) {
-      user = await _userDao.getUserByUsername(loggedUsername);
+      userName = loggedUsername;
+      //user = await _userDao.getUserByUsername(loggedUsername);
       print("*****************===Profile=====$user");
     }
 

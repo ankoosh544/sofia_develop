@@ -16,9 +16,6 @@ class LoginScreen extends StatelessWidget {
         ChangeNotifierProvider<LoginProvider>(
           create: (_) => LoginProvider(),
         ),
-        ChangeNotifierProvider<AuthProvider>(
-          create: (_) => AuthProvider(),
-        ),
       ],
       child: Scaffold(
         appBar: AppBar(

@@ -93,7 +93,7 @@ class BleProvider extends ChangeNotifier {
 
   void periodicScan() => _subscription =
       Stream.periodic(const Duration(milliseconds: periodicDuration), (_) => _)
-          .listen((_) => startScan());
+          .listen((_) => initialScan());
 
   void startScan() {
     if (bluetoothState == BluetoothAdapterState.on) {
@@ -160,7 +160,7 @@ class BleProvider extends ChangeNotifier {
 
   void _getBluetoothState() => _ble.adapterState.listen((event) {
         if (event == BluetoothAdapterState.on) {
-          startScan();
+          initialScan();
         } else {
           stopScan();
         }

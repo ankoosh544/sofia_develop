@@ -16,8 +16,9 @@ void main() async {
   if (Platform.isAndroid) {
     WidgetsFlutterBinding.ensureInitialized();
     final database =
-        await $FloorAppDatabase.databaseBuilder('app.database.db').build();
+        await $FloorAppDatabase.databaseBuilder('app_database.db').build();
     final userDao = database.userDao;
+    final authProvider = AuthProvider();
     [
       Permission.location,
       Permission.storage,
@@ -30,7 +31,7 @@ void main() async {
           providers: [
             Provider<AppDatabase>.value(value: database),
             Provider<UserDao>.value(value: userDao),
-            ChangeNotifierProvider(create: (_) => AuthProvider()),
+            ChangeNotifierProvider(create: (_) => authProvider),
           ],
           child: const SofiaApp(),
         ),
@@ -90,24 +91,13 @@ class _SofiaAppState extends State<SofiaApp> {
               builder: (context, userDao, _) => RegistrationScreen(),
             ),
         '/home': (context) => ChangeNotifierProvider(
-              create: (_) => BleProvider()
-                //..initialScan()
-                ..periodicScan(),
+              create: (_) => BleProvider()..periodicScan(),
               child: Consumer2<UserDao, AuthProvider>(
                 builder: (context, userDao, authProvider, _) =>
                     HomeScreen(userDao: userDao, authProvider: authProvider),
               ),
             ),
       },
-      // home: ChangeNotifierProvider(
-      //   create: (_) => BleProvider()
-      //     //..initialScan()
-      //     ..periodicScan(),
-      //   child: Consumer2<UserDao, AuthProvider>(
-      //     builder: (context, userDao, authProvider, _) =>
-      //         HomeScreen(userDao: userDao, authProvider: authProvider),
-      //   ),
-      // ),
     );
   }
 }

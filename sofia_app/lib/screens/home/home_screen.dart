@@ -62,7 +62,7 @@ class HomeScreen extends StatelessWidget {
                 child: SettingsScreen(),
               ),
               ChangeNotifierProvider(
-                create: (_) => ProfileProvider(userDao, AuthProvider()),
+                create: (_) => ProfileProvider(userDao, authProvider),
                 child: ProfileScreen(),
               ),
               if (showTestingMenu) const TestingScreen(),

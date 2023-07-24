@@ -9,7 +9,7 @@ import 'package:sofia_app/models/user.dart';
       childColumns: ['userId'],
       parentColumns: ['id'],
       entity: User,
-      // onDelete: ForeignKeyAction.CASCADE,
+      onDelete: ForeignKeyAction.cascade,
     ),
   ],
 )
