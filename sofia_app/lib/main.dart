@@ -83,14 +83,15 @@ class _SofiaAppState extends State<SofiaApp> {
       ],
       locale: _locale,
       routes: {
-        '/': (context) => Consumer<AuthProvider>(
+        '/login': (context) => Consumer<AuthProvider>(
               builder: (context, authProvider, _) =>
                   LoginScreen(authProvider: authProvider),
             ),
         '/register': (context) => Consumer<UserDao>(
               builder: (context, userDao, _) => RegistrationScreen(),
             ),
-        '/home': (context) => ChangeNotifierProvider(
+        '/': (context) => ChangeNotifierProvider(
+              // '/home'
               create: (_) => BleProvider()..periodicScan(),
               child: Consumer2<UserDao, AuthProvider>(
                 builder: (context, userDao, authProvider, _) =>

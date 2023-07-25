@@ -9,7 +9,6 @@ import 'package:rxdart/rxdart.dart';
 import '../configs/index.dart';
 
 class BleProvider extends ChangeNotifier {
-  final _ble = FlutterBluePlus.instance;
   final _scanResult = BehaviorSubject<List<ScanResult>>.seeded([]);
   Stream<List<ScanResult>> get scanResult => _scanResult.stream;
   StreamSubscription? _subscription;
@@ -35,24 +34,12 @@ class BleProvider extends ChangeNotifier {
     _getScanResults();
 
     _scanResult.listen((scanResults) async {
-      //bool shouldConnect = false;
       if (scanResults.isNotEmpty) {
         final nearestDevice = scanResults
             .reduce((curr, next) => curr.rssi > next.rssi ? curr : next);
 
-        final connectedDevices = await _ble.connectedDevices;
-        // for(var device in connectedDevices){
-        //   if(device.id.id.toString() == nearestDevice.device.id.toString()){
-        //
-        //   } else {
-        //     device.disconnect();
-        //   }
-        // }
-        // final bleConnected = connectedDevices.firstWhere((device) =>
-        //     device.id.id.toString() == nearestDevice.device.id.toString());
-        // if (connectedDevices.contains(nearestDevice.device.id))
+        final connectedDevices = await FlutterBluePlus.connectedDevices;
         final event = await nearestDevice.device.connectionState.first;
-        // nearestDevice.device.state.listen((event) {
         if (event != BluetoothConnectionState.connected) {
           nearestDevice.device.connect();
           _getConnectedDevice(nearestDevice.device);
@@ -60,9 +47,6 @@ class BleProvider extends ChangeNotifier {
         } else {
           log('Device already connected..............');
         }
-        //});
-
-        //test();
       }
     });
     //test();
@@ -86,7 +70,7 @@ class BleProvider extends ChangeNotifier {
   }
 
   void initialScan() {
-    if (!_ble.isScanningNow) {
+    if (!FlutterBluePlus.isScanningNow) {
       startScan();
     }
   }
@@ -98,7 +82,7 @@ class BleProvider extends ChangeNotifier {
   void startScan() {
     if (bluetoothState == BluetoothAdapterState.on) {
       setIsScanning(true);
-      _ble.startScan(
+      FlutterBluePlus.startScan(
         withServices: isServiceGuid ? serviceGuids : [],
         timeout: const Duration(milliseconds: timeoutDuration),
       );
@@ -107,7 +91,7 @@ class BleProvider extends ChangeNotifier {
   }
 
   void stopScan() {
-    _ble.stopScan();
+    FlutterBluePlus.stopScan();
     clearSubscription();
     _refresh();
   }
@@ -121,17 +105,13 @@ class BleProvider extends ChangeNotifier {
   void setIsScanning(bool value) => _isScanning.add(value);
 
   void _getScanResults() {
-    _ble.scanResults.listen((results) => _scanResult
+    FlutterBluePlus.scanResults.listen((results) => _scanResult
         .add([results, _scanResult.value].expand((x) => x).toSet().toList()));
   }
 
   void _getConnectedDevice([BluetoothDevice? device]) async {
     if (device == null) return;
-
     _connectedDevice.value.clear();
-
-    log('DD: ${device.toString()}');
-
     _connectedDevice.add([device]);
   }
 
@@ -158,7 +138,7 @@ class BleProvider extends ChangeNotifier {
     super.dispose();
   }
 
-  void _getBluetoothState() => _ble.adapterState.listen((event) {
+  void _getBluetoothState() => FlutterBluePlus.adapterState.listen((event) {
         if (event == BluetoothAdapterState.on) {
           initialScan();
         } else {
