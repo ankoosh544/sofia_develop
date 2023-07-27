@@ -8,4 +8,4 @@ final List<Guid> serviceGuids = [
   Guid('4fafc201-1fb5-459e-8fcc-c5c9c331914b'), // ESP32
 ];
 const periodicDuration = 3000; //milliseconds
-const timeoutDuration = 1500; //milliseconds
+const timeoutDuration = 120; //seconds

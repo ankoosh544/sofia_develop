@@ -35,21 +35,29 @@ class BleProvider extends ChangeNotifier {
 
     _scanResult.listen((scanResults) async {
       if (scanResults.isNotEmpty) {
-        final nearestDevice = scanResults
-            .reduce((curr, next) => curr.rssi > next.rssi ? curr : next);
+        final nearestDevice = scanResults.reduce(
+            (current, next) => current.rssi > next.rssi ? current : next);
 
-        final connectedDevices = await FlutterBluePlus.connectedDevices;
-        final event = await nearestDevice.device.connectionState.first;
-        if (event != BluetoothConnectionState.connected) {
+        final connectionState =
+            await nearestDevice.device.connectionState.first;
+        if (connectionState != BluetoothConnectionState.connected) {
           nearestDevice.device.connect();
           _getConnectedDevice(nearestDevice.device);
-          log('Scanned Device connected $connectedDevices ->> ${nearestDevice.toString()}');
+          log('Scanned Device connected ->> ${nearestDevice.toString()}');
         } else {
           log('Device already connected..............');
         }
       }
     });
     //test();
+  }
+
+  void _getScanResults() {
+    //FlutterBluePlus.scanResults.listen((results) => _scanResult
+    //   .add([results, _scanResult.value].expand((x) => x).toSet().toList()));
+    FlutterBluePlus.scanResults.listen((event) {
+      _scanResult.add(event);
+    });
   }
 
   Future test() async {
@@ -69,25 +77,18 @@ class BleProvider extends ChangeNotifier {
     });
   }
 
-  void initialScan() {
-    if (!FlutterBluePlus.isScanningNow) {
-      startScan();
-    }
-  }
+  // void periodicScan() => _subscription =
+  //     Stream.periodic(const Duration(milliseconds: periodicDuration), (_) => _)
+  //         .listen((_) => initialScan());
 
-  void periodicScan() => _subscription =
-      Stream.periodic(const Duration(milliseconds: periodicDuration), (_) => _)
-          .listen((_) => initialScan());
-
-  void startScan() {
-    if (bluetoothState == BluetoothAdapterState.on) {
-      setIsScanning(true);
+  void startScanning() {
+    if (FlutterBluePlus.isScanningNow == false) {
       FlutterBluePlus.startScan(
         withServices: isServiceGuid ? serviceGuids : [],
-        timeout: const Duration(milliseconds: timeoutDuration),
+        timeout: const Duration(days: timeoutDuration),
+        androidUsesFineLocation: false,
       );
     }
-    _getConnectedDevice();
   }
 
   void stopScan() {
@@ -103,11 +104,6 @@ class BleProvider extends ChangeNotifier {
   }
 
   void setIsScanning(bool value) => _isScanning.add(value);
-
-  void _getScanResults() {
-    FlutterBluePlus.scanResults.listen((results) => _scanResult
-        .add([results, _scanResult.value].expand((x) => x).toSet().toList()));
-  }
 
   void _getConnectedDevice([BluetoothDevice? device]) async {
     if (device == null) return;
@@ -140,7 +136,7 @@ class BleProvider extends ChangeNotifier {
 
   void _getBluetoothState() => FlutterBluePlus.adapterState.listen((event) {
         if (event == BluetoothAdapterState.on) {
-          initialScan();
+          startScanning();
         } else {
           stopScan();
         }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:sofia_app/dao/user_dao.dart';
 import 'package:sofia_app/providers/auth_provider.dart';
@@ -69,35 +70,27 @@ class HomeScreen extends StatelessWidget {
             ],
           ),
           floatingActionButton: StreamBuilder<bool>(
-            stream: context.read<BleProvider>().isScanningStream,
-            initialData: context.read<BleProvider>().isScanning,
+            stream: FlutterBluePlus.isScanning,
+            initialData: false,
             builder: (c, snapshot) {
-              if (snapshot.data!) {
-                return FloatingActionButton.extended(
-                  onPressed: () => context.read<BleProvider>().stopScan(),
-                  label: Text(
-                    stop,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  icon: const Icon(
-                    Icons.stop_circle_outlined,
-                    color: Colors.redAccent,
-                  ),
+              if (snapshot.data ?? false) {
+                return FloatingActionButton(
+                  child: const Icon(Icons.stop),
+                  onPressed: () async {
+                    try {
+                      FlutterBluePlus.stopScan();
+                    } catch (e) {}
+                  },
+                  backgroundColor: Colors.red,
                 );
               } else {
-                return FloatingActionButton.extended(
-                  onPressed: () => context.read<BleProvider>()
-                    //..initialScan()
-                    ..periodicScan(),
-                  label: Text(
-                    scan,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  icon: const Icon(
-                    Icons.search_outlined,
-                    color: Colors.blueAccent,
-                  ),
-                );
+                return FloatingActionButton(
+                    child: const Icon(Icons.search),
+                    onPressed: () async {
+                      try {
+                        context.read<BleProvider>().startScanning();
+                      } catch (e) {}
+                    });
               }
             },
           ),

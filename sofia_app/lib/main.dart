@@ -92,7 +92,7 @@ class _SofiaAppState extends State<SofiaApp> {
             ),
         '/': (context) => ChangeNotifierProvider(
               // '/home'
-              create: (_) => BleProvider()..periodicScan(),
+              create: (_) => BleProvider(),
               child: Consumer2<UserDao, AuthProvider>(
                 builder: (context, userDao, authProvider, _) =>
                     HomeScreen(userDao: userDao, authProvider: authProvider),
