@@ -258,10 +258,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_blue_plus
-      sha256: fe6beff71f5e06510e480806ab16805514dc02736c6235f3296cfcd5726c4c41
+      sha256: f39ffb13fb44d563c8915ad1a8d6de37a03e9468a976f896c62005956f333db9
       url: "https://pub.dev"
     source: hosted
-    version: "1.12.6"
+    version: "1.12.7"
   flutter_lints:
     dependency: "direct dev"
     description:
