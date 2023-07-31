@@ -16,8 +16,7 @@ class BleProvider extends ChangeNotifier {
   final _connectedDevice = BehaviorSubject<List<BluetoothDevice>>.seeded([]);
   Stream<List<BluetoothDevice>> get connectedDeviceStream =>
       _connectedDevice.stream;
-  BluetoothDevice? get connectedDevice =>
-      _connectedDevice.value.isEmpty ? null : _connectedDevice.value.first;
+  //BluetoothDevice? connectedDevice;
 
   final _bluetoothState = BehaviorSubject<BluetoothAdapterState>.seeded(
       BluetoothAdapterState.unknown);
@@ -28,28 +27,65 @@ class BleProvider extends ChangeNotifier {
   final _isScanning = BehaviorSubject<bool>.seeded(false);
   Stream<bool> get isScanningStream => _isScanning.stream;
   bool get isScanning => _isScanning.value;
+  late BluetoothDevice connectedDevice;
 
   BleProvider() {
     _getBluetoothState();
     _getScanResults();
 
-    _scanResult.listen((scanResults) async {
+    // Modify the original code
+    scanResult.listen((scanResults) async {
       if (scanResults.isNotEmpty) {
         final nearestDevice = scanResults.reduce(
             (current, next) => current.rssi > next.rssi ? current : next);
+        //if (nearestDevice.device.remoteId.str !=
+        //    connectedDevice?.remoteId.str) {
+        //  await connectedDevice?.disconnect();
+        // }
+        connectedDevice = nearestDevice.device;
+
+        // connectedDevices.add(nearestDevice.device);
 
         final connectionState =
             await nearestDevice.device.connectionState.first;
-        if (connectionState != BluetoothConnectionState.connected) {
-          nearestDevice.device.connect();
-          _getConnectedDevice(nearestDevice.device);
-          log('Scanned Device connected ->> ${nearestDevice.toString()}');
-        } else {
-          log('Device already connected..............');
+        switch (connectionState) {
+          case BluetoothConnectionState.disconnected:
+          case BluetoothConnectionState.connecting:
+          case BluetoothConnectionState.disconnecting:
+            await nearestDevice.device.connect();
+            _getConnectedDevice(nearestDevice.device);
+            log('Scanned Device connected ->> ${nearestDevice.toString()}');
+            final connectedDevices =
+                await FlutterBluePlus.connectedSystemDevices;
+            for (var element in connectedDevices) {
+              if (nearestDevice.device.remoteId.str != element.remoteId.str) {
+                await element.disconnect();
+              }
+            }
+            break;
+          case BluetoothConnectionState.connected:
+            log('Device already connected.............. ${nearestDevice.device.remoteId.str}');
+            break;
         }
+        //test();
       }
     });
-    //test();
+  }
+
+  // Function to disconnect from a device
+  Future<void> _disconnectDevice(BluetoothDevice device) async {
+    if (device != null &&
+        device.connectionState == BluetoothConnectionState.connected) {
+      await device.disconnect();
+    }
+  }
+
+// Function to remove all connected devices from the list
+  Future<void> _removeAllConnectedDevices() async {
+    final connectedDevices = await FlutterBluePlus.connectedSystemDevices;
+    for (var device in connectedDevices) {
+      await _disconnectDevice(device);
+    }
   }
 
   void _getScanResults() {
@@ -61,15 +97,17 @@ class BleProvider extends ChangeNotifier {
   }
 
   Future test() async {
-    connectedDevice?.services.listen((event) {
-      if (event.isNotEmpty) {
-        event.forEach((element) {
-          if (element.characteristics.isNotEmpty) {
-            element.characteristics.forEach((data) {
-              data.read();
+    await connectedDevice.discoverServices();
+    connectedDevice.servicesStream.listen((services) {
+      if (services.isNotEmpty) {
+        services.forEach((service) {
+          if (service.characteristics.isNotEmpty) {
+            service.characteristics.forEach((characteristic) {
+              characteristic.read();
               print(
-                  '0x${data.characteristicUuid.toString().toUpperCase().substring(4, 8)}');
-              print('Device Name: ${String.fromCharCodes(data.lastValue)}');
+                  '0x${characteristic.characteristicUuid.toString().toUpperCase().substring(4, 8)}');
+              print(
+                  'Device Name: ${String.fromCharCodes(characteristic.lastValue)}');
             });
           }
         });
@@ -105,8 +143,7 @@ class BleProvider extends ChangeNotifier {
 
   void setIsScanning(bool value) => _isScanning.add(value);
 
-  void _getConnectedDevice([BluetoothDevice? device]) async {
-    if (device == null) return;
+  void _getConnectedDevice(BluetoothDevice device) {
     _connectedDevice.value.clear();
     _connectedDevice.add([device]);
   }

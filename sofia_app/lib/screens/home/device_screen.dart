@@ -14,7 +14,7 @@ class DeviceScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(device.name),
+        title: Text(device.localName),
         actions: <Widget>[
           StreamBuilder<BluetoothConnectionState>(
             stream: device.connectionState,
@@ -77,7 +77,7 @@ class DeviceScreen extends StatelessWidget {
                 ),
                 title: Text(
                     'Device is ${snapshot.data.toString().split('.')[1]}.'),
-                subtitle: Text('${device.id}'),
+                subtitle: Text('${device.remoteId}'),
                 trailing: StreamBuilder<bool>(
                   stream: device.isDiscoveringServices,
                   initialData: false,
@@ -116,7 +116,7 @@ class DeviceScreen extends StatelessWidget {
               ),
             ),
             StreamBuilder<List<BluetoothService>>(
-              stream: device.services,
+              stream: device.servicesStream,
               initialData: const [],
               builder: (c, snapshot) {
                 return Column(
