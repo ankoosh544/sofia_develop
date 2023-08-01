@@ -67,7 +67,7 @@ class BleProvider extends ChangeNotifier {
             log('Device already connected.............. ${nearestDevice.device.remoteId.str}');
             break;
         }
-        //test();
+        test();
       }
     });
   }
@@ -106,8 +106,10 @@ class BleProvider extends ChangeNotifier {
               characteristic.read();
               print(
                   '0x${characteristic.characteristicUuid.toString().toUpperCase().substring(4, 8)}');
-              print(
-                  'Device Name: ${String.fromCharCodes(characteristic.lastValue)}');
+
+              characteristic.onValueReceived.listen((event) {
+                print('Device Name: ${String.fromCharCodes(event)}');
+              });
             });
           }
         });
