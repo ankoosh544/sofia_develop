@@ -6,6 +6,7 @@ import 'package:sofia_app/dao/user_dao.dart';
 import 'package:sofia_app/databases/app_database.dart';
 import 'package:sofia_app/providers/auth_provider.dart';
 import 'package:sofia_app/providers/ble_provider.dart';
+import 'package:sofia_app/screens/car_status/car_status_screen.dart';
 import 'package:sofia_app/screens/login/login_screen.dart';
 import 'package:sofia_app/screens/registration/registration_screen.dart';
 import 'screens/home/home_screen.dart';
@@ -98,6 +99,7 @@ class _SofiaAppState extends State<SofiaApp> {
                     HomeScreen(userDao: userDao, authProvider: authProvider),
               ),
             ),
+        '/status': (context) => CarStatusScreen(),
       },
     );
   }
