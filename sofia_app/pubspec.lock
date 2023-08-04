@@ -254,14 +254,22 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_animate:
+    dependency: "direct main"
+    description:
+      name: flutter_animate
+      sha256: "62f346340a96192070e31e3f2a1bd30a28530f1fe8be978821e06cd56b74d6d2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.2.0+1"
   flutter_blue_plus:
     dependency: "direct main"
     description:
       name: flutter_blue_plus
-      sha256: "3798f17b0f2f13ac7a0b592d8711de50cdc7582e6ed87a2442dd64550488c439"
+      sha256: "810351799eaf51c08152737615c345e9eb83e13b20adcd91ec0c78cd59dc260d"
       url: "https://pub.dev"
     source: hosted
-    version: "1.12.10"
+    version: "1.12.13"
   flutter_lints:
     dependency: "direct dev"
     description:
