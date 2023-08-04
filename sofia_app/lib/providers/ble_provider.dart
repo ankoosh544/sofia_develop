@@ -41,22 +41,24 @@ class BleProvider extends ChangeNotifier {
                 (current, next) => current.rssi > next.rssi ? current : next)
             .device;
 
-        final connectionState = await nearestDevice.connectionState.first;
-        switch (connectionState) {
-          case BluetoothConnectionState.disconnected:
-          case BluetoothConnectionState.connecting:
-          case BluetoothConnectionState.disconnecting:
-            await nearestDevice.connect();
-            log('Device connected ----------->>  ${nearestDevice.remoteId.str}');
-            break;
-          case BluetoothConnectionState.connected:
-            log('Device already connected-------->> ${nearestDevice.remoteId.str}');
-            break;
-        }
+        // final connectionState = await nearestDevice.connectionState.first;
+        // switch (connectionState) {
+        //   case BluetoothConnectionState.disconnected:
+        //   case BluetoothConnectionState.connecting:
+        //   case BluetoothConnectionState.disconnecting:
+        //   //log('Device connected ----------->>  ${nearestDevice.remoteId.str}');
+        //   // break;
+        //   case BluetoothConnectionState.connected:
+        //     await nearestDevice.connect();
+        //     log('Device already connected-------->> ${nearestDevice.remoteId.str}');
+        //     break;
+        // }
+        await nearestDevice.connect();
+        log('Device connected ----------->>  ${nearestDevice.remoteId.str}');
         await nearestDevice.discoverServices();
         removedAllConnectedDevice();
-        readCharacteristic();
       }
+      await readCharacteristic();
     });
   }
 
@@ -93,38 +95,43 @@ class BleProvider extends ChangeNotifier {
     });
   }
 
-  Future readCharacteristic() async {
-    nearestDevice.servicesStream.listen((services) async {
-      if (services.isNotEmpty) {
-        for (var service in services) {
-          if (service.characteristics.isNotEmpty) {
-            for (var characteristic in service.characteristics) {
-              if (characteristic.properties.read) {
-                if (characteristic.characteristicUuid
-                        .toString()
-                        .toUpperCase()
-                        .substring(4, 8) ==
-                    '2A00') {
-                  await characteristic.read();
-                  print(
-                      'PSK last value: ${String.fromCharCodes(characteristic.lastValue)}');
+  Future<void> readCharacteristic() async {
+    try {
+      final connectionState = await nearestDevice.connectionState.first;
+      if (connectionState == BluetoothConnectionState.connected) {
+        nearestDevice.servicesStream.listen((services) async {
+          if (services.isNotEmpty) {
+            for (var service in services) {
+              if (service.characteristics.isNotEmpty) {
+                for (var characteristic in service.characteristics) {
+                  if (characteristic.properties.read) {
+                    if (characteristic.characteristicUuid
+                            .toString()
+                            .toUpperCase()
+                            .substring(4, 8) ==
+                        '2A00') {
+                      final data = await characteristic.read();
+                      print('PSK last value: ${String.fromCharCodes(data)}');
 
-                  final myDevice = BluetoothDevice.fromId(
-                    nearestDevice.remoteId.str,
-                    localName: String.fromCharCodes(characteristic.lastValue),
-                    type: nearestDevice.type,
-                  );
-                  print(myDevice.toString());
-                  if (!_connectedDevice.value.contains(myDevice)) {
-                    _getConnectedDevice(myDevice);
+                      final myDevice = BluetoothDevice.fromId(
+                        nearestDevice.remoteId.str,
+                        localName:
+                            String.fromCharCodes(characteristic.lastValue),
+                        type: nearestDevice.type,
+                      );
+                      print(myDevice.toString());
+                      setConnectedDevice(myDevice);
+                    }
                   }
                 }
               }
             }
           }
-        }
+        });
       }
-    });
+    } catch (e) {
+      log(e.toString());
+    }
   }
 
   // void periodicScan() => _subscription =
@@ -155,9 +162,13 @@ class BleProvider extends ChangeNotifier {
 
   void setIsScanning(bool value) => _isScanning.add(value);
 
-  void _getConnectedDevice(BluetoothDevice device) {
+  void setConnectedDevice(BluetoothDevice device) {
     _connectedDevice.value.clear();
     _connectedDevice.add([device]);
+  }
+
+  void clearConnectedDevice() {
+    _connectedDevice.value.clear();
   }
 
   void clearSubscription() {

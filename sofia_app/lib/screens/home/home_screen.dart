@@ -47,7 +47,7 @@ class HomeScreen extends StatelessWidget {
                   const Icon(Icons.account_circle_rounded),
                   titles[2],
                 ),
-                if (showTestingMenu)
+                if (isTestingMode)
                   _buildTab(
                     const Icon(Icons.account_tree),
                     titles[3],
@@ -66,7 +66,7 @@ class HomeScreen extends StatelessWidget {
                 create: (_) => ProfileProvider(userDao, authProvider),
                 child: ProfileScreen(),
               ),
-              if (showTestingMenu) const TestingScreen(),
+              if (isTestingMode) const TestingScreen(),
             ],
           ),
           floatingActionButton: StreamBuilder<bool>(

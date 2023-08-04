@@ -108,7 +108,7 @@ class RegistrationProvider with ChangeNotifier {
   }
 
   bool _isValidEmail(String email) {
-    final emailRegex = r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$';
+    const emailRegex = r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$';
     final regex = RegExp(emailRegex);
     return regex.hasMatch(email);
   }
