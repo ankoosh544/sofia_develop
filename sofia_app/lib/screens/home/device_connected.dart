@@ -12,18 +12,6 @@ import 'device_screen.dart';
 class DeviceConnected extends StatelessWidget {
   const DeviceConnected({super.key});
 
-  int getFloorNumber(String inputString) {
-    final RegExp regex = RegExp(r'\d+');
-    final Match? match = regex.firstMatch(inputString);
-    if (match != null) {
-      final String numberAsString = match.group(0)!;
-      return int.parse(numberAsString);
-    }
-
-    // Return a default value (e.g., 0) if no numeric portion is found in the string.
-    return 0;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,7 +28,7 @@ class DeviceConnected extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              welcomeMessage,
+              '$welcomeMessage ${context.watch<ProfileProvider>().username}',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(
@@ -87,9 +75,14 @@ class DeviceConnected extends StatelessWidget {
                               Animate(
                                 effects: const [FadeEffect(), ScaleEffect()],
                                 child: Text(
-                                  getFloorNumber(device.localName).toString(),
+                                  context
+                                      .read<BleProvider>()
+                                      .getFloorNumber(device.localName)
+                                      .toString(),
                                   style: const TextStyle(
-                                      fontSize: 38, color: Colors.white),
+                                    fontSize: 38,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               )
                             ],
@@ -153,9 +146,11 @@ class DeviceConnected extends StatelessWidget {
                   return Column(
                     children: snapshot.data!.map((device) {
                       log('Psk : ${device.toString()}');
-                      int floor_number = getFloorNumber(device.localName);
+                      int floorNumber = context
+                          .read<BleProvider>()
+                          .getFloorNumber(device.localName);
                       return ListTile(
-                        title: Text(floor_number.toString()),
+                        title: Text(floorNumber.toString()),
                         subtitle: Text(device.remoteId.toString()),
                         trailing: StreamBuilder<BluetoothConnectionState>(
                           stream: device.connectionState,

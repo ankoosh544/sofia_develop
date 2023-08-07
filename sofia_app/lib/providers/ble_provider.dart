@@ -215,4 +215,16 @@ class BleProvider extends ChangeNotifier {
     subscription.cancel();
     // Device disconnected, stopping RSSI stream
   }
+
+  int getFloorNumber(String inputString) {
+    final RegExp regex = RegExp(r'\d+');
+    final Match? match = regex.firstMatch(inputString);
+    if (match != null) {
+      final String numberAsString = match.group(0)!;
+      return int.parse(numberAsString);
+    }
+
+    // Return a default value (e.g., 0) if no numeric portion is found in the string.
+    return 0;
+  }
 }

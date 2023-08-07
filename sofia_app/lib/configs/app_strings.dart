@@ -19,7 +19,7 @@ const String hiThere = 'Hi There';
 const String scan = 'Scan';
 const String stop = 'Stop';
 
-const String welcomeMessage = 'Welcome {User}';
+const String welcomeMessage = 'Welcome';
 const String greetingMessage =
     'Happy to see you again, Please enter destination floor.';
 const String sourceFrom = 'From';

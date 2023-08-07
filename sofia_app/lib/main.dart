@@ -2,45 +2,37 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import 'package:sofia_app/dao/user_dao.dart';
-import 'package:sofia_app/databases/app_database.dart';
-import 'package:sofia_app/providers/auth_provider.dart';
 import 'package:sofia_app/providers/ble_provider.dart';
+import 'package:sofia_app/providers/registration_provider.dart';
 import 'package:sofia_app/screens/car_status/car_status_screen.dart';
 import 'package:sofia_app/screens/login/login_screen.dart';
 import 'package:sofia_app/screens/registration/registration_screen.dart';
+import 'database/app_database.dart';
+import 'providers/login_provider.dart';
 import 'screens/home/home_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SofiaDatabase.initDatabase();
   if (Platform.isAndroid) {
-    WidgetsFlutterBinding.ensureInitialized();
-    final database =
-        await $FloorAppDatabase.databaseBuilder('app_database.db').build();
-    final userDao = database.userDao;
-    final authProvider = AuthProvider();
     [
       Permission.location,
       Permission.storage,
       Permission.bluetooth,
       Permission.bluetoothConnect,
-      Permission.bluetoothScan
+      Permission.bluetoothScan,
     ].request().then((status) {
-      runApp(
-        MultiProvider(
-          providers: [
-            Provider<AppDatabase>.value(value: database),
-            Provider<UserDao>.value(value: userDao),
-            ChangeNotifierProvider(create: (_) => authProvider),
-          ],
-          child: const SofiaApp(),
-        ),
-      );
+      _launchApp();
     });
   } else {
-    runApp(const SofiaApp());
+    _launchApp();
   }
+}
+
+void _launchApp() {
+  runApp(const SofiaApp());
 }
 
 class SofiaApp extends StatefulWidget {
@@ -84,23 +76,31 @@ class _SofiaAppState extends State<SofiaApp> {
       ],
       locale: _locale,
       routes: {
-        '/login': (context) => Consumer<AuthProvider>(
-              builder: (context, authProvider, _) =>
-                  LoginScreen(authProvider: authProvider),
-            ),
-        '/register': (context) => Consumer<UserDao>(
-              builder: (context, userDao, _) => RegistrationScreen(),
-            ),
-        '/': (context) => ChangeNotifierProvider(
-              // '/home'
-              create: (_) => BleProvider(),
-              child: Consumer2<UserDao, AuthProvider>(
-                builder: (context, userDao, authProvider, _) =>
-                    HomeScreen(userDao: userDao, authProvider: authProvider),
-              ),
-            ),
-        '/status': (context) => CarStatusScreen(),
+        '/': (context) => launchLoginScreen(),
+        '/register': (context) => launchRegistrationScreen(),
+        '/home': (context) => _launchHomeScreen(),
+        '/car': (context) => _launchCarStatusScreen(),
       },
     );
   }
 }
+
+ChangeNotifierProvider<LoginProvider> launchLoginScreen() =>
+    ChangeNotifierProvider(
+      create: (_) => LoginProvider(),
+      child: const LoginScreen(),
+    );
+
+ChangeNotifierProvider<RegistrationProvider> launchRegistrationScreen() =>
+    ChangeNotifierProvider(
+      create: (_) => RegistrationProvider(),
+      child: const RegistrationScreen(),
+    );
+
+ChangeNotifierProvider<BleProvider> _launchHomeScreen() =>
+    ChangeNotifierProvider(
+      create: (_) => BleProvider(),
+      child: const HomeScreen(),
+    );
+
+CarStatusScreen _launchCarStatusScreen() => const CarStatusScreen();
