@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:sofia_app/databases/app_database.dart';
 
-import 'package:sofia_app/models/user.dart';
+import '../database/app_database.dart';
+import '../database/user/user.dart';
 
 class RegistrationProvider with ChangeNotifier {
   String _email = '';
@@ -33,55 +33,36 @@ class RegistrationProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> registerUser(BuildContext context) async {
-    print("==============$context");
+  Future<bool> registerUser() async {
     // Validate user input
     if (emailError.isNotEmpty ||
         usernameError.isNotEmpty ||
         passwordError.isNotEmpty) {
-      return;
+      return false;
     }
 
     // Create User object
     final user = User(null, _email, _username, _password, false);
 
     // Get the AppDatabase instance
-    final database =
-        await $FloorAppDatabase.databaseBuilder('app_database.db').build();
+    // final database =
+    //   await $FloorAppDatabase.databaseBuilder('app_database.db').build();
 
     // Get the UserDao instance
-    final userDao = database.userDao;
+    // final userDao = database.userDao;
+    final userDao = await SofiaDatabase.userDao;
 
     // Insert the user into the database
     await userDao.registerUser(user);
 
-    final allUsers = await userDao.getAllUsers;
+    final allUsers = await userDao.getAllUsers();
     print(allUsers);
+    print(allUsers.length);
 
-    // Close the database
-    await database.close();
+    // // Close the database
+    // await database.close();
 
-    // Show success dialog
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Registration Successful'),
-        content: Text('Your registration was successful.'),
-        actions: [
-          ElevatedButton(
-            onPressed: () {
-              // Navigate to the login screen
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/',
-                (route) => false,
-              );
-            },
-            child: Text('OK'),
-          ),
-        ],
-      ),
-    );
+    return true;
   }
 
   String _validateEmail(String value) {

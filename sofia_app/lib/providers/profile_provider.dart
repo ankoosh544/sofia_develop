@@ -1,31 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:sofia_app/dao/user_dao.dart';
-import 'package:sofia_app/models/user.dart';
-import 'package:sofia_app/providers/auth_provider.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:sofia_app/database/app_database.dart';
+
+import '../storage/local_store.dart';
 
 class ProfileProvider extends ChangeNotifier {
-  User? user;
-  UserDao _userDao;
-  AuthProvider _authProvider;
-  bool _isDataLoaded = false;
-  String? userName;
+  String? username;
+  String? emailId;
 
-  ProfileProvider(this._userDao, this._authProvider) {
-    loadUserData();
+  Future<void> init() async {
+    final userDao = await SofiaDatabase.userDao;
+    final userId = await LocalStore.getValue(key: 'userId');
+    print('----> $userId');
+    final user = await userDao.getUserById(int.parse(userId ?? '0'));
+    if (user != null) {
+      username = user.username;
+      emailId = user.email;
+    }
+    notifyListeners();
   }
 
-  bool get isDataLoaded => _isDataLoaded;
+  void logout() {
+    // Update the authentication state
+    //_isLoggedIn = false;
+    //_loggedInUsername = null;
+    print('Logout');
 
-  Future<void> loadUserData() async {
-    final loggedUsername = _authProvider.loggedInUsername;
-
-    if (loggedUsername != null) {
-      userName = loggedUsername;
-      //user = await _userDao.getUserByUsername(loggedUsername);
-      print("*****************===Profile=====$user");
-    }
-
-    _isDataLoaded = true;
-    notifyListeners();
+    //notifyListeners();
   }
 }

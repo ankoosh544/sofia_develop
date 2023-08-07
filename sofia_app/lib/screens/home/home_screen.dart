@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:provider/provider.dart';
-import 'package:sofia_app/dao/user_dao.dart';
-import 'package:sofia_app/providers/auth_provider.dart';
 import 'package:sofia_app/providers/ble_provider.dart';
 import 'package:sofia_app/providers/profile_provider.dart';
 import 'package:sofia_app/providers/settings_provider.dart';
@@ -14,89 +12,83 @@ import '../../configs/index.dart';
 import 'device_connected.dart';
 
 class HomeScreen extends StatelessWidget {
-  final UserDao userDao;
-  final AuthProvider authProvider;
-
-  const HomeScreen({required this.userDao, required this.authProvider});
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        Provider<UserDao>(
-          create: (_) => userDao,
-        ),
-      ],
-      child: DefaultTabController(
-        initialIndex: 0,
-        length: tabsCount,
-        child: Scaffold(
-          bottomNavigationBar: Container(
-            color: Colors.white,
-            child: TabBar(
-              tabs: <Widget>[
-                _buildTab(
-                  const Icon(Icons.home_filled),
-                  titles[0],
-                ),
-                _buildTab(
-                  const Icon(Icons.settings),
-                  titles[1],
-                ),
-                _buildTab(
-                  const Icon(Icons.account_circle_rounded),
-                  titles[2],
-                ),
-                if (isTestingMode)
-                  _buildTab(
-                    const Icon(Icons.account_tree),
-                    titles[3],
-                  ),
-              ],
-            ),
-          ),
-          body: TabBarView(
-            children: <Widget>[
-              const DeviceConnected(),
-              ChangeNotifierProvider(
-                create: (_) => SettingsProvider(),
-                child: SettingsScreen(),
+    return DefaultTabController(
+      initialIndex: 0,
+      length: tabsCount,
+      child: Scaffold(
+        bottomNavigationBar: Container(
+          color: Colors.white,
+          child: TabBar(
+            tabs: <Widget>[
+              _buildTab(
+                const Icon(Icons.home_filled),
+                titles[0],
               ),
-              ChangeNotifierProvider(
-                create: (_) => ProfileProvider(userDao, authProvider),
-                child: ProfileScreen(),
+              _buildTab(
+                const Icon(Icons.settings),
+                titles[1],
               ),
-              if (isTestingMode) const TestingScreen(),
+              _buildTab(
+                const Icon(Icons.account_circle_rounded),
+                titles[2],
+              ),
+              if (isTestingMode)
+                _buildTab(
+                  const Icon(Icons.account_tree),
+                  titles[3],
+                ),
             ],
           ),
-          floatingActionButton: StreamBuilder<bool>(
-            stream: FlutterBluePlus.isScanning,
-            initialData: false,
-            builder: (c, snapshot) {
-              if (snapshot.data ?? false) {
-                return FloatingActionButton(
-                  child: const Icon(Icons.stop),
+        ),
+        body: TabBarView(
+          children: <Widget>[
+            ChangeNotifierProvider(
+              create: (_) => ProfileProvider()..init(),
+              child: const DeviceConnected(),
+            ),
+            ChangeNotifierProvider(
+              create: (_) => SettingsProvider(),
+              child: const SettingsScreen(),
+            ),
+            ChangeNotifierProvider(
+              create: (_) => ProfileProvider()..init(),
+              child: const ProfileScreen(),
+            ),
+            if (isTestingMode) const TestingScreen(),
+          ],
+        ),
+        floatingActionButton: StreamBuilder<bool>(
+          stream: FlutterBluePlus.isScanning,
+          initialData: false,
+          builder: (c, snapshot) {
+            if (snapshot.data ?? false) {
+              return FloatingActionButton(
+                child: const Icon(Icons.stop),
+                onPressed: () async {
+                  try {
+                    FlutterBluePlus.stopScan();
+                  } catch (e) {}
+                },
+                backgroundColor: Colors.red,
+              );
+            } else {
+              return FloatingActionButton(
+                  child: const Icon(Icons.search),
                   onPressed: () async {
                     try {
-                      FlutterBluePlus.stopScan();
+                      context.read<BleProvider>().startScanning();
                     } catch (e) {}
-                  },
-                  backgroundColor: Colors.red,
-                );
-              } else {
-                return FloatingActionButton(
-                    child: const Icon(Icons.search),
-                    onPressed: () async {
-                      try {
-                        context.read<BleProvider>().startScanning();
-                      } catch (e) {}
-                    });
-              }
-            },
-          ),
+                  });
+            }
+          },
         ),
       ),
     );
+    // );
   }
 
   Tab _buildTab(Icon icon, String title) => Tab(

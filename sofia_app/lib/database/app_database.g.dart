@@ -63,6 +63,8 @@ class _$AppDatabase extends AppDatabase {
 
   UserDao? _userDaoInstance;
 
+  SettingsDao? _settingsDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -85,7 +87,9 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `User` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `email` TEXT NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL, `rememberMe` INTEGER NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `user` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `email` TEXT NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL, `remember_me` INTEGER NOT NULL)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `settings` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `user_id` INTEGER NOT NULL, `dark_mode` INTEGER NOT NULL, `language` TEXT NOT NULL, FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON UPDATE NO ACTION ON DELETE CASCADE)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -97,6 +101,11 @@ class _$AppDatabase extends AppDatabase {
   UserDao get userDao {
     return _userDaoInstance ??= _$UserDao(database, changeListener);
   }
+
+  @override
+  SettingsDao get settingsDao {
+    return _settingsDaoInstance ??= _$SettingsDao(database, changeListener);
+  }
 }
 
 class _$UserDao extends UserDao {
@@ -106,35 +115,35 @@ class _$UserDao extends UserDao {
   )   : _queryAdapter = QueryAdapter(database),
         _userInsertionAdapter = InsertionAdapter(
             database,
-            'User',
+            'user',
             (User item) => <String, Object?>{
                   'id': item.id,
                   'email': item.email,
                   'username': item.username,
                   'password': item.password,
-                  'rememberMe': item.rememberMe ? 1 : 0
+                  'remember_me': item.rememberMe ? 1 : 0
                 }),
         _userUpdateAdapter = UpdateAdapter(
             database,
-            'User',
+            'user',
             ['id'],
             (User item) => <String, Object?>{
                   'id': item.id,
                   'email': item.email,
                   'username': item.username,
                   'password': item.password,
-                  'rememberMe': item.rememberMe ? 1 : 0
+                  'remember_me': item.rememberMe ? 1 : 0
                 }),
         _userDeletionAdapter = DeletionAdapter(
             database,
-            'User',
+            'user',
             ['id'],
             (User item) => <String, Object?>{
                   'id': item.id,
                   'email': item.email,
                   'username': item.username,
                   'password': item.password,
-                  'rememberMe': item.rememberMe ? 1 : 0
+                  'remember_me': item.rememberMe ? 1 : 0
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -151,37 +160,41 @@ class _$UserDao extends UserDao {
 
   @override
   Future<List<User>> getAllUsers() async {
-    return _queryAdapter.queryList('SELECT * FROM User',
+    return _queryAdapter.queryList('SELECT * FROM user',
         mapper: (Map<String, Object?> row) => User(
             row['id'] as int?,
             row['email'] as String,
             row['username'] as String,
             row['password'] as String,
-            (row['rememberMe'] as int) != 0));
+            (row['remember_me'] as int) != 0));
   }
 
   @override
   Future<User?> getUserById(int id) async {
-    return _queryAdapter.query('SELECT * FROM User WHERE id = ?1',
+    return _queryAdapter.query('SELECT * FROM user WHERE id = ?1',
         mapper: (Map<String, Object?> row) => User(
             row['id'] as int?,
             row['email'] as String,
             row['username'] as String,
             row['password'] as String,
-            (row['rememberMe'] as int) != 0),
+            (row['remember_me'] as int) != 0),
         arguments: [id]);
   }
 
   @override
-  Future<User?> getUserByUsername(String username) async {
-    return _queryAdapter.query('SELECT * FROM User WHERE username = ?1',
+  Future<User?> getUserByUsername(
+    String username,
+    String password,
+  ) async {
+    return _queryAdapter.query(
+        'SELECT * FROM user WHERE username = ?1 AND password = ?2',
         mapper: (Map<String, Object?> row) => User(
             row['id'] as int?,
             row['email'] as String,
             row['username'] as String,
             row['password'] as String,
-            (row['rememberMe'] as int) != 0),
-        arguments: [username]);
+            (row['remember_me'] as int) != 0),
+        arguments: [username, password]);
   }
 
   @override
@@ -197,5 +210,46 @@ class _$UserDao extends UserDao {
   @override
   Future<void> deleteUser(User user) async {
     await _userDeletionAdapter.delete(user);
+  }
+}
+
+class _$SettingsDao extends SettingsDao {
+  _$SettingsDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _settingsInsertionAdapter = InsertionAdapter(
+            database,
+            'settings',
+            (Settings item) => <String, Object?>{
+                  'id': item.id,
+                  'user_id': item.userId,
+                  'dark_mode': item.darkMode ? 1 : 0,
+                  'language': item.language
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<Settings> _settingsInsertionAdapter;
+
+  @override
+  Future<Settings?> getSettingsByUserId(int userId) async {
+    return _queryAdapter.query('SELECT * FROM settings WHERE userId = ?1',
+        mapper: (Map<String, Object?> row) => Settings(
+            row['id'] as int,
+            row['user_id'] as int,
+            (row['dark_mode'] as int) != 0,
+            row['language'] as String),
+        arguments: [userId]);
+  }
+
+  @override
+  Future<void> insertSettings(Settings settings) async {
+    await _settingsInsertionAdapter.insert(
+        settings, OnConflictStrategy.replace);
   }
 }

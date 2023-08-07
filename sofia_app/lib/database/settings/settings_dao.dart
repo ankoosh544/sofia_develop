@@ -1,6 +1,6 @@
-// settings_dao.dart
 import 'package:floor/floor.dart';
-import 'package:sofia_app/models/settings.dart';
+
+import 'settings.dart';
 
 @dao
 abstract class SettingsDao {
