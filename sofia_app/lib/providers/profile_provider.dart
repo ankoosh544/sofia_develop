@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:sofia_app/database/app_database.dart';
 
 import '../storage/local_store.dart';

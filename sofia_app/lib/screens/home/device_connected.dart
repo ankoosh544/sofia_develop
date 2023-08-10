@@ -1,11 +1,10 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:sofia_app/configs/index.dart';
 import 'package:sofia_app/providers/index.dart';
+import 'package:sofia_app/screens/car_status/car_status_screen.dart';
 
 import 'device_screen.dart';
 
@@ -109,22 +108,35 @@ class DeviceConnected extends StatelessWidget {
             const SizedBox(
               height: size_16,
             ),
-            Padding(
+            Container(
               padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 100),
+              decoration: const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: Colors.blueAccent,
+                    width: 1,
+                  ), // Underline style
+                ),
+              ),
               child: TextFormField(
                 decoration: const InputDecoration(
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blueAccent, width: 2),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blueGrey, width: 2),
-                  ),
                   hintText: hintDestination,
                   hintStyle: TextStyle(fontSize: 20, color: Colors.blueGrey),
+                  border: UnderlineInputBorder(
+                    borderSide: BorderSide.none, // Remove the border
+                  ),
                 ),
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.done,
                 style: const TextStyle(fontSize: 30, color: Colors.blueGrey),
+                onFieldSubmitted: (value) {
+                  // Redirect to the status screen when done button is pressed
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => CarStatusScreen(),
+                    ),
+                  );
+                },
               ),
             ),
             const SizedBox(
@@ -145,7 +157,7 @@ class DeviceConnected extends StatelessWidget {
                 builder: (c, snapshot) {
                   return Column(
                     children: snapshot.data!.map((device) {
-                      log('Psk : ${device.toString()}');
+                      //log('Psk : ${device.toString()}');
                       int floorNumber = context
                           .read<BleProvider>()
                           .getFloorNumber(device.localName);

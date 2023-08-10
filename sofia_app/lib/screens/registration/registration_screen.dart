@@ -17,6 +17,10 @@ class RegistrationScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Image.asset('assets/images/app_logo.png'),
+            SizedBox(
+              height: 40,
+            ),
             TextFormField(
               style: TextStyle(color: Colors.black),
               decoration: InputDecoration(

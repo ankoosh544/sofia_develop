@@ -22,7 +22,7 @@ class CharacteristicTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<int>>(
-      stream: characteristic.value,
+      stream: characteristic.lastValueStream,
       initialData: characteristic.lastValue,
       builder: (c, snapshot) {
         final value = snapshot.data;

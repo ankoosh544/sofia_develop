@@ -8,15 +8,109 @@ import 'package:rxdart/rxdart.dart';
 
 import '../configs/index.dart';
 
-class BleProvider extends ChangeNotifier {
-  final _scanResult = BehaviorSubject<List<ScanResult>>.seeded([]);
-  Stream<List<ScanResult>> get scanResult => _scanResult.stream;
-  StreamSubscription? _subscription;
+abstract class Ble {
+  Future<void> startScan({
+    ScanMode scanMode = ScanMode.lowLatency,
+    List<Guid> withServices = const [],
+    List<String> macAddresses = const [],
+    Duration? timeout,
+    bool allowDuplicates = false,
+    bool androidUsesFineLocation = false,
+  });
+  Future<void> stopScan();
 
+  bool get isScanningNow;
+  Future<ScanResult> get nearestScan;
+  Future<BluetoothDevice> get nearestDevice;
+  Future<void> connect({
+    Duration timeout = const Duration(seconds: 15),
+    bool autoConnect = false,
+  });
+  Future<void> disconnect({int timeout = 15});
+
+  Stream<List<ScanResult>> get scanResults;
+  Stream<BluetoothAdapterState> get adapterState;
+  Future<List<BluetoothDevice>> get connectedSystemDevices;
+  Future<BluetoothConnectionState> get connectionState;
+  Future<List<BluetoothService>> get servicesStream;
+
+  Future<List<BluetoothService>> discoverServices();
+}
+
+class BleImpl extends Ble {
+  @override
+  Future<void> startScan({
+    ScanMode scanMode = ScanMode.lowLatency,
+    List<Guid> withServices = const [],
+    List<String> macAddresses = const [],
+    Duration? timeout,
+    bool allowDuplicates = false,
+    bool androidUsesFineLocation = false,
+  }) async =>
+      FlutterBluePlus.startScan(
+        scanMode: scanMode,
+        withServices: withServices,
+        timeout: timeout,
+        macAddresses: macAddresses,
+        allowDuplicates: allowDuplicates,
+        androidUsesFineLocation: androidUsesFineLocation,
+      );
+
+  @override
+  Future<void> stopScan() async => FlutterBluePlus.stopScan();
+
+  @override
+  Stream<BluetoothAdapterState> get adapterState =>
+      FlutterBluePlus.adapterState;
+
+  @override
+  Future<List<BluetoothDevice>> get connectedSystemDevices =>
+      FlutterBluePlus.connectedSystemDevices;
+
+  @override
+  Future<BluetoothConnectionState> get connectionState async =>
+      (await nearestDevice).connectionState.first;
+
+  @override
+  Stream<List<ScanResult>> get scanResults => FlutterBluePlus.scanResults;
+
+  @override
+  bool get isScanningNow => FlutterBluePlus.isScanningNow;
+
+  @override
+  Future<BluetoothDevice> get nearestDevice async {
+    return (await nearestScan).device;
+  }
+
+  @override
+  Future<ScanResult> get nearestScan async => (await scanResults.first)
+      .reduce((current, next) => current.rssi > next.rssi ? current : next);
+
+  @override
+  Future<void> connect({
+    Duration timeout = const Duration(seconds: 15),
+    bool autoConnect = false,
+  }) async =>
+      (await nearestDevice).connect(timeout: timeout, autoConnect: autoConnect);
+
+  @override
+  Future<void> disconnect({int timeout = 15}) async =>
+      (await nearestDevice).disconnect(timeout: timeout);
+
+  @override
+  Future<List<BluetoothService>> get servicesStream async =>
+      (await nearestDevice).servicesStream.first;
+
+  @override
+  Future<List<BluetoothService>> discoverServices() async =>
+      (await nearestDevice).discoverServices();
+}
+
+class BleProvider extends ChangeNotifier {
+  final Ble ble;
   final _connectedDevice = BehaviorSubject<List<BluetoothDevice>>.seeded([]);
   Stream<List<BluetoothDevice>> get connectedDeviceStream =>
       _connectedDevice.stream;
-  //BluetoothDevice? connectedDevice;
 
   final _bluetoothState = BehaviorSubject<BluetoothAdapterState>.seeded(
       BluetoothAdapterState.unknown);
@@ -24,123 +118,35 @@ class BleProvider extends ChangeNotifier {
       _bluetoothState.stream;
   BluetoothAdapterState get bluetoothState => _bluetoothState.value;
 
-  final _isScanning = BehaviorSubject<bool>.seeded(false);
-  Stream<bool> get isScanningStream => _isScanning.stream;
-  bool get isScanning => _isScanning.value;
-  late BluetoothDevice nearestDevice;
-
-  BleProvider() {
+  BleProvider(this.ble) {
     _getBluetoothState();
-    _getScanResults();
-
-    // Modify the original code
-    scanResult.listen((scanResults) async {
-      if (scanResults.isNotEmpty) {
-        nearestDevice = scanResults
-            .reduce(
-                (current, next) => current.rssi > next.rssi ? current : next)
-            .device;
-
-        // final connectionState = await nearestDevice.connectionState.first;
-        // switch (connectionState) {
-        //   case BluetoothConnectionState.disconnected:
-        //   case BluetoothConnectionState.connecting:
-        //   case BluetoothConnectionState.disconnecting:
-        //   //log('Device connected ----------->>  ${nearestDevice.remoteId.str}');
-        //   // break;
-        //   case BluetoothConnectionState.connected:
-        //     await nearestDevice.connect();
-        //     log('Device already connected-------->> ${nearestDevice.remoteId.str}');
-        //     break;
-        // }
-        await nearestDevice.connect();
-        log('Device connected ----------->>  ${nearestDevice.remoteId.str}');
-        await nearestDevice.discoverServices();
-        removedAllConnectedDevice();
+    ble.scanResults.listen((event) async {
+      final device = await ble.nearestDevice;
+      if (await ble.connectionState != BluetoothConnectionState.connected &&
+          (await ble.nearestScan).advertisementData.connectable) {
+        await ble.connect();
+        await ble.discoverServices();
+        await removedAllConnectedDevice();
+        log('Device connected ----------->>  ${device.remoteId.str}');
+        await readCharacteristic();
+      } else {
+        log('Else Device connected ----------->>  ${device.remoteId.str}');
       }
-      await readCharacteristic();
     });
   }
 
-  void removedAllConnectedDevice() async {
-    final connectedDevices = await FlutterBluePlus.connectedSystemDevices;
-    for (var device in connectedDevices) {
-      if (nearestDevice.remoteId.str != device.remoteId.str) {
-        await device.disconnect();
-      }
-    }
-  }
+  void _getBluetoothState() => ble.adapterState.listen((event) {
+        if (event == BluetoothAdapterState.on) {
+          startScanning();
+        } else {
+          stopScan();
+        }
+        _bluetoothState.add(event);
+      });
 
-  // Function to disconnect from a device
-  // Future<void> _disconnectDevice(BluetoothDevice device) async {
-  //   if (device != null &&
-  //       device.connectionState == BluetoothConnectionState.connected) {
-  //     await device.disconnect();
-  //   }
-  // }
-
-// Function to remove all connected devices from the list
-//   Future<void> _removeAllConnectedDevices() async {
-//     final connectedDevices = await FlutterBluePlus.connectedSystemDevices;
-//     for (var device in connectedDevices) {
-//       await _disconnectDevice(device);
-//     }
-//   }
-
-  void _getScanResults() {
-    //FlutterBluePlus.scanResults.listen((results) => _scanResult
-    //   .add([results, _scanResult.value].expand((x) => x).toSet().toList()));
-    FlutterBluePlus.scanResults.listen((event) {
-      _scanResult.add(event);
-    });
-  }
-
-  Future<void> readCharacteristic() async {
-    try {
-      final connectionState = await nearestDevice.connectionState.first;
-      if (connectionState == BluetoothConnectionState.connected) {
-        nearestDevice.servicesStream.listen((services) async {
-          if (services.isNotEmpty) {
-            for (var service in services) {
-              if (service.characteristics.isNotEmpty) {
-                for (var characteristic in service.characteristics) {
-                  if (characteristic.properties.read) {
-                    if (characteristic.characteristicUuid
-                            .toString()
-                            .toUpperCase()
-                            .substring(4, 8) ==
-                        '2A00') {
-                      final data = await characteristic.read();
-                      print('PSK last value: ${String.fromCharCodes(data)}');
-
-                      final myDevice = BluetoothDevice.fromId(
-                        nearestDevice.remoteId.str,
-                        localName:
-                            String.fromCharCodes(characteristic.lastValue),
-                        type: nearestDevice.type,
-                      );
-                      print(myDevice.toString());
-                      setConnectedDevice(myDevice);
-                    }
-                  }
-                }
-              }
-            }
-          }
-        });
-      }
-    } catch (e) {
-      log(e.toString());
-    }
-  }
-
-  // void periodicScan() => _subscription =
-  //     Stream.periodic(const Duration(milliseconds: periodicDuration), (_) => _)
-  //         .listen((_) => initialScan());
-
-  void startScanning() {
-    if (FlutterBluePlus.isScanningNow == false) {
-      FlutterBluePlus.startScan(
+  void startScanning() async {
+    if (ble.isScanningNow == false) {
+      await ble.startScan(
         withServices: isServiceGuid ? serviceGuids : [],
         timeout: const Duration(days: timeoutDuration),
         androidUsesFineLocation: false,
@@ -148,19 +154,62 @@ class BleProvider extends ChangeNotifier {
     }
   }
 
-  void stopScan() {
-    FlutterBluePlus.stopScan();
-    clearSubscription();
+  void stopScan() async {
+    await ble.stopScan();
     _refresh();
   }
 
   void _refresh() {
-    setIsScanning(false);
-    _scanResult.add([]);
-    _connectedDevice.add([]);
+    _connectedDevice.value.clear();
   }
 
-  void setIsScanning(bool value) => _isScanning.add(value);
+  Future<void> readCharacteristic() async {
+    try {
+      final connectionState = await ble.connectionState;
+      if (connectionState == BluetoothConnectionState.connected) {
+        final services = await ble.servicesStream;
+        if (services.isNotEmpty) {
+          for (var service in services) {
+            if (service.characteristics.isNotEmpty) {
+              for (var characteristic in service.characteristics) {
+                if (characteristic.properties.read) {
+                  if (characteristic.characteristicUuid
+                          .toString()
+                          .toUpperCase()
+                          .substring(4, 8) ==
+                      '2A00') {
+                    final data = await characteristic.read();
+                    print('PSK last value: ${String.fromCharCodes(data)}');
+
+                    final device = await ble.nearestDevice;
+
+                    final myDevice = BluetoothDevice.fromId(
+                      device.remoteId.str,
+                      localName: String.fromCharCodes(characteristic.lastValue),
+                      type: device.type,
+                    );
+                    print(myDevice.toString());
+                    setConnectedDevice(myDevice);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+
+  Future removedAllConnectedDevice() async {
+    final connectedDevices = await ble.connectedSystemDevices;
+    for (var device in connectedDevices) {
+      if ((await ble.nearestDevice).remoteId.str != device.remoteId.str) {
+        await device.disconnect();
+      }
+    }
+  }
 
   void setConnectedDevice(BluetoothDevice device) {
     _connectedDevice.value.clear();
@@ -171,37 +220,10 @@ class BleProvider extends ChangeNotifier {
     _connectedDevice.value.clear();
   }
 
-  void clearSubscription() {
-    _subscription?.cancel();
-    _subscription = null;
-  }
-
-  // num getDistance(int rssi, int txPower) {
-  //   /*
-  //    * RSSI = TxPower - 10 * n * lg(d)
-  //    * n = 2 (in free space)
-  //    *
-  //    * d = 10 ^ ((TxPower - RSSI) / (10 * n))
-  //    */
-  //
-  //
-  //   return math.pow(10d, ((double) txPower - rssi) / (10 * 2));
-  // }
-
   @override
   void dispose() {
-    clearSubscription();
     super.dispose();
   }
-
-  void _getBluetoothState() => FlutterBluePlus.adapterState.listen((event) {
-        if (event == BluetoothAdapterState.on) {
-          startScanning();
-        } else {
-          stopScan();
-        }
-        _bluetoothState.add(event);
-      });
 
   Stream<int> rssiStream(BluetoothDevice device) async* {
     var isConnected = true;

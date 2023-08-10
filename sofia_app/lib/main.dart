@@ -76,9 +76,9 @@ class _SofiaAppState extends State<SofiaApp> {
       ],
       locale: _locale,
       routes: {
-        '/': (context) => launchLoginScreen(),
+        '/login': (context) => launchLoginScreen(),
         '/register': (context) => launchRegistrationScreen(),
-        '/home': (context) => _launchHomeScreen(),
+        '/': (context) => _launchHomeScreen(),
         '/car': (context) => _launchCarStatusScreen(),
       },
     );
@@ -99,7 +99,7 @@ ChangeNotifierProvider<RegistrationProvider> launchRegistrationScreen() =>
 
 ChangeNotifierProvider<BleProvider> _launchHomeScreen() =>
     ChangeNotifierProvider(
-      create: (_) => BleProvider(),
+      create: (_) => BleProvider(BleImpl()),
       child: const HomeScreen(),
     );
 

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sofia_app/providers/auth_provider.dart';
+
 import 'package:sofia_app/providers/login_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../main.dart';
 import '../password/forgot_password_screen.dart';
-import '../registration/registration_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -23,7 +22,7 @@ class LoginScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('App Icon'),
+            Image.asset('assets/images/app_logo.png'),
             SizedBox(
               height: 40,
             ),
