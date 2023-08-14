@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:sofia_app/providers/login_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../configs/app_strings.dart';
 import '../../main.dart';
 import '../password/forgot_password_screen.dart';
 
@@ -22,7 +23,7 @@ class LoginScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/images/app_logo.png'),
+            Image.asset(logo),
             SizedBox(
               height: 40,
             ),

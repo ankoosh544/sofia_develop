@@ -4,7 +4,7 @@ import 'package:sofia_app/database/app_database.dart';
 import '../storage/local_store.dart';
 
 class ProfileProvider extends ChangeNotifier {
-  String? username;
+  String username = '';
   String? emailId;
 
   Future<void> init() async {

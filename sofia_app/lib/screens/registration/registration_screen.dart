@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:sofia_app/providers/registration_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../configs/app_strings.dart';
+
 class RegistrationScreen extends StatelessWidget {
   const RegistrationScreen({Key? key}) : super(key: key);
 
@@ -17,7 +19,7 @@ class RegistrationScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/images/app_logo.png'),
+            Image.asset(logo),
             SizedBox(
               height: 40,
             ),

@@ -25,12 +25,12 @@ class ProfileScreen extends StatelessWidget {
               backgroundColor: Colors.white,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(50),
-                child: Image.asset('assets/images/app_logo.png'),
+                child: Image.asset(logo),
               ),
             ),
             const SizedBox(height: 16.0),
             Text(
-              context.watch<ProfileProvider>().username ?? 'Username',
+              context.watch<ProfileProvider>().username,
               style: const TextStyle(
                 fontSize: 24.0,
                 fontWeight: FontWeight.bold,
@@ -39,7 +39,7 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 8.0),
             const SizedBox(height: 16.0),
             ListTile(
-              leading: Icon(Icons.email),
+              leading: const Icon(Icons.email),
               title:
                   Text(context.watch<ProfileProvider>().emailId ?? 'EmailId'),
             ),

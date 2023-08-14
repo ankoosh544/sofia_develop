@@ -33,3 +33,5 @@ const String zeroFloor = '0';
 const String etaToFloor3 = 'ETA to Floor 3';
 const String estimatedTime = 'Estimated time less than 2 minutes';
 const String changeDestination = 'CHANGE DESTINATION';
+
+const String logo = 'assets/images/app_logo.png';

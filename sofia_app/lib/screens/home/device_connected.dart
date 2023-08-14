@@ -27,7 +27,8 @@ class DeviceConnected extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              '$welcomeMessage ${context.watch<ProfileProvider>().username}',
+              '$welcomeMessage ${context.watch<ProfileProvider>().username}'
+                  .trim(),
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(
@@ -133,7 +134,7 @@ class DeviceConnected extends StatelessWidget {
                   // Redirect to the status screen when done button is pressed
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
-                      builder: (context) => CarStatusScreen(),
+                      builder: (context) => const CarStatusScreen(),
                     ),
                   );
                 },
