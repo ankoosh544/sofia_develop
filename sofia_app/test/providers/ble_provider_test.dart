@@ -163,9 +163,10 @@ void main() {
 
   test('Set connected device updates the stream', () async {
     final nearestDevice = BluetoothDevice(
-        remoteId: const DeviceIdentifier('mock_id'),
-        localName: 'Mock Device',
-        type: BluetoothDeviceType.unknown);
+      remoteId: const DeviceIdentifier('mock_id'),
+      localName: 'Mock Device',
+      type: BluetoothDeviceType.unknown,
+    );
 
     bleProvider.setConnectedDevice(nearestDevice);
 

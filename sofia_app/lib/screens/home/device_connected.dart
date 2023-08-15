@@ -203,7 +203,7 @@ class ConnectionInProgress extends StatelessWidget {
   Widget build(BuildContext context) {
     return Animate(
       effects: const [FadeEffect(), ScaleEffect()],
-      child: const Text('Waiting for connection'),
+      child: const Text(waitingForConnection),
     );
   }
 }

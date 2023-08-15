@@ -23,6 +23,7 @@ const String welcomeMessage = 'Welcome';
 const String greetingMessage =
     'Happy to see you again, Please enter destination floor.';
 const String sourceFrom = 'From';
+const String waitingForConnection = 'Waiting for connection';
 const String sourceTo = 'To';
 const String hintDestination = 'Floor';
 const String warningAttention = 'Attention: Lack of light';
