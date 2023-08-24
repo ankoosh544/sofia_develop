@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sofia_app/interfaces/i_ble.dart';
 import 'package:sofia_app/providers/ble_provider.dart';
 
 class MockFlutterBluePlus extends Mock implements FlutterBluePlus {}
@@ -15,7 +17,9 @@ class MockConnectedDeviceStream extends Mock
 class MockBluetoothAdapterStateStream extends Mock
     implements Stream<BluetoothAdapterState> {}
 
-class BleTestingImpl extends Ble {
+//class BleTestingImpl extends Mock implements Ble {}
+
+class BleTestingImpl extends IBle {
   @override
   Stream<BluetoothAdapterState> get adapterState =>
       Stream.value(BluetoothAdapterState.on);
@@ -116,14 +120,16 @@ List<ScanResult> sampleScanResult = [
 ];
 
 void main() {
-  final Ble ble = BleTestingImpl();
-  BleProvider bleProvider = BleProvider(ble);
+  late IBle mockBle;
+  late BleProvider bleProvider;
   late MockFlutterBluePlus mockFlutterBluePlus;
   late MockScanResultStream mockScanResultStream;
   late MockConnectedDeviceStream mockConnectedDeviceStream;
   late MockBluetoothAdapterStateStream mockBluetoothAdapterStateStream;
 
   setUp(() {
+    mockBle = BleTestingImpl();
+    bleProvider = BleProvider(mockBle);
     mockFlutterBluePlus = MockFlutterBluePlus();
     mockScanResultStream = MockScanResultStream();
     mockConnectedDeviceStream = MockConnectedDeviceStream();
@@ -175,24 +181,33 @@ void main() {
   });
 
   test('Scanned Devices', () async {
-    final scannedResult = await ble.scanResults.first;
+    //when(mockBle.scanResults).thenAnswer((_) => Stream.value(sampleScanResult));
+
+    final scannedResult = await mockBle.scanResults.first;
     expect(sampleScanResult, scannedResult);
+    //expect(true, true);
+
+    // final testSubject = StreamController<List<ScanResult>>();
+    //
+    // testSubject.add(sampleScanResult);
+    //
+    // expect((await testSubject.stream.first), sampleScanResult);
   });
 
   test('Find Nearest Device', () async {
-    final scannedResult = await ble.scanResults.first;
+    final scannedResult = await mockBle.scanResults.first;
     expect(sampleScanResult, scannedResult);
-    final device = await ble.nearestDevice;
+    final device = await mockBle.nearestDevice;
     expect(sampleScanResult.last.device, device);
   });
 
   test('Find Nearest Device and connect', () async {
-    final scannedResult = await ble.scanResults.first;
+    final scannedResult = await mockBle.scanResults.first;
     expect(sampleScanResult, scannedResult);
-    final device = await ble.nearestDevice;
+    final device = await mockBle.nearestDevice;
     expect(sampleScanResult.last.device, device);
-    ble.connect();
-    expect(BluetoothConnectionState.connected, await (ble.connectionState));
+    mockBle.connect();
+    expect(BluetoothConnectionState.connected, await (mockBle.connectionState));
   });
 
   // test("Listening device", () async {

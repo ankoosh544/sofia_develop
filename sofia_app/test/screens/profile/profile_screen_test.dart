@@ -4,32 +4,35 @@ import 'package:provider/provider.dart';
 import 'package:sofia_app/configs/app_strings.dart';
 import 'package:sofia_app/providers/index.dart';
 import 'package:sofia_app/screens/profile/profile_screen.dart';
+import 'package:sofia_app/services/ble_service.dart';
 
 void main() {
   const String userName = 'Test User Name';
   const String emailId = 'testing@gmail.com';
 
+  MaterialApp materialApp() {
+    return MaterialApp(
+      home: MultiProvider(
+        providers: [
+          ListenableProvider<BleProvider>(
+            create: (_) => BleProvider(
+              BleService(),
+            ),
+          ),
+          ListenableProvider<ProfileProvider>(
+            create: (_) => ProfileProvider()
+              ..username = userName
+              ..emailId = emailId,
+          ),
+        ],
+        child: const ProfileScreen(),
+      ),
+    );
+  }
+
   group('ProfileScreen - ', () {
     testWidgets('ProfileScreen - ', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: MultiProvider(
-            providers: [
-              ListenableProvider<BleProvider>(
-                create: (_) => BleProvider(
-                  BleImpl(),
-                ),
-              ),
-              ListenableProvider<ProfileProvider>(
-                create: (_) => ProfileProvider()
-                  ..username = userName
-                  ..emailId = emailId,
-              ),
-            ],
-            child: const ProfileScreen(),
-          ),
-        ),
-      );
+      await tester.pumpWidget(materialApp());
 
       expect(find.byType(AppBar), findsOneWidget);
       expect(find.text(tabProfile), findsOneWidget);

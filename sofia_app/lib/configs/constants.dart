@@ -10,6 +10,8 @@ final List<Guid> serviceGuids = [
 const periodicDuration = 3000; //milliseconds
 const timeoutDuration = 120; //seconds
 
+const deviceName = '00002a00-0000-1000-8000-00805f9b34fb';
+
 const floorRequestCharacteristicGuid =
     "beb5483e-36e1-4688-b7f5-ea07361b26a8"; //used to send new target plans and priorities
 

@@ -6,39 +6,39 @@ import 'package:sofia_app/configs/app_strings.dart';
 import 'package:sofia_app/providers/index.dart';
 import 'package:sofia_app/screens/settings/settings_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:sofia_app/services/ble_service.dart';
 
 void main() {
+  MaterialApp materialApp() {
+    return MaterialApp(
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en'), // English
+        Locale('it'), // Italian
+        Locale('es'), // Spanish
+      ],
+      locale: const Locale('en'),
+      home: MultiProvider(
+        providers: [
+          ListenableProvider<BleProvider>(
+            create: (_) => BleProvider(BleService()),
+          ),
+          ListenableProvider<SettingsProvider>(
+              create: (_) => SettingsProvider()),
+        ],
+        child: const SettingsScreen(),
+      ),
+    );
+  }
+
   group('SettingsScreen - UI Tests', () {
     testWidgets('SettingsScreen User Interface Testing- ', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [
-            Locale('en'), // English
-            Locale('it'), // Italian
-            Locale('es'), // Spanish
-          ],
-          locale: const Locale('en'),
-          home: MultiProvider(
-            providers: [
-              ListenableProvider<BleProvider>(
-                create: (_) => BleProvider(
-                  BleImpl(),
-                ),
-              ),
-              ListenableProvider<SettingsProvider>(
-                create: (_) => SettingsProvider(),
-              ),
-            ],
-            child: const SettingsScreen(),
-          ),
-        ),
-      );
+      await tester.pumpWidget(materialApp());
 
       expect(find.byType(AppBar), findsOneWidget);
       expect(find.text(tabSettings), findsOneWidget);

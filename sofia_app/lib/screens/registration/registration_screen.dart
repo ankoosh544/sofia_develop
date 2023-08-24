@@ -20,22 +20,22 @@ class RegistrationScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(logo),
-            SizedBox(
+            const SizedBox(
               height: 40,
             ),
             TextFormField(
               style: TextStyle(color: Colors.black),
               decoration: InputDecoration(
-                errorText: context.read<RegistrationProvider>().emailError,
+                //errorText: context.read<RegistrationProvider>().emailError,
                 hintText: AppLocalizations.of(context)!.email,
-                hintStyle: TextStyle(color: Colors.grey),
-                enabledBorder: OutlineInputBorder(
+                hintStyle: const TextStyle(color: Colors.grey),
+                enabledBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.grey),
                 ),
-                focusedBorder: OutlineInputBorder(
+                focusedBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.grey),
                 ),
-                prefixIcon: Icon(
+                prefixIcon: const Icon(
                   Icons.email,
                   color: Colors.blue,
                 ),
@@ -44,10 +44,10 @@ class RegistrationScreen extends StatelessWidget {
                 context.read<RegistrationProvider>().setEmail(value);
               },
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             TextFormField(
               decoration: InputDecoration(
-                errorText: context.read<RegistrationProvider>().usernameError,
+                // errorText: context.read<RegistrationProvider>().usernameError,
                 hintText: AppLocalizations.of(context)!.username,
                 hintStyle: TextStyle(color: Colors.grey),
                 enabledBorder: OutlineInputBorder(

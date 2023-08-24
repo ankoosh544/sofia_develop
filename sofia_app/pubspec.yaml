@@ -36,7 +36,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  flutter_blue_plus: 1.12.13
+  flutter_blue_plus: ^1.14.11
   permission_handler: ^10.2.0
   provider: ^6.0.5
   rxdart: ^0.27.7
@@ -48,9 +48,12 @@ dependencies:
   intl: ^0.18.0
   mockito: ^5.4.2
   flutter_animate: ^4.2.0+1
+  flutter_local_notifications: ^15.1.0
 
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
 
   # The "flutter_lints" package below contains a set of recommended lints to

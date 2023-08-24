@@ -4,7 +4,7 @@ import 'package:sofia_app/enums/ble_device_type.dart';
 
 class Device {
   String deviceId;
-  BleDeviceType deviceType;
+  // BleDeviceType deviceType;
   String alias;
   DateTime timestamp;
   double? txPower;
@@ -12,7 +12,7 @@ class Device {
 
   Device({
     required this.deviceId,
-    required this.deviceType,
+    // required this.deviceType,
     required this.alias,
     required this.timestamp,
     this.txPower,
@@ -23,7 +23,7 @@ class Device {
   String toString() {
     return 'Device{'
         'deviceId: $deviceId, '
-        'deviceType: $deviceType, '
+        // 'deviceType: $deviceType, '
         'alias: $alias, '
         'timestamp: $timestamp, '
         'txPower: $txPower, '

@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sofia_app/custom/light_warning_message.dart';
+import 'package:sofia_app/custom/out_of_service_message.dart';
+import 'package:sofia_app/enums/direction.dart';
+import 'package:sofia_app/providers/ble_provider.dart';
+import 'package:sofia_app/screens/home/home_screen.dart';
 import '../../configs/index.dart';
 
 class CarStatusScreen extends StatelessWidget {
   const CarStatusScreen({Key? key}) : super(key: key);
-  final inProgress = true;
+  final inProgress = false;
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +28,12 @@ class CarStatusScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Column(
                   children: [
-                    Text(
+                    const Text(
                       carPosition,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -35,23 +41,29 @@ class CarStatusScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      zeroFloor,
-                      style: TextStyle(
-                        color: Colors.grey,
+                      context.watch<BleProvider>().carFloor.toString(),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.black,
                       ),
                     ),
                   ],
                 ),
-                Icon(
-                  Icons.arrow_upward,
-                  size: 40,
-                  color: Colors.blue,
+                Image.asset(
+                  elevator,
+                  width: 80,
+                  height: 80,
                 ),
-                Icon(
-                  Icons.arrow_downward,
-                  size: 40,
-                  color: Colors.blue,
-                ),
+                if (context.watch<BleProvider>().carDirection == Direction.up)
+                  Image.asset(
+                    up,
+                    width: 40,
+                  ),
+                if (context.watch<BleProvider>().carDirection == Direction.down)
+                  Image.asset(
+                    down,
+                    width: 40,
+                  )
               ],
             ),
             const SizedBox(height: 16),
@@ -67,28 +79,16 @@ class CarStatusScreen extends StatelessWidget {
                     ),
             ),
             const SizedBox(height: 8),
-            Center(
-              child: inProgress
-                  ? const Text("Inprogress")
-                  : const Text(
-                      warningAttention,
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-            ),
+            if (!context.watch<BleProvider>().presenceOfLight)
+              LightWarningMessage(message: warningAttentionforLight),
             const SizedBox(height: 8),
             Center(
-              child: inProgress
-                  ? const Text(
-                      "Inprogress of Estimated time for Destination floor")
-                  : const Text(
-                      estimatedTime,
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
-                    ),
+              child: Text(
+                estimatedTime,
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             Center(
@@ -96,9 +96,9 @@ class CarStatusScreen extends StatelessWidget {
                   ? const Text("Inprogress of change Destination button")
                   : ElevatedButton(
                       onPressed: () {
-                        // Navigator.of(context).pushReplacement(
-                        //   MaterialPageRoute(builder: (context) => HomeScreen()),
-                        // );
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (context) => HomeScreen()),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.grey,
@@ -110,17 +110,8 @@ class CarStatusScreen extends StatelessWidget {
                     ),
             ),
             const SizedBox(height: 16),
-            Center(
-              child: inProgress
-                  ? const Text("Inprogress of Warings Messages")
-                  : const Text(
-                      warningAttention,
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-            )
+            if (context.watch<BleProvider>().outOfService)
+              OutOfServiceMessage(message: warningAttentionForOutOfService),
           ],
         ),
       ),

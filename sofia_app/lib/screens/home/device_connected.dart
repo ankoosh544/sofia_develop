@@ -3,6 +3,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:sofia_app/configs/index.dart';
+import 'package:sofia_app/custom/light_warning_message.dart';
+import 'package:sofia_app/custom/out_of_service_message.dart';
 import 'package:sofia_app/providers/index.dart';
 import 'package:sofia_app/screens/car_status/car_status_screen.dart';
 
@@ -132,7 +134,8 @@ class DeviceConnected extends StatelessWidget {
                 style: const TextStyle(fontSize: 30, color: Colors.blueGrey),
                 onFieldSubmitted: (value) {
                   // Redirect to the status screen when done button is pressed
-                  Navigator.of(context).pushReplacement(
+                  context.read<BleProvider>().writeCharacteristic(value);
+                  Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => const CarStatusScreen(),
                     ),
@@ -143,14 +146,13 @@ class DeviceConnected extends StatelessWidget {
             const SizedBox(
               height: size_20,
             ),
-            Text(
-              warningAttention,
-              textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyLarge
-                  ?.copyWith(color: Colors.orange),
+            if (!context.watch<BleProvider>().presenceOfLight)
+              LightWarningMessage(message: warningAttentionforLight),
+            const SizedBox(
+              height: size_20,
             ),
+            if (context.watch<BleProvider>().outOfService)
+              OutOfServiceMessage(message: warningAttentionForOutOfService),
             if (isTestingMode)
               StreamBuilder<List<BluetoothDevice>>(
                 stream: context.read<BleProvider>().connectedDeviceStream,

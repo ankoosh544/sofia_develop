@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:sofia_app/configs/index.dart';
 import 'package:sofia_app/providers/index.dart';
 import 'package:sofia_app/screens/home/device_connected.dart';
+import 'package:sofia_app/services/ble_service.dart';
 
 void main() {
   const String userName = 'Test User Name';
@@ -14,7 +15,7 @@ void main() {
   late ProfileProvider profileProvider;
 
   setUp(() {
-    bleProvider = BleProvider(BleImpl());
+    bleProvider = BleProvider(BleService());
     profileProvider = ProfileProvider();
     profileProvider
       ..username = userName
@@ -47,7 +48,8 @@ void main() {
       expect(find.text(waitingForConnection), findsOneWidget);
       expect(find.text(sourceTo), findsOneWidget);
       expect(find.byType(TextFormField), findsOneWidget);
-      expect(find.text(warningAttention), findsOneWidget);
+      expect(find.text(warningAttentionforLight), findsOneWidget);
+      expect(find.text(warningAttentionForOutOfService), findsOneWidget);
     });
 
     // testWidgets('Device Connected Screen - Device connected', (tester) async {

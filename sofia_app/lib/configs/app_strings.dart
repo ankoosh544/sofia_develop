@@ -26,7 +26,8 @@ const String sourceFrom = 'From';
 const String waitingForConnection = 'Waiting for connection';
 const String sourceTo = 'To';
 const String hintDestination = 'Floor';
-const String warningAttention = 'Attention: Lack of light';
+const String warningAttentionforLight = 'Attention: Lack of light';
+const String warningAttentionForOutOfService = 'Attention: Out Of Service';
 
 const String carPosition = 'Car Position';
 const String carStatus = 'Car Status';
@@ -36,3 +37,7 @@ const String estimatedTime = 'Estimated time less than 2 minutes';
 const String changeDestination = 'CHANGE DESTINATION';
 
 const String logo = 'assets/images/app_logo.png';
+
+const String elevator = 'assets/images/elevator.png';
+const String up = 'assets/images/up.png';
+const String down = 'assets/images/down.png';

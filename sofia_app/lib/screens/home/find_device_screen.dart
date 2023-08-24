@@ -78,8 +78,7 @@ class FindDevicesScreen extends StatelessWidget {
                     //                 log('Sofia : ${result.toString()}');
                     //                 return ScanResultTile(
                     //                   result: result,
-                    //                   onTap: () =>
-                    //                       Navigator.of(context).push(
+                    //                   onTap: () => Navigator.of(context).push(
                     //                     MaterialPageRoute(
                     //                       builder: (context) {
                     //                         result.device.connect();
@@ -95,9 +94,8 @@ class FindDevicesScreen extends StatelessWidget {
                     //         : Column(
                     //             children: [
                     //               SizedBox(
-                    //                 height:
-                    //                     MediaQuery.of(context).size.height *
-                    //                         .26,
+                    //                 height: MediaQuery.of(context).size.height *
+                    //                     .26,
                     //               ),
                     //               Padding(
                     //                 padding: const EdgeInsets.all(8.0),

@@ -7,6 +7,7 @@ import 'package:sofia_app/providers/registration_provider.dart';
 import 'package:sofia_app/screens/car_status/car_status_screen.dart';
 import 'package:sofia_app/screens/login/login_screen.dart';
 import 'package:sofia_app/screens/registration/registration_screen.dart';
+import 'package:sofia_app/services/ble_service.dart';
 import 'database/app_database.dart';
 import 'providers/login_provider.dart';
 import 'screens/home/home_screen.dart';
@@ -57,30 +58,33 @@ class _SofiaAppState extends State<SofiaApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return ChangeNotifierProvider(
+      create: (_) => BleProvider(BleService()),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en'), // English
+          Locale('it'), // Italian
+          Locale('es'), // Spanish
+        ],
+        locale: _locale,
+        routes: {
+          '/login': (context) => launchLoginScreen(),
+          '/register': (context) => launchRegistrationScreen(),
+          '/': (context) => _launchHomeScreen(),
+          '/car': (context) => _launchCarStatusScreen(),
+        },
       ),
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('en'), // English
-        Locale('it'), // Italian
-        Locale('es'), // Spanish
-      ],
-      locale: _locale,
-      routes: {
-        '/login': (context) => launchLoginScreen(),
-        '/register': (context) => launchRegistrationScreen(),
-        '/': (context) => _launchHomeScreen(),
-        '/car': (context) => _launchCarStatusScreen(),
-      },
     );
   }
 }
@@ -97,10 +101,6 @@ ChangeNotifierProvider<RegistrationProvider> launchRegistrationScreen() =>
       child: const RegistrationScreen(),
     );
 
-ChangeNotifierProvider<BleProvider> _launchHomeScreen() =>
-    ChangeNotifierProvider(
-      create: (_) => BleProvider(BleImpl()),
-      child: const HomeScreen(),
-    );
+HomeScreen _launchHomeScreen() => const HomeScreen();
 
 CarStatusScreen _launchCarStatusScreen() => const CarStatusScreen();
