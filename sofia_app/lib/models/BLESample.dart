@@ -1,16 +1,12 @@
-import 'dart:core';
-
-import 'package:sofia_app/enums/ble_device_type.dart';
-
-class Device {
+class BLESample {
   String deviceId;
   // BleDeviceType deviceType;
   String alias;
   DateTime timestamp;
-  double? txPower;
-  double? rxPower;
+  int? txPower;
+  int? rxPower;
 
-  Device({
+  BLESample({
     required this.deviceId,
     // required this.deviceType,
     required this.alias,
@@ -21,7 +17,7 @@ class Device {
 
   @override
   String toString() {
-    return 'Device{'
+    return 'BLESample{'
         'deviceId: $deviceId, '
         // 'deviceType: $deviceType, '
         'alias: $alias, '

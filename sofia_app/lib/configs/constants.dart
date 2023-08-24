@@ -7,6 +7,9 @@ final List<Guid> serviceGuids = [
   //Guid('6c962546-6011-4e1b-9d8c-05027adb3a02'), // CAR_SERVICE_GUID
   Guid('4fafc201-1fb5-459e-8fcc-c5c9c331914b'), // ESP32
 ];
+
+const CAR_SERVICE_GUID = "6c962546-6011-4e1b-9d8c-05027adb3a02";
+const FLOOR_SERVICE_GUID = "6c962546-6011-4e1b-9d8c-05027adb3a01";
 const periodicDuration = 3000; //milliseconds
 const timeoutDuration = 120; //seconds
 

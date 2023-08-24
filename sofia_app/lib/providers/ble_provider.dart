@@ -10,7 +10,7 @@ import 'package:sofia_app/enums/operation_mode.dart';
 import 'package:sofia_app/enums/type_mission_status.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:sofia_app/interfaces/i_ble.dart';
-import 'package:sofia_app/models/device.dart';
+import 'package:sofia_app/models/BLESample.dart';
 import '../configs/index.dart';
 
 class BleProvider extends ChangeNotifier {
@@ -27,8 +27,6 @@ class BleProvider extends ChangeNotifier {
       _bluetoothState.stream;
   BluetoothAdapterState get bluetoothState => _bluetoothState.value;
 
-  //new code
-  final Map<String, BluetoothDevice> nearbyDevices = {}; // Store nearby devices
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   bool outOfService = false;
@@ -39,94 +37,29 @@ class BleProvider extends ChangeNotifier {
   int eta = -1;
   late OperationMode operationMode;
 
-  // BleProvider(this.ble) {
-  //   // Initialize local notifications
-  //   initializeNotifications();
-  //   _getBluetoothState();
-  //   ble.scanResults.listen((_) async {
-  //     final nearestDevice = await ble.nearestDevice;
-  //     if (await ble.connectionState != BluetoothConnectionState.connected &&
-  //         (await ble.nearestScan).advertisementData.connectable) {
-  //       await ble.connect(autoConnect: true);
-  //       log('Device connected ----------->>  ${nearestDevice.remoteId.str}');
-  //       await showNotification(
-  //           'Connected to ${nearestDevice.localName} ${nearestDevice.remoteId.str}}');
-  //
-  //       //await ble.discoverServices();
-  //       await readCharacteristic(nearestDevice);
-  //       await removedAllConnectedDevice();
-  //     }
-  //   });
-  // }
-
   BleProvider(this.ble) {
     // Initialize local notifications
     initializeNotifications();
     _getBluetoothState();
-    ble.scanResults.listen((results) async {
-      for (ScanResult result in results) {
-        var sample = Device(
-          deviceId: result.device.remoteId.str,
-          alias: result.device.localName,
-          // deviceType:
-          //     getDeviceType(scanResult.device, scanResult.advertisementData),
-          timestamp: DateTime.now(),
-          txPower: result.advertisementData.txPowerLevel!.toDouble(),
-          rxPower: result.rssi.toDouble(),
-        );
+    //ble.startScanningAsync(5);
 
-        final device = result.device;
-        nearbyDevices[device.remoteId.str] = device;
+    ble.scanResults.listen((_) async {
+      final nearestDevice = await ble.nearestDevice;
+      if (await ble.connectionState != BluetoothConnectionState.connected &&
+          (await ble.nearestScan).advertisementData.connectable) {
+        await ble.connect(autoConnect: true);
+        log('Device connected ----------->>  ${nearestDevice.remoteId.str}');
+        await showNotification(
+            'Connected to ${nearestDevice.localName} ${nearestDevice.remoteId.str}}');
+
+        //await ble.discoverServices();
+        await readCharacteristic(nearestDevice);
+        await removedAllConnectedDevice();
       }
-
-      connectToNearestDevice();
     });
   }
 
-  Future<void> connectToNearestDevice() async {
-    if (!await ble.isScanningNow) {
-      final nearestDevice = _findNearestConnectableDevice();
-      if (nearestDevice != null &&
-          await nearestDevice.connectionState !=
-              BluetoothConnectionState.connected) {
-        await connectToDevice(nearestDevice);
-        await _handleDeviceConnected(nearestDevice);
-      }
-    }
-  }
-  //
-  // BluetoothDevice _findNearestConnectableDevice() {
-  //   final nearbyDevicesList = nearbyDevices.values;
-  //   final nearestDevice = nearbyDevicesList.firstWhere(
-  //     (device) =>
-  //         device.connectable &&
-  //         device.rssi == nearbyDevicesList.map((d) => d.rssi).reduce(math.max),
-  //     orElse: () => null,
-  //   );
-  //   return nearestDevice;
-  // }
-
-  Future<void> connectToDevice(BluetoothDevice device) async {
-    await device.connect(autoConnect: true);
-  }
-
-  Future<void> _handleDeviceConnected(BluetoothDevice device) async {
-    log('Device connected ----------->>  ${device.remoteId.str}');
-    await showNotification(
-        'Connected to ${device.localName} ${device.remoteId.str}}');
-
-    await readCharacteristic(device);
-    await removedAllConnectedDevice();
-  }
-
-  Future<double?> getRxPower(BluetoothDevice device) async {
-    var rssi = await device.readRssi();
-    if (rssi != null) {
-      return rssi.toDouble();
-    }
-  }
-
-  // void periodicScan() {
+//   void periodicScan() {
 //  _subscription = Stream.periodic(const Duration(seconds: 2), (_) => _)
 //      .listen((_) => startScan());
 //  }
