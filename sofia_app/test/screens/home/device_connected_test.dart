@@ -15,7 +15,7 @@ void main() {
   late ProfileProvider profileProvider;
 
   setUp(() {
-    bleProvider = BleProvider(BleService());
+    bleProvider = BleProvider(BleImpl());
     profileProvider = ProfileProvider();
     profileProvider
       ..username = userName

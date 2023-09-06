@@ -49,6 +49,7 @@ dependencies:
   mockito: ^5.4.2
   flutter_animate: ^4.2.0+1
   flutter_local_notifications: ^15.1.0
+  collection: 1.17.1
 
 dev_dependencies:
   flutter_test:

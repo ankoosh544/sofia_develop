@@ -40,11 +40,19 @@ class CarStatusScreen extends StatelessWidget {
                         fontSize: 18,
                       ),
                     ),
-                    Text(
-                      context.watch<BleProvider>().carFloor.toString(),
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.black,
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(width: 10, color: Colors.blue),
+                        shape: BoxShape.circle,
+                        color: Colors.blue,
+                      ),
+                      child: Text(
+                        context.watch<BleProvider>().carFloor.toString(),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ],
@@ -72,7 +80,7 @@ class CarStatusScreen extends StatelessWidget {
                   ? const Text(
                       "In Progress of Destination Floor Data ") // Show a progress indicator if inProgress is true
                   : const Text(
-                      etaToFloor3,
+                      etaToFloor,
                       style: TextStyle(
                         fontSize: 16,
                       ),

@@ -67,7 +67,11 @@ class _TestingScreenState extends State<TestingScreen> {
                       return ListView.builder(
                         shrinkWrap: true,
                         itemBuilder: (context, index) => ListTile(
-                          title: Text(devices[index].device.localName),
+                          title: Text(devices[index]
+                              .device
+                              .localName
+                              .codeUnits
+                              .toString()),
                           subtitle: Text(devices[index].rssi.toString()),
                         ),
                         itemCount: devices.length,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sofia_app/database/app_database.dart';
+import 'package:sofia_app/database/rides/rides.dart';
 
 import '../storage/local_store.dart';
 
@@ -26,5 +27,11 @@ class ProfileProvider extends ChangeNotifier {
     print('Logout');
 
     //notifyListeners();
+    insertRides(Rides(null, 1, 'elevatorId', 1, 3));
+  }
+
+  void insertRides(Rides rides) async {
+    final ridesDio = await SofiaDatabase.ridesDao;
+    ridesDio.insertRides(rides);
   }
 }

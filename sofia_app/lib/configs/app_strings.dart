@@ -32,7 +32,7 @@ const String warningAttentionForOutOfService = 'Attention: Out Of Service';
 const String carPosition = 'Car Position';
 const String carStatus = 'Car Status';
 const String zeroFloor = '0';
-const String etaToFloor3 = 'ETA to Floor 3';
+const String etaToFloor = 'ETA to Floor ';
 const String estimatedTime = 'Estimated time less than 2 minutes';
 const String changeDestination = 'CHANGE DESTINATION';
 

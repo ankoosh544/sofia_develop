@@ -65,6 +65,8 @@ class _$AppDatabase extends AppDatabase {
 
   SettingsDao? _settingsDaoInstance;
 
+  RidesDao? _ridesDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -89,7 +91,9 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `user` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `email` TEXT NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL, `remember_me` INTEGER NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `settings` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `user_id` INTEGER NOT NULL, `dark_mode` INTEGER NOT NULL, `language` TEXT NOT NULL, FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON UPDATE NO ACTION ON DELETE CASCADE)');
+            'CREATE TABLE IF NOT EXISTS `settings` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `user_id` INTEGER NOT NULL, `dark_mode` INTEGER NOT NULL, `language` TEXT NOT NULL, `messagesfrom_smartphones` INTEGER NOT NULL, `commandto_smartphones` INTEGER NOT NULL, `priority` INTEGER NOT NULL, FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON UPDATE NO ACTION ON DELETE CASCADE)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `rides` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `user_id` INTEGER NOT NULL, `evelator_id` TEXT NOT NULL, `start_floor` INTEGER NOT NULL, `target_floor` INTEGER NOT NULL, FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON UPDATE NO ACTION ON DELETE CASCADE)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -105,6 +109,11 @@ class _$AppDatabase extends AppDatabase {
   @override
   SettingsDao get settingsDao {
     return _settingsDaoInstance ??= _$SettingsDao(database, changeListener);
+  }
+
+  @override
+  RidesDao get ridesDao {
+    return _ridesDaoInstance ??= _$RidesDao(database, changeListener);
   }
 }
 
@@ -225,7 +234,11 @@ class _$SettingsDao extends SettingsDao {
                   'id': item.id,
                   'user_id': item.userId,
                   'dark_mode': item.darkMode ? 1 : 0,
-                  'language': item.language
+                  'language': item.language,
+                  'messagesfrom_smartphones':
+                      item.messagesfrom_smartphones ? 1 : 0,
+                  'commandto_smartphones': item.commandto_smartphones ? 1 : 0,
+                  'priority': item.priority ? 1 : 0
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -243,7 +256,10 @@ class _$SettingsDao extends SettingsDao {
             row['id'] as int,
             row['user_id'] as int,
             (row['dark_mode'] as int) != 0,
-            row['language'] as String),
+            row['language'] as String,
+            (row['messagesfrom_smartphones'] as int) != 0,
+            (row['commandto_smartphones'] as int) != 0,
+            (row['priority'] as int) != 0),
         arguments: [userId]);
   }
 
@@ -251,5 +267,46 @@ class _$SettingsDao extends SettingsDao {
   Future<void> insertSettings(Settings settings) async {
     await _settingsInsertionAdapter.insert(
         settings, OnConflictStrategy.replace);
+  }
+}
+
+class _$RidesDao extends RidesDao {
+  _$RidesDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _ridesInsertionAdapter = InsertionAdapter(
+            database,
+            'rides',
+            (Rides item) => <String, Object?>{
+                  'id': item.id,
+                  'user_id': item.userId,
+                  'evelator_id': item.elevatorId,
+                  'start_floor': item.startFloor,
+                  'target_floor': item.targetFloor
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<Rides> _ridesInsertionAdapter;
+
+  @override
+  Future<List<Rides>?> getRides() async {
+    return _queryAdapter.queryList('SELECT * FROM rides',
+        mapper: (Map<String, Object?> row) => Rides(
+            row['id'] as int?,
+            row['user_id'] as int,
+            row['evelator_id'] as String,
+            row['start_floor'] as int,
+            row['target_floor'] as int));
+  }
+
+  @override
+  Future<void> insertRides(Rides rides) async {
+    await _ridesInsertionAdapter.insert(rides, OnConflictStrategy.replace);
   }
 }

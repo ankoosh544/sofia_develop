@@ -59,7 +59,7 @@ class _SofiaAppState extends State<SofiaApp> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => BleProvider(BleService()),
+      create: (_) => BleProvider(BleImpl()),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(

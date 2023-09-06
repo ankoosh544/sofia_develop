@@ -6,12 +6,6 @@ abstract class IBle {
   static const carServiceGuid = "6c962546-6011-4e1b-9d8c-05027adb3a02";
   static const floorServiceGuid = "6c962546-6011-4e1b-9d8c-05027adb3a01";
 
-  //new
-  Future<void> startScanningAsync(int scanTimeout);
-  Stream<BLESample> get onSampleReceived;
-  Stream<void> get onScanningEnd;
-  Stream<void> get onDeviceConnected;
-  Stream<void> get onDeviceDisconnected;
   Stream<BLECharacteristics> get onCharacteristicUpdated;
 
   Future<void> startScan({
@@ -39,6 +33,7 @@ abstract class IBle {
   Future<List<BluetoothDevice>> get connectedSystemDevices;
   Future<BluetoothConnectionState> get connectionState;
   Future<List<BluetoothService>> get servicesStream;
+  Stream<BluetoothDevice> get nearestDeviceStream;
 
   Future<List<BluetoothService>> discoverServices();
 }

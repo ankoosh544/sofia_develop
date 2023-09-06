@@ -9,12 +9,110 @@ import 'package:sofia_app/enums/direction.dart';
 import 'package:sofia_app/enums/operation_mode.dart';
 import 'package:sofia_app/enums/type_mission_status.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:sofia_app/interfaces/i_ble.dart';
-import 'package:sofia_app/models/BLESample.dart';
 import '../configs/index.dart';
 
+abstract class Ble {
+  Future<void> startScan({
+    ScanMode scanMode = ScanMode.lowLatency,
+    List<Guid> withServices = const [],
+    List<String> macAddresses = const [],
+    Duration? timeout,
+    bool allowDuplicates = false,
+    bool androidUsesFineLocation = false,
+  });
+  Future<void> stopScan();
+
+  bool get isScanningNow;
+  Future<ScanResult> get nearestScan;
+  Future<BluetoothDevice> get nearestDevice;
+  Future<void> connect({
+    Duration timeout = const Duration(seconds: 35),
+    bool autoConnect = false,
+  });
+  Future<void> disconnect({int timeout = 35});
+
+  Stream<List<ScanResult>> get scanResults;
+  Stream<BluetoothAdapterState> get adapterState;
+  Future<List<BluetoothDevice>> get connectedSystemDevices;
+  Future<BluetoothConnectionState> get connectionState;
+  Future<List<BluetoothService>> get servicesStream;
+
+  Future<List<BluetoothService>> discoverServices();
+}
+
+class BleImpl extends Ble {
+  @override
+  Future<void> startScan({
+    ScanMode scanMode = ScanMode.lowLatency,
+    List<Guid> withServices = const [],
+    List<String> macAddresses = const [],
+    Duration? timeout,
+    bool allowDuplicates = false,
+    bool androidUsesFineLocation = false,
+  }) async =>
+      FlutterBluePlus.startScan(
+        scanMode: scanMode,
+        withServices: withServices,
+        timeout: timeout,
+        macAddresses: macAddresses,
+        allowDuplicates: allowDuplicates,
+        androidUsesFineLocation: androidUsesFineLocation,
+      );
+
+  @override
+  Future<void> stopScan() async => FlutterBluePlus.stopScan();
+
+  @override
+  Stream<BluetoothAdapterState> get adapterState =>
+      FlutterBluePlus.adapterState;
+
+  @override
+  Future<List<BluetoothDevice>> get connectedSystemDevices =>
+      FlutterBluePlus.connectedSystemDevices;
+
+  @override
+  Future<BluetoothConnectionState> get connectionState async =>
+      (await nearestDevice).connectionState.first;
+
+  @override
+  Stream<List<ScanResult>> get scanResults => FlutterBluePlus.scanResults;
+
+  @override
+  bool get isScanningNow => FlutterBluePlus.isScanningNow;
+
+  @override
+  Future<BluetoothDevice> get nearestDevice async {
+    return (await nearestScan).device;
+  }
+
+  @override
+  Future<ScanResult> get nearestScan async => (await scanResults.first)
+      .where(
+          (e) => e.advertisementData.serviceUuids.contains(FLOOR_SERVICE_GUID))
+      .reduce((current, next) => current.rssi > next.rssi ? current : next);
+
+  @override
+  Future<void> connect({
+    Duration timeout = const Duration(seconds: 35),
+    bool autoConnect = false,
+  }) async =>
+      (await nearestDevice).connect(timeout: timeout, autoConnect: autoConnect);
+
+  @override
+  Future<void> disconnect({int timeout = 35}) async =>
+      (await nearestDevice).disconnect(timeout: timeout);
+
+  @override
+  Future<List<BluetoothService>> get servicesStream async =>
+      (await nearestDevice).servicesStream.first;
+
+  @override
+  Future<List<BluetoothService>> discoverServices() async =>
+      (await nearestDevice).discoverServices();
+}
+
 class BleProvider extends ChangeNotifier {
-  final IBle ble;
+  final Ble ble;
   final _connectedDevice = BehaviorSubject<List<BluetoothDevice>>.seeded([]);
   Stream<List<BluetoothDevice>> get connectedDeviceStream =>
       _connectedDevice.stream;
@@ -27,7 +125,8 @@ class BleProvider extends ChangeNotifier {
       _bluetoothState.stream;
   BluetoothAdapterState get bluetoothState => _bluetoothState.value;
 
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  //new code
+  final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
   bool outOfService = false;
   bool presenceOfLight = false;
@@ -38,62 +137,69 @@ class BleProvider extends ChangeNotifier {
   late OperationMode operationMode;
 
   BleProvider(this.ble) {
+    // if your terminal doesn't support color you'll see annoying logs like `\x1B[1;35m`
+    //FlutterBluePlus.setLogLevel(LogLevel.verbose, color: false);
     // Initialize local notifications
-    initializeNotifications();
+    final initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    final initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+    _notifications.initialize(initializationSettings);
     _getBluetoothState();
-    //ble.startScanningAsync(5);
+    ble.scanResults.listen((results) async {
+      final device = await ble.nearestDevice;
 
-    ble.scanResults.listen((_) async {
-      final nearestDevice = await ble.nearestDevice;
+      final l = await ble.connectionState;
+      final d = (await ble.nearestScan).advertisementData.connectable;
+      final f = isFloor(await ble.nearestScan);
+      log('NearestDevice ${device.localName.codeUnits.toString()} --->>  ${device.remoteId.str}, $l, $d, $f');
       if (await ble.connectionState != BluetoothConnectionState.connected &&
           (await ble.nearestScan).advertisementData.connectable) {
-        await ble.connect(autoConnect: true);
-        log('Device connected ----------->>  ${nearestDevice.remoteId.str}');
-        await showNotification(
-            'Connected to ${nearestDevice.localName} ${nearestDevice.remoteId.str}}');
+        if (isFloor(await ble.nearestScan)) {
+          await ble.connect();
+          final d = BluetoothDevice.fromId(
+            device.remoteId.str,
+            localName: device.localName.codeUnits.toString(),
+            type: device.type,
+          );
+          setConnectedDevice(d);
+          log('Device connected ${device.localName.codeUnits.toString()} ----------->>  ${device.remoteId.str}');
+          await removedAllConnectedDevice();
+          final connectedDevices = await ble.connectedSystemDevices;
+          log('Connected Device List ${connectedDevices.length}');
+          await _showNotification(
+              'BLE Device Connected', 'Your BLE device is now connected.');
 
-        //await ble.discoverServices();
-        await readCharacteristic(nearestDevice);
-        await removedAllConnectedDevice();
+          await readCharacteristic();
+        }
+      } else {
+        final d = BluetoothDevice.fromId(
+          device.remoteId.str,
+          localName: device.localName.codeUnits.toString(),
+          type: device.type,
+        );
+        setConnectedDevice1(d);
+        await readCharacteristic();
       }
     });
   }
+  bool isFloor(ScanResult scanResult) =>
+      scanResult.advertisementData.serviceUuids.contains(FLOOR_SERVICE_GUID);
 
-//   void periodicScan() {
-//  _subscription = Stream.periodic(const Duration(seconds: 2), (_) => _)
-//      .listen((_) => startScan());
-//  }
+  bool isCar(ScanResult scanResult) =>
+      scanResult.advertisementData.serviceUuids.contains(CAR_SERVICE_GUID);
 
-  void initializeNotifications() {
-    var initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-    var initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-    );
-    flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
-    );
-  }
-
-  Future<void> showNotification(String message) async {
-    var androidPlatformChannelSpecifics = const AndroidNotificationDetails(
-      'test_channel_id',
-      'Test_Channel',
+  Future<void> _showNotification(String title, String body) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'your_channel_id',
+      'Your Channel Name',
       importance: Importance.max,
       priority: Priority.high,
-      ticker: 'ticker',
     );
-
-    var platformChannelSpecifics = NotificationDetails(
-      android: androidPlatformChannelSpecifics,
-    );
-    await flutterLocalNotificationsPlugin.show(
-      0,
-      'Bluetooth Notification Testig',
-      message,
-      platformChannelSpecifics,
-      payload: 'notification_payload',
-    );
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    await _notifications.show(0, title, body, platformChannelSpecifics);
   }
 
   void _getBluetoothState() => ble.adapterState.listen((event) {
@@ -126,55 +232,51 @@ class BleProvider extends ChangeNotifier {
     _connectedDevice.add([]);
   }
 
-  Future<void> readCharacteristic(nearestDevice) async {
-    Stream.periodic(const Duration(seconds: 3), (_) => _).listen((e) async {
-      print('Running every 5 seconds ...............');
-      try {
-        final connection =
-            await (await ble.nearestDevice).connectionState.first;
-        if (connection == BluetoothConnectionState.connected) {
-          final services = await (await ble.nearestDevice).discoverServices();
-          for (var service in services) {
-            var characteristics = service.characteristics;
-            for (BluetoothCharacteristic c in characteristics) {
-              if (c.properties.read) {
-                var data = await c.read();
-                if (c.characteristicUuid.toString() == deviceName) {
-                  print('PSK last value: ${String.fromCharCodes(data)}');
-                  final device = await ble.nearestDevice;
-                  final myDevice = BluetoothDevice.fromId(
-                    device.remoteId.str,
-                    localName: String.fromCharCodes(c.lastValue),
-                    type: device.type,
-                  );
-                  setConnectedDevice(myDevice);
-                }
-                bleServiceOnCharacteristicUpdated(c);
-              }
-            }
-          }
-        }
-      } catch (e) {
-        log(e.toString());
+  Future<void> readCharacteristic() async {
+    try {
+      final state = await (await ble.nearestDevice).connectionState.first;
+      if (state == BluetoothConnectionState.connected) {
+        final services = await (await ble.nearestDevice).discoverServices();
+        final characteristic = services
+            .firstWhere((element) =>
+                element.serviceUuid.toString() == FLOOR_SERVICE_GUID)
+            .characteristics;
+
+        final floorChange = characteristic.firstWhere((ch) =>
+            ch.characteristicUuid.toString() == floorChangeCharacteristicGuid);
+
+        await floorChange.read();
+        await getFloorChangeRequest(floorChange);
+
+        final outOfService = characteristic.firstWhere((ch) =>
+            ch.characteristicUuid.toString() == outOfServiceCharacteristicGuid);
+
+        await outOfService.read();
+        await getOutOfService(outOfService);
       }
-    });
+    } catch (e) {
+      log(e.toString());
+    }
   }
 
   Future<void> writeCharacteristic(String floor) async {
     try {
       if (floor.isNotEmpty) {
-        final services = await (await ble.nearestDevice).discoverServices();
-        for (var service in services) {
-          var characteristics = service.characteristics;
-          for (BluetoothCharacteristic c in characteristics) {
-            if (c.properties.write) {
-              if (c.characteristicUuid.toString() ==
-                  floorRequestCharacteristicGuid) {
-                await c.write(floor.codeUnits);
-                print(
-                    'Data written : ${String.fromCharCodes(floor.codeUnits)}');
+        final state = await (await ble.nearestDevice).connectionState.first;
+        if (state == BluetoothConnectionState.connected) {
+          final services = await (await ble.nearestDevice).discoverServices();
+          for (var service in services) {
+            var characteristics = service.characteristics;
+            for (BluetoothCharacteristic c in characteristics) {
+              if (c.properties.write) {
+                if (c.characteristicUuid.toString() ==
+                    floorRequestCharacteristicGuid) {
+                  await c.write(floor.codeUnits);
+                  print(
+                      'Data written : ${String.fromCharCodes(floor.codeUnits)}');
+                  await connectToCarDevice();
+                }
               }
-              // bleServiceOnCharacteristicUpdated(c);
             }
           }
         }
@@ -184,113 +286,71 @@ class BleProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> bleServiceOnCharacteristicUpdated(
-      BluetoothCharacteristic e) async {
+  Future<void> connectToCarDevice() async {
     try {
-      print("*****This is working ********$e");
-      print(e.characteristicUuid.toString());
-      print("=============");
-      switch (e.characteristicUuid.toString()) {
-        case floorChangeCharacteristicGuid:
-          print("*******Case 1 Floor Change CharacteristicGuid***********");
-          //print(e.lastValue);
-          //print(String.fromCharCodes(e.lastValue));
-          try {
-            print(e.lastValue[0]);
-            print("shek");
-            carFloor = (e.lastValue[0] & 0x3F).toString();
-
-            print("********************************$carFloor");
-
-            if ((e.lastValue[0] & 0x40) == 0x40) {
-              presenceOfLight = true;
-              print("presenceofLight is true");
-            } else {
-              presenceOfLight = false;
-              print("presenceofLight is false");
-            }
-
-            print(presenceOfLight.toString());
-            print(presenceOfLight.toString());
-
-            if ((e.lastValue[1] & 0x1) == 0x1) {
-              if ((e.lastValue[1] & 0x02) == 0x02) {
-                carDirection = Direction.up;
-              } else {
-                carDirection = Direction.down;
-              }
-            } else {
-              carDirection = Direction.stopped;
-            }
-            print(carDirection.toString());
-            print(carDirection.toString());
-          } catch (ex) {
-            print("$ex");
-          }
-          break;
-
-        case missionStatusCharacteristicGuid:
-          print("********Case 2 MissionStatus*********");
-          print(e.lastValue);
-          print(String.fromCharCodes(e.lastValue));
-          try {
-            if (e.lastValue.length > 2) {
-              missionStatus = TypeMissionStatus.values[e.lastValue[0]];
-              print("***MissionStatus*********$missionStatus");
-              eta = e.lastValue[1] * 256 + e.lastValue[2];
-
-              print("********************eta time*******$eta");
-            }
-            // onMissionStatusChanged?.call();
-          } catch (ex) {
-            print("$ex");
-          }
-          break;
-
-        case outOfServiceCharacteristicGuid:
-          print("*********Case 3 Out-ofService**********");
-          //print(e.lastValue);
-          //print(String.fromCharCodes(e.lastValue));
-          if (e.lastValue[0] == 0) {
-            outOfService = false;
-          } else {
-            outOfService = true;
-          }
-
-          print(outOfService.toString());
-          break;
-
-        case movementDirectionCar:
-          print("*******Case 4 Car Direction******+");
-          //print(e.lastValue);
-          //print(String.fromCharCodes(e.lastValue));
-          if ((e.lastValue[0] & 0x1) == 0x1) {
-            if ((e.lastValue[0] & 0x02) == 0x02) {
-              carDirection = Direction.up;
-            } else {
-              carDirection = Direction.down;
-            }
-          } else {
-            carDirection = Direction.stopped;
-          }
-          //print(e.lastValue);
-          print("***************car direction");
-          print(carDirection.toString());
-          break;
-        default:
-          print("*******Default******+");
-          break;
-      }
-    } catch (ex) {
-      print(ex);
+      final scanResult = (await ble.scanResults.first).singleWhere(
+          (e) => e.advertisementData.serviceUuids.contains(CAR_SERVICE_GUID));
+      await scanResult.device.connect();
+    } catch (e) {
+      log(e.toString());
     }
-    notifyListeners();
   }
 
+  // Future<void> bleServiceOnCharacteristicUpdated1(
+  //     BluetoothCharacteristic e) async {
+  //   try {
+  //     switch (e.characteristicUuid.toString()) {
+  //       // case floorChangeCharacteristicGuid:
+  //       //   print("*******Case 1 Floor Change CharacteristicGuid***********");
+  //       //   try {
+  //       //     await getFloorChangeRequest(e);
+  //       //   } catch (ex) {
+  //       //     print("$ex");
+  //       //   }
+  //       //   break;
+  //       case missionStatusCharacteristicGuid:
+  //         print("********Case 2 MissionStatus*********");
+  //         try {
+  //           await getMissionStatus(e);
+  //         } catch (ex) {
+  //           print("$ex");
+  //         }
+  //         break;
+  //
+  //       case outOfServiceCharacteristicGuid:
+  //         print("*********Case 3 Out-ofService**********");
+  //         try {
+  //           await getOutOfService(e);
+  //         } catch (ex) {
+  //           print(ex);
+  //         }
+  //         break;
+  //
+  //       case movementDirectionCar:
+  //         print("*******Case 4 Car Direction******+");
+  //         try {
+  //           await getMovementDirectionCar(e);
+  //         } catch (ex) {
+  //           print(ex);
+  //         }
+  //         break;
+  //       default:
+  //         print("**************Default******+**********}");
+  //         break;
+  //     }
+  //   } catch (ex) {
+  //     print(ex);
+  //   }
+  //   notifyListeners();
+  // }
+
   Future removedAllConnectedDevice() async {
+    final state = await (await ble.nearestDevice).connectionState.first;
+
     final connectedDevices = await ble.connectedSystemDevices;
     for (var device in connectedDevices) {
-      if ((await ble.nearestDevice).remoteId.str != device.remoteId.str) {
+      if (state == BluetoothConnectionState.connected &&
+          (await ble.nearestDevice).remoteId.str != device.remoteId.str) {
         await device.disconnect();
       }
     }
@@ -298,6 +358,10 @@ class BleProvider extends ChangeNotifier {
 
   void setConnectedDevice(BluetoothDevice device) {
     _connectedDevice.value.clear();
+    _connectedDevice.add([device]);
+  }
+
+  void setConnectedDevice1(BluetoothDevice device) {
     _connectedDevice.add([device]);
   }
 
@@ -326,7 +390,75 @@ class BleProvider extends ChangeNotifier {
       return int.parse(numberAsString);
     }
 
-    // Return a default value (e.g., 0) if no numeric portion is found in the string.
     return 0;
+  }
+
+  Future<void> getFloorChangeRequest(BluetoothCharacteristic c) async {
+    await c.setNotifyValue(true);
+    c.onValueReceived.listen((value) {
+      carFloor = (value[0] & 0x3F).toString();
+      print("***********ITS WORKING $carFloor");
+      if ((value[0] & 0x40) == 0x40) {
+        presenceOfLight = true;
+        print("presenceofLight is true");
+      } else {
+        presenceOfLight = false;
+        print("presenceofLight is false");
+      }
+
+      if ((value[1] & 0x1) == 0x1) {
+        if ((value[1] & 0x02) == 0x02) {
+          carDirection = Direction.up;
+        } else {
+          carDirection = Direction.down;
+        }
+      } else {
+        carDirection = Direction.stopped;
+      }
+      notifyListeners();
+    });
+  }
+
+  Future<void> getMissionStatus(BluetoothCharacteristic c) async {
+    await c.setNotifyValue(true);
+    c.onValueReceived.listen((value) {
+      if (value.length > 2) {
+        missionStatus = TypeMissionStatus.values[value[0]];
+        print("***MissionStatus*********$missionStatus");
+        eta = value[1] * 256 + value[2];
+        print("********************eta time*******$eta");
+      }
+      notifyListeners();
+    });
+  }
+
+  Future<void> getOutOfService(BluetoothCharacteristic e) async {
+    print("coming to outofservice");
+    await e.setNotifyValue(true);
+    e.onValueReceived.listen((value) {
+      if (value[0] == 0) {
+        outOfService = false;
+      } else {
+        outOfService = true;
+      }
+      print("******outofservice*****$outOfService**************");
+      notifyListeners();
+    });
+  }
+
+  Future<void> getMovementDirectionCar(BluetoothCharacteristic e) async {
+    await e.setNotifyValue(true);
+    e.onValueReceived.listen((value) {
+      if ((value[0] & 0x1) == 0x1) {
+        if ((value[0] & 0x02) == 0x02) {
+          carDirection = Direction.up;
+        } else {
+          carDirection = Direction.down;
+        }
+      } else {
+        carDirection = Direction.stopped;
+      }
+      notifyListeners();
+    });
   }
 }

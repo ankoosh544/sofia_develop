@@ -26,7 +26,7 @@ void main() {
       home: MultiProvider(
         providers: [
           ListenableProvider<BleProvider>(
-            create: (_) => BleProvider(BleService()),
+            create: (_) => BleProvider(BleImpl()),
           ),
           ListenableProvider<SettingsProvider>(
               create: (_) => SettingsProvider()),

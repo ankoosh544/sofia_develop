@@ -16,7 +16,7 @@ void main() {
         providers: [
           ListenableProvider<BleProvider>(
             create: (_) => BleProvider(
-              BleService(),
+              BleImpl(),
             ),
           ),
           ListenableProvider<ProfileProvider>(
