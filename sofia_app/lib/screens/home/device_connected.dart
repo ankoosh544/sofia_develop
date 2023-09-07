@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:sofia_app/configs/index.dart';
 import 'package:sofia_app/custom/light_warning_message.dart';
 import 'package:sofia_app/custom/out_of_service_message.dart';
+import 'package:sofia_app/notifications/notificaiton_service.dart';
 import 'package:sofia_app/providers/index.dart';
 import 'package:sofia_app/screens/car_status/car_status_screen.dart';
 
@@ -28,6 +29,17 @@ class DeviceConnected extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            ElevatedButton(
+                onPressed: () {
+                  NotificationService service = NotificationService();
+                  service.initNotification();
+                  service.sendNotification(
+                    notificationId: 0,
+                    title: 'Sample Notification',
+                    body: 'Notification details',
+                  );
+                },
+                child: const Text('Notify')),
             Text(
               '$welcomeMessage ${context.watch<ProfileProvider>().username}'
                   .trim(),

@@ -125,9 +125,6 @@ class BleProvider extends ChangeNotifier {
       _bluetoothState.stream;
   BluetoothAdapterState get bluetoothState => _bluetoothState.value;
 
-  //new code
-  final FlutterLocalNotificationsPlugin _notifications =
-      FlutterLocalNotificationsPlugin();
   bool outOfService = false;
   bool presenceOfLight = false;
   String carFloor = "--";
@@ -140,11 +137,7 @@ class BleProvider extends ChangeNotifier {
     // if your terminal doesn't support color you'll see annoying logs like `\x1B[1;35m`
     //FlutterBluePlus.setLogLevel(LogLevel.verbose, color: false);
     // Initialize local notifications
-    final initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-    final initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
-    _notifications.initialize(initializationSettings);
+
     _getBluetoothState();
     ble.scanResults.listen((results) async {
       final device = await ble.nearestDevice;
@@ -167,8 +160,8 @@ class BleProvider extends ChangeNotifier {
           await removedAllConnectedDevice();
           final connectedDevices = await ble.connectedSystemDevices;
           log('Connected Device List ${connectedDevices.length}');
-          await _showNotification(
-              'BLE Device Connected', 'Your BLE device is now connected.');
+          // await _showNotification(
+          //     'BLE Device Connected', 'Your BLE device is now connected.');
 
           await readCharacteristic();
         }
@@ -188,19 +181,6 @@ class BleProvider extends ChangeNotifier {
 
   bool isCar(ScanResult scanResult) =>
       scanResult.advertisementData.serviceUuids.contains(CAR_SERVICE_GUID);
-
-  Future<void> _showNotification(String title, String body) async {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
-      'your_channel_id',
-      'Your Channel Name',
-      importance: Importance.max,
-      priority: Priority.high,
-    );
-    const NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
-    await _notifications.show(0, title, body, platformChannelSpecifics);
-  }
 
   void _getBluetoothState() => ble.adapterState.listen((event) {
         if (event == BluetoothAdapterState.on) {
