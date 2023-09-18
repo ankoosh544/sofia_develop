@@ -7,7 +7,6 @@ import 'package:sofia_app/providers/registration_provider.dart';
 import 'package:sofia_app/screens/car_status/car_status_screen.dart';
 import 'package:sofia_app/screens/login/login_screen.dart';
 import 'package:sofia_app/screens/registration/registration_screen.dart';
-import 'package:sofia_app/services/ble_service.dart';
 import 'database/app_database.dart';
 import 'providers/login_provider.dart';
 import 'screens/home/home_screen.dart';
@@ -79,9 +78,9 @@ class _SofiaAppState extends State<SofiaApp> {
         ],
         locale: _locale,
         routes: {
-          '/login': (context) => launchLoginScreen(),
+          '/': (context) => launchLoginScreen(),
           '/register': (context) => launchRegistrationScreen(),
-          '/': (context) => _launchHomeScreen(),
+          '/home': (context) => _launchHomeScreen(),
           '/car': (context) => _launchCarStatusScreen(),
         },
       ),
