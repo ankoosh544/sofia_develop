@@ -51,6 +51,7 @@ dependencies:
   flutter_local_notifications: ^15.1.0
   collection: 1.17.1
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

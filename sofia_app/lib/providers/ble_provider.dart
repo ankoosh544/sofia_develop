@@ -141,6 +141,7 @@ class BleProvider extends ChangeNotifier {
     _getBluetoothState();
     ble.scanResults.listen((results) async {
       final device = await ble.nearestDevice;
+      print("===================$device");
 
       final l = await ble.connectionState;
       final d = (await ble.nearestScan).advertisementData.connectable;

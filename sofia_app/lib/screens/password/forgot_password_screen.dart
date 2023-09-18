@@ -12,34 +12,34 @@ class ForgotPasswordScreen extends StatelessWidget {
       create: (_) => ForgotPasswordProvider(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Forgot Password Screen'),
+          title: const Text('Forgot Password Screen'),
         ),
         body: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TextFormField(
-                style: TextStyle(color: Colors.black),
+                style: const TextStyle(color: Colors.black),
                 decoration: InputDecoration(
                   hintText: AppLocalizations.of(context)!.email,
-                  hintStyle: TextStyle(color: Colors.grey),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
+                  hintStyle: const TextStyle(color: Colors.black),
+                  enabledBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
+                  focusedBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black),
                   ),
-                  prefixIcon: Icon(
+                  prefixIcon: const Icon(
                     Icons.email,
-                    color: Colors.blue,
+                    color: Colors.black,
                   ),
                 ),
                 onChanged: (value) {
                   context.read<ForgotPasswordProvider>().setEmail(value);
                 },
               ),
-              SizedBox(
+              const SizedBox(
                   height:
                       20), // Add some spacing between the text field and the button
               ElevatedButton(
@@ -47,12 +47,12 @@ class ForgotPasswordScreen extends StatelessWidget {
                   // Add your logic here for the button's functionality
                 },
                 child: Text(
-                  'Reset Password',
+                  'Send',
                   style: TextStyle(fontSize: 16),
                 ),
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.blue, // Background color
-                  onPrimary: Colors.white, // Text color
+                  backgroundColor: Colors.black, // Background color
+                  foregroundColor: Colors.white, // Text color
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),

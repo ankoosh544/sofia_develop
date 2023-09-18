@@ -67,15 +67,13 @@ class SettingsScreen extends StatelessWidget {
             _buildSectionTitle(
               AppLocalizations.of(context)!.settingsstatement1,
             ),
-            _buildRadioListTile(
+            _buildSwitchListTile(
               AppLocalizations.of(context)!.settingsstatement1Option1,
-              'audio',
               isAudioEnabled,
               settingsProvider.setAudioEnabled,
             ),
-            _buildRadioListTile(
+            _buildSwitchListTile(
               AppLocalizations.of(context)!.settingsstatement1Option2,
-              'visual',
               isVisualEnabled,
               settingsProvider.setVisualEnabled,
             ),
