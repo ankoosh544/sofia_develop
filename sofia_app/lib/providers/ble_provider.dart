@@ -132,6 +132,7 @@ class BleProvider extends ChangeNotifier {
   TypeMissionStatus missionStatus = TypeMissionStatus.missionNoInit;
   int eta = -1;
   late OperationMode operationMode;
+  bool _showNotification = false;
 
   BleProvider(this.ble) {
     // if your terminal doesn't support color you'll see annoying logs like `\x1B[1;35m`

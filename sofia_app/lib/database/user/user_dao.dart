@@ -10,6 +10,9 @@ abstract class UserDao {
   @Query('SELECT * FROM user WHERE id = :id')
   Future<User?> getUserById(int id);
 
+  @Query('SELECT * FROM user WHERE email = :email LIMIT 1')
+  Future<User?> getUserByEmail(String email);
+
   @Query(
       'SELECT * FROM user WHERE username = :username AND password = :password')
   Future<User?> getUserByUsername(String username, String password);

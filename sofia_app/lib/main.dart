@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:sofia_app/providers/ble_provider.dart';
+import 'package:sofia_app/providers/forgot_password_provider.dart';
 import 'package:sofia_app/providers/registration_provider.dart';
 import 'package:sofia_app/screens/car_status/car_status_screen.dart';
 import 'package:sofia_app/screens/login/login_screen.dart';
@@ -32,7 +33,17 @@ void main() async {
 }
 
 void _launchApp() {
-  runApp(const SofiaApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => BleProvider(BleImpl())),
+        ChangeNotifierProvider(create: (_) => LoginProvider()),
+        ChangeNotifierProvider(create: (_) => RegistrationProvider()),
+        ChangeNotifierProvider(create: (_) => ForgotPasswordProvider()),
+      ],
+      child: const SofiaApp(),
+    ),
+  );
 }
 
 class SofiaApp extends StatefulWidget {

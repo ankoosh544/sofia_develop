@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sofia_app/database/app_database.dart';
 
 class ForgotPasswordProvider extends ChangeNotifier {
   final TextEditingController emailController = TextEditingController();
@@ -30,5 +31,13 @@ class ForgotPasswordProvider extends ChangeNotifier {
     final emailRegex = r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$';
     final regex = RegExp(emailRegex);
     return regex.hasMatch(email);
+  }
+
+  Future<String?> fetchPasswordFromDatabase(String email) async {
+    final database =
+        await $FloorAppDatabase.databaseBuilder('app_database.db').build();
+    final userDao = database.userDao;
+    final user = await userDao.getUserByEmail(email);
+    return user?.password;
   }
 }

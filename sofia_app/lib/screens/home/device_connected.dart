@@ -29,35 +29,39 @@ class DeviceConnected extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ElevatedButton(
-                onPressed: () {
-                  NotificationService service = NotificationService();
-                  service.initNotification();
-                  service.sendNotification(
-                    notificationId: 0,
-                    title: 'Sample Notification',
-                    body: 'Notification details',
-                  );
-                },
-                child: const Text('Notify')),
+            // ElevatedButton(
+            //     onPressed: () {
+            //       NotificationService service = NotificationService();
+            //       service.initNotification();
+            //       service.sendNotification(
+            //         notificationId: 0,
+            //         title: 'Sample Notification',
+            //         body: 'Notification details',
+            //       );
+            //     },
+            //     child: const Text('Notify')),
             Text(
               '$welcomeMessage ${context.watch<ProfileProvider>().username}'
                   .trim(),
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: TextStyle(color: Colors.blueGrey, fontSize: 28),
             ),
             const SizedBox(
               height: size_16,
             ),
-            Text(
+            const Text(
               greetingMessage,
-              style: Theme.of(context).textTheme.bodyLarge,
+              style: TextStyle(color: Colors.blueGrey, fontSize: 20),
             ),
             const SizedBox(
               height: size_16,
             ),
-            Text(
+            const Text(
               sourceFrom,
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: TextStyle(
+                fontSize: 20, // Example font size
+                fontWeight: FontWeight.bold, // Example font weight
+                color: Colors.blueGrey, // Example text color
+              ),
             ),
             const SizedBox(
               height: size_16,
@@ -68,6 +72,14 @@ class DeviceConnected extends StatelessWidget {
               builder: (context, snapshot) {
                 if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                   final device = snapshot.data!.first;
+
+                  NotificationService service = NotificationService();
+                  service.initNotification();
+                  service.sendNotification(
+                    notificationId: 0,
+                    title: 'Sofia App is Near to Elevator',
+                    body: 'Sofia is Connected to Elevator',
+                  );
 
                   return StreamBuilder<BluetoothConnectionState>(
                     stream: device.connectionState,
@@ -116,9 +128,13 @@ class DeviceConnected extends StatelessWidget {
             const SizedBox(
               height: size_16,
             ),
-            Text(
+            const Text(
               sourceTo,
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: TextStyle(
+                fontSize: 20, // Example font size
+                fontWeight: FontWeight.bold, // Example font weight
+                color: Colors.blueGrey, // Example text color
+              ),
             ),
             const SizedBox(
               height: size_16,
@@ -217,7 +233,14 @@ class ConnectionInProgress extends StatelessWidget {
   Widget build(BuildContext context) {
     return Animate(
       effects: const [FadeEffect(), ScaleEffect()],
-      child: const Text(waitingForConnection),
+      child: const Text(
+        waitingForConnection,
+        style: TextStyle(
+          fontSize: 18, // Example font size
+
+          color: Colors.blueGrey, // Example text color
+        ),
+      ),
     );
   }
 }

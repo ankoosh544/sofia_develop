@@ -191,6 +191,18 @@ class _$UserDao extends UserDao {
   }
 
   @override
+  Future<User?> getUserByEmail(String email) async {
+    return _queryAdapter.query('SELECT * FROM user WHERE email = ?1',
+        mapper: (Map<String, Object?> row) => User(
+            row['id'] as int?,
+            row['email'] as String,
+            row['username'] as String,
+            row['password'] as String,
+            (row['remember_me'] as int) != 0),
+        arguments: [email]);
+  }
+
+  @override
   Future<User?> getUserByUsername(
     String username,
     String password,
