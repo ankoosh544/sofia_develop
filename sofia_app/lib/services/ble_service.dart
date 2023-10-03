@@ -33,11 +33,8 @@ class BleService implements IBle {
     bool androidUsesFineLocation = false,
   }) async =>
       FlutterBluePlus.startScan(
-        scanMode: scanMode,
         withServices: withServices,
         timeout: timeout,
-        macAddresses: macAddresses,
-        allowDuplicates: allowDuplicates,
         androidUsesFineLocation: androidUsesFineLocation,
       );
 

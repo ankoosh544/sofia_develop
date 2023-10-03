@@ -26,200 +26,204 @@ class DeviceConnected extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(size_16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // ElevatedButton(
-            //     onPressed: () {
-            //       NotificationService service = NotificationService();
-            //       service.initNotification();
-            //       service.sendNotification(
-            //         notificationId: 0,
-            //         title: 'Sample Notification',
-            //         body: 'Notification details',
-            //       );
-            //     },
-            //     child: const Text('Notify')),
-            Text(
-              '$welcomeMessage ${context.watch<ProfileProvider>().username}'
-                  .trim(),
-              style: TextStyle(color: Colors.blueGrey, fontSize: 28),
-            ),
-            const SizedBox(
-              height: size_16,
-            ),
-            const Text(
-              greetingMessage,
-              style: TextStyle(color: Colors.blueGrey, fontSize: 20),
-            ),
-            const SizedBox(
-              height: size_16,
-            ),
-            const Text(
-              sourceFrom,
-              style: TextStyle(
-                fontSize: 20, // Example font size
-                fontWeight: FontWeight.bold, // Example font weight
-                color: Colors.blueGrey, // Example text color
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // ElevatedButton(
+              //     onPressed: () {
+              //       NotificationService service = NotificationService();
+              //       service.initNotification();
+              //       service.sendNotification(
+              //         notificationId: 0,
+              //         title: 'Sample Notification',
+              //         body: 'Notification details',
+              //       );
+              //     },
+              //     child: const Text('Notify')),
+              Text(
+                '$welcomeMessage ${context.watch<ProfileProvider>().username}'
+                    .trim(),
+                style: TextStyle(color: Colors.blueGrey, fontSize: 28),
               ),
-            ),
-            const SizedBox(
-              height: size_16,
-            ),
-            StreamBuilder<List<BluetoothDevice>>(
-              stream: context.read<BleProvider>().connectedDeviceStream,
-              initialData: const [],
-              builder: (context, snapshot) {
-                if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                  final device = snapshot.data!.first;
-
-                  NotificationService service = NotificationService();
-                  service.initNotification();
-                  service.sendNotification(
-                    notificationId: 0,
-                    title: 'Sofia App is Near to Elevator',
-                    body: 'Sofia is Connected to Elevator',
-                  );
-
-                  return StreamBuilder<BluetoothConnectionState>(
-                    stream: device.connectionState,
-                    initialData: BluetoothConnectionState.disconnected,
-                    builder: (c, snapshot) {
-                      if (snapshot.data == BluetoothConnectionState.connected) {
-                        return Container(
-                          width: MediaQuery.sizeOf(context).height * .09,
-                          height: MediaQuery.sizeOf(context).height * .09,
-                          decoration: BoxDecoration(
-                            border: Border.all(width: 2, color: Colors.green),
-                            shape: BoxShape.circle,
-                            color: Colors.blue,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Animate(
-                                effects: const [FadeEffect(), ScaleEffect()],
-                                child: Text(
-                                  context
-                                      .read<BleProvider>()
-                                      .getFloorNumber(device.localName)
-                                      .toString(),
-                                  style: const TextStyle(
-                                    fontSize: 38,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                        );
-                      } else {
-                        context.read<BleProvider>().clearConnectedDevice();
-                        return const ConnectionInProgress();
-                      }
-                    },
-                  );
-                } else {
-                  return const ConnectionInProgress();
-                }
-              },
-            ),
-            const SizedBox(
-              height: size_16,
-            ),
-            const Text(
-              sourceTo,
-              style: TextStyle(
-                fontSize: 20, // Example font size
-                fontWeight: FontWeight.bold, // Example font weight
-                color: Colors.blueGrey, // Example text color
+              const SizedBox(
+                height: size_16,
               ),
-            ),
-            const SizedBox(
-              height: size_16,
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 100),
-              decoration: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: Colors.blueAccent,
-                    width: 1,
-                  ), // Underline style
+              const Text(
+                greetingMessage,
+                style: TextStyle(color: Colors.blueGrey, fontSize: 20),
+              ),
+              const SizedBox(
+                height: size_16,
+              ),
+              const Text(
+                sourceFrom,
+                style: TextStyle(
+                  fontSize: 20, // Example font size
+                  fontWeight: FontWeight.bold, // Example font weight
+                  color: Colors.blueGrey, // Example text color
                 ),
               ),
-              child: TextFormField(
-                decoration: const InputDecoration(
-                  hintText: hintDestination,
-                  hintStyle: TextStyle(fontSize: 20, color: Colors.blueGrey),
-                  border: UnderlineInputBorder(
-                    borderSide: BorderSide.none, // Remove the border
-                  ),
-                ),
-                keyboardType: TextInputType.number,
-                textInputAction: TextInputAction.done,
-                style: const TextStyle(fontSize: 30, color: Colors.blueGrey),
-                onFieldSubmitted: (value) {
-                  // Redirect to the status screen when done button is pressed
-                  context.read<BleProvider>().writeCharacteristic(value);
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const CarStatusScreen(),
-                    ),
-                  );
-                },
+              const SizedBox(
+                height: size_16,
               ),
-            ),
-            const SizedBox(
-              height: size_20,
-            ),
-            if (!context.watch<BleProvider>().presenceOfLight)
-              LightWarningMessage(message: warningAttentionforLight),
-            const SizedBox(
-              height: size_20,
-            ),
-            if (context.watch<BleProvider>().outOfService)
-              OutOfServiceMessage(message: warningAttentionForOutOfService),
-            if (isTestingMode)
               StreamBuilder<List<BluetoothDevice>>(
                 stream: context.read<BleProvider>().connectedDeviceStream,
                 initialData: const [],
-                builder: (c, snapshot) {
-                  return Column(
-                    children: snapshot.data!.map((device) {
-                      //log('Psk : ${device.toString()}');
-                      int floorNumber = context
-                          .read<BleProvider>()
-                          .getFloorNumber(device.localName);
-                      return ListTile(
-                        title: Text(floorNumber.toString()),
-                        subtitle: Text(device.remoteId.toString()),
-                        trailing: StreamBuilder<BluetoothConnectionState>(
-                          stream: device.connectionState,
-                          initialData: BluetoothConnectionState.disconnected,
-                          builder: (c, snapshot) {
-                            if (snapshot.data ==
-                                BluetoothConnectionState.connected) {
-                              return ElevatedButton(
-                                child: const Text('OPEN'),
-                                onPressed: () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        DeviceScreen(device: device),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                    final device = snapshot.data!.first;
+
+                    NotificationService service = NotificationService();
+                    service.initNotification();
+                    service.sendNotification(
+                      notificationId: 0,
+                      title: 'Sofia App is Near to Elevator',
+                      body: 'Sofia is Connected to Elevator',
+                    );
+
+                    return StreamBuilder<BluetoothConnectionState>(
+                      stream: device.connectionState,
+                      initialData: BluetoothConnectionState.disconnected,
+                      builder: (c, snapshot) {
+                        if (snapshot.data ==
+                            BluetoothConnectionState.connected) {
+                          return Container(
+                            width: MediaQuery.sizeOf(context).height * .09,
+                            height: MediaQuery.sizeOf(context).height * .09,
+                            decoration: BoxDecoration(
+                              border: Border.all(width: 2, color: Colors.green),
+                              shape: BoxShape.circle,
+                              color: Colors.blue,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Animate(
+                                  effects: const [FadeEffect(), ScaleEffect()],
+                                  child: Text(
+                                    context
+                                        .read<BleProvider>()
+                                        .getFloorNumber(device.localName)
+                                        .toString(),
+                                    style: const TextStyle(
+                                      fontSize: 38,
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                ),
-                              );
-                            }
-                            return Text(snapshot.data.toString());
-                          },
-                        ),
-                      );
-                    }).toList(),
-                  );
+                                )
+                              ],
+                            ),
+                          );
+                        } else {
+                          context.read<BleProvider>().clearConnectedDevice();
+                          return const ConnectionInProgress();
+                        }
+                      },
+                    );
+                  } else {
+                    return const ConnectionInProgress();
+                  }
                 },
               ),
-          ],
+              const SizedBox(
+                height: size_16,
+              ),
+              const Text(
+                sourceTo,
+                style: TextStyle(
+                  fontSize: 20, // Example font size
+                  fontWeight: FontWeight.bold, // Example font weight
+                  color: Colors.blueGrey, // Example text color
+                ),
+              ),
+              const SizedBox(
+                height: size_16,
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 0, horizontal: 100),
+                decoration: const BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Colors.blueAccent,
+                      width: 1,
+                    ), // Underline style
+                  ),
+                ),
+                child: TextFormField(
+                  decoration: const InputDecoration(
+                    hintText: hintDestination,
+                    hintStyle: TextStyle(fontSize: 20, color: Colors.blueGrey),
+                    border: UnderlineInputBorder(
+                      borderSide: BorderSide.none, // Remove the border
+                    ),
+                  ),
+                  keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.done,
+                  style: const TextStyle(fontSize: 30, color: Colors.blueGrey),
+                  onFieldSubmitted: (value) {
+                    // Redirect to the status screen when done button is pressed
+                    context.read<BleProvider>().writeCharacteristic(value);
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const CarStatusScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(
+                height: size_20,
+              ),
+              if (!context.watch<BleProvider>().presenceOfLight)
+                LightWarningMessage(message: warningAttentionforLight),
+              const SizedBox(
+                height: size_20,
+              ),
+              if (context.watch<BleProvider>().outOfService)
+                OutOfServiceMessage(message: warningAttentionForOutOfService),
+              if (isTestingMode)
+                StreamBuilder<List<BluetoothDevice>>(
+                  stream: context.read<BleProvider>().connectedDeviceStream,
+                  initialData: const [],
+                  builder: (c, snapshot) {
+                    return Column(
+                      children: snapshot.data!.map((device) {
+                        //log('Psk : ${device.toString()}');
+                        int floorNumber = context
+                            .read<BleProvider>()
+                            .getFloorNumber(device.localName);
+                        return ListTile(
+                          title: Text(floorNumber.toString()),
+                          subtitle: Text(device.remoteId.toString()),
+                          trailing: StreamBuilder<BluetoothConnectionState>(
+                            stream: device.connectionState,
+                            initialData: BluetoothConnectionState.disconnected,
+                            builder: (c, snapshot) {
+                              if (snapshot.data ==
+                                  BluetoothConnectionState.connected) {
+                                return ElevatedButton(
+                                  child: const Text('OPEN'),
+                                  onPressed: () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          DeviceScreen(device: device),
+                                    ),
+                                  ),
+                                );
+                              }
+                              return Text(snapshot.data.toString());
+                            },
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
+            ],
+          ),
         ),
       ),
     );

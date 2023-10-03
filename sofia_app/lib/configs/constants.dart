@@ -24,7 +24,7 @@ const floorChangeCharacteristicGuid =
     "beb5483e-36e1-4688-b7f5-ea07361b26a9"; // send to the phone where the booth is
 
 const missionStatusCharacteristicGuid =
-    "beb5483e-36e1-4688-b7f5-ea07361b26aa"; // cabin on the destination floor
+    "beb5483e-36e1-4688-b7f5-ea07361b26aa"; // cabin on the destination floor7
 
 const outOfServiceCharacteristicGuid =
     "beb5483e-36e1-4688-b7f5-ea07361b26ab"; // out of service lift default 0

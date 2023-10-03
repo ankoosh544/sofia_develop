@@ -6,6 +6,7 @@ import 'package:sofia_app/providers/login_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../password/forgot_password_screen.dart';
 import '../../configs/app_strings.dart';
+import 'package:sofia_app/storage/local_store.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({Key? key});
@@ -90,6 +91,19 @@ class LoginScreen extends StatelessWidget {
                           context
                               .read<LoginProvider>()
                               .toggleRememberMe(value!);
+                          if (value) {
+                            var username =
+                                context.read<LoginProvider>().username;
+                            var password =
+                                context.read<LoginProvider>().password;
+                            LocalStore.setValue(
+                                key: 'username', value: username);
+                            LocalStore.setValue(
+                                key: 'password', value: password);
+                          } else {
+                            LocalStore.delete(key: 'username');
+                            LocalStore.delete(key: 'password');
+                          }
                         },
                       ),
                       const Text(

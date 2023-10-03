@@ -51,13 +51,11 @@ class BleImpl extends Ble {
     bool androidUsesFineLocation = false,
   }) async =>
       FlutterBluePlus.startScan(
-        scanMode: scanMode,
         withServices: withServices,
         timeout: timeout,
-        macAddresses: macAddresses,
-        allowDuplicates: allowDuplicates,
         androidUsesFineLocation: androidUsesFineLocation,
       );
+  //FlutterBluePlus.startScan(oneByOne: true);
 
   @override
   Future<void> stopScan() async => FlutterBluePlus.stopScan();
@@ -87,8 +85,7 @@ class BleImpl extends Ble {
 
   @override
   Future<ScanResult> get nearestScan async => (await scanResults.first)
-      .where(
-          (e) => e.advertisementData.serviceUuids.contains(FLOOR_SERVICE_GUID))
+      .where((e) => e.advertisementData.serviceUuids.contains(ESP_SERVICE_GUID))
       .reduce((current, next) => current.rssi > next.rssi ? current : next);
 
   @override
@@ -127,7 +124,8 @@ class BleProvider extends ChangeNotifier {
 
   bool outOfService = false;
   bool presenceOfLight = false;
-  String carFloor = "--";
+  //String carFloor = "--";
+  String carFloor = "999";
   Direction carDirection = Direction.stopped;
   TypeMissionStatus missionStatus = TypeMissionStatus.missionNoInit;
   int eta = -1;
@@ -164,7 +162,7 @@ class BleProvider extends ChangeNotifier {
           log('Connected Device List ${connectedDevices.length}');
           // await _showNotification(
           //     'BLE Device Connected', 'Your BLE device is now connected.');
-
+          await writeCharacteristic(d.localName);
           await readCharacteristic();
         }
       } else {
@@ -178,8 +176,41 @@ class BleProvider extends ChangeNotifier {
       }
     });
   }
+
+//get elevator to connected floor
+
+  // Future<void> getPianoCabina() async {
+  //   try {
+  //     carFloor = "999";
+  //     if (await ble.nearestScan.re.toString() != "") {
+  //       try {
+  //         await bleService.getValueFromCharacteristicGuid(
+  //             IBLEService.floorServiceGuid, floorChangeCharacteristicGuid);
+  //       } catch (e) {
+  //         return;
+  //         //await App.current.mainPage.displayAlert("Alert", e.toString());
+  //       }
+  //       if (bleService.valueFromCharacteristic != null) {
+  //         try {
+  //           carFloor =
+  //               (bleService.valueFromCharacteristic[0] & 0x3F).toString();
+  //         } catch (e) {
+  //           if (Preferences.get("DevOptions", false) == true) {
+  //             carFloor = "*****";
+  //             //debugPrint("***** Caratteristica non trovata ******");
+  //           }
+  //         }
+  //       } else {
+  //         carFloor = "999";
+  //       }
+  //     }
+  //   } catch (ex) {
+  //     print(ex);
+  //   }
+  // }
+
   bool isFloor(ScanResult scanResult) =>
-      scanResult.advertisementData.serviceUuids.contains(FLOOR_SERVICE_GUID);
+      scanResult.advertisementData.serviceUuids.contains(ESP_SERVICE_GUID);
 
   bool isCar(ScanResult scanResult) =>
       scanResult.advertisementData.serviceUuids.contains(CAR_SERVICE_GUID);
@@ -247,20 +278,34 @@ class BleProvider extends ChangeNotifier {
         final state = await (await ble.nearestDevice).connectionState.first;
         if (state == BluetoothConnectionState.connected) {
           final services = await (await ble.nearestDevice).discoverServices();
-          for (var service in services) {
-            var characteristics = service.characteristics;
-            for (BluetoothCharacteristic c in characteristics) {
-              if (c.properties.write) {
-                if (c.characteristicUuid.toString() ==
-                    floorRequestCharacteristicGuid) {
-                  await c.write(floor.codeUnits);
-                  print(
-                      'Data written : ${String.fromCharCodes(floor.codeUnits)}');
-                  await connectToCarDevice();
-                }
-              }
-            }
-          }
+          final characteristic = services
+              .firstWhere((element) =>
+                  element.serviceUuid.toString() == FLOOR_SERVICE_GUID)
+              .characteristics;
+
+          final floorrequest = characteristic.firstWhere((ch) =>
+              ch.characteristicUuid.toString() ==
+              floorRequestCharacteristicGuid);
+
+          await floorrequest.write(floor.codeUnits);
+          print(
+              '*******Data written****** : ${String.fromCharCodes(floor.codeUnits)}');
+          await connectToCarDevice();
+
+          // for (var service in services) {
+          //   var characteristics = service.characteristics;
+          //   for (BluetoothCharacteristic c in characteristics) {
+          //     if (c.properties.write) {
+          //       if (c.characteristicUuid.toString() ==
+          //           floorRequestCharacteristicGuid) {
+          //         await c.write(floor.codeUnits);
+          //         print(
+          //             'Data written : ${String.fromCharCodes(floor.codeUnits)}');
+          //         await connectToCarDevice();
+          //       }
+          //     }
+          //   }
+          // }
         }
       }
     } catch (e) {

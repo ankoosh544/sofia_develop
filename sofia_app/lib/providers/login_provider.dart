@@ -65,4 +65,20 @@ class LoginProvider with ChangeNotifier {
     // Close the database
     // await database.close();
   }
+
+  void loadRememberMeData() async {
+    final rememberMeValue = await LocalStore.getValue(key: _rememberMeKey);
+    final storedUsername = await LocalStore.getValue(key: _usernameKey);
+    final storedPassword = await LocalStore.getValue(key: _passwordKey);
+
+    if (rememberMeValue == 'true' &&
+        storedUsername != null &&
+        storedPassword != null) {
+      rememberMe = true;
+      username = storedUsername;
+      password = storedPassword;
+    }
+
+    notifyListeners();
+  }
 }

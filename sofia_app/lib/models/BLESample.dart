@@ -1,16 +1,14 @@
 class BLESample {
   String deviceId;
-  // BleDeviceType deviceType;
   String alias;
-  DateTime timestamp;
+  DateTime? timestamp;
   int? txPower;
   int? rxPower;
 
   BLESample({
     required this.deviceId,
-    // required this.deviceType,
     required this.alias,
-    required this.timestamp,
+    this.timestamp,
     this.txPower,
     this.rxPower,
   });

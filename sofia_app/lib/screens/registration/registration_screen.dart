@@ -68,7 +68,7 @@ class RegistrationScreen extends StatelessWidget {
             SizedBox(height: 16.0),
             TextFormField(
               obscureText:
-                  !context.read<RegistrationProvider>().isPasswordVisible,
+                  !context.watch<RegistrationProvider>().isPasswordVisible,
               style: TextStyle(color: Colors.blueGrey),
               decoration: InputDecoration(
                 hintText: AppLocalizations.of(context)!.password,
