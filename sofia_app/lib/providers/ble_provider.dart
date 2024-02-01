@@ -10,6 +10,7 @@ import 'package:sofia_app/enums/operation_mode.dart';
 import 'package:sofia_app/enums/type_mission_status.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../configs/index.dart';
+import 'package:sofia_app/screens/no_device_found_screen.dart';
 
 abstract class Ble {
   Future<void> startScan({
@@ -85,7 +86,8 @@ class BleImpl extends Ble {
 
   @override
   Future<ScanResult> get nearestScan async => (await scanResults.first)
-      .where((e) => e.advertisementData.serviceUuids.contains(ESP_SERVICE_GUID))
+      .where(
+          (e) => e.advertisementData.serviceUuids.contains(FLOOR_SERVICE_GUID))
       .reduce((current, next) => current.rssi > next.rssi ? current : next);
 
   @override
@@ -140,8 +142,6 @@ class BleProvider extends ChangeNotifier {
     _getBluetoothState();
     ble.scanResults.listen((results) async {
       final device = await ble.nearestDevice;
-      print("===================$device");
-
       final l = await ble.connectionState;
       final d = (await ble.nearestScan).advertisementData.connectable;
       final f = isFloor(await ble.nearestScan);
@@ -174,7 +174,7 @@ class BleProvider extends ChangeNotifier {
         setConnectedDevice1(d);
         await readCharacteristic();
       }
-    });
+    }, onError: (error) {});
   }
 
 //get elevator to connected floor
@@ -208,9 +208,15 @@ class BleProvider extends ChangeNotifier {
   //     print(ex);
   //   }
   // }
+  // void navigateToNoDeviceFoundScreen(BuildContext context) {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (context) => NoDeviceFoundScreen()),
+  //   );
+  // }
 
   bool isFloor(ScanResult scanResult) =>
-      scanResult.advertisementData.serviceUuids.contains(ESP_SERVICE_GUID);
+      scanResult.advertisementData.serviceUuids.contains(FLOOR_SERVICE_GUID);
 
   bool isCar(ScanResult scanResult) =>
       scanResult.advertisementData.serviceUuids.contains(CAR_SERVICE_GUID);

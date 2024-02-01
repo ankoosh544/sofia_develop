@@ -89,9 +89,9 @@ class _SofiaAppState extends State<SofiaApp> {
         ],
         locale: _locale,
         routes: {
-          '/login': (context) => launchLoginScreen(),
+          '/': (context) => launchLoginScreen(),
           '/register': (context) => launchRegistrationScreen(),
-          '/': (context) => _launchHomeScreen(),
+          '/home': (context) => _launchHomeScreen(),
           '/car': (context) => _launchCarStatusScreen(),
         },
       ),

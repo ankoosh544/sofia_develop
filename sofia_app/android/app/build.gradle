@@ -61,6 +61,13 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+     applicationVariants.all { variant ->
+        if (variant.buildType.name == "release") {
+            variant.outputs.all {
+                outputFileName = "it.mcallinn.sofia.apk"
+            }
+        }
+    }
 }
 
 flutter {
