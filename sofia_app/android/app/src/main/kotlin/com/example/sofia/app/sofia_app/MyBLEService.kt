@@ -18,8 +18,6 @@ import android.content.pm.PackageManager
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.ActivityCompat
-import com.example.sofia.app.sofia_app.MainActivity
-import com.example.sofia.app.sofia_app.R
 
 
 class MyBLEService : Service() {
@@ -31,7 +29,8 @@ class MyBLEService : Service() {
     private var lastNotificationTime: Long = 0
     private val notificationCoolDown = 60 * 1000 // 1 minute cooldown
     private val notificationExitSeconds = 90 * 1000 // 1:30 minute cooldown
-    private val selectBeacon = "2D7A9F0CE0E84CC9A71BA21DB2D034A1"
+//    private val selectBeacon = "2D7A9F0CE0E84CC9A71BA21DB2D034A1"
+    private val selectBeacon = "demo1" // replace your ble device name
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -110,49 +109,81 @@ class MyBLEService : Service() {
     }
 
     private val scanCallback = object : ScanCallback() {
+//        override fun onScanResult(callbackType: Int, result: ScanResult?) {
+//            super.onScanResult(callbackType, result)
+//            Log.d(TAG, "Scan Result: $result")
+//
+//            val scanRecord = result?.scanRecord
+//            val iBeaconManufactureData = scanRecord?.getManufacturerSpecificData(0X004c)
+//            if (iBeaconManufactureData != null && iBeaconManufactureData.size >= 23) {
+//                val iBeaconUUID =
+//                    Utils.toHexString(iBeaconManufactureData.copyOfRange(2, 18))
+//
+//                if (iBeaconUUID == selectBeacon) {
+//                    val major = Integer.parseInt(
+//                        Utils.toHexString(
+//                            iBeaconManufactureData.copyOfRange(
+//                                18,
+//                                20
+//                            )
+//                        ), 16
+//                    )
+//                    val minor = Integer.parseInt(
+//                        Utils.toHexString(
+//                            iBeaconManufactureData.copyOfRange(
+//                                20,
+//                                22
+//                            )
+//                        ), 16
+//                    )
+//
+//                    Log.e(TAG, "iBeaconUUID:$iBeaconUUID major:$major minor:$minor")
+//
+//                    // Check if the notification cooldown has passed
+//                    val currentTime = System.currentTimeMillis()
+//                    if (currentTime - lastNotificationTime >= notificationCoolDown) {
+//                        // Show notification
+//                        showNotification("Entered iBeacon Region")
+//                        lastNotificationTime = currentTime
+//                    }
+//                } else {
+//                    beaconExit()
+//                }
+//            } else {
+//                beaconExit()
+//            }
+//        }
+
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
             Log.d(TAG, "Scan Result: $result")
 
             val scanRecord = result?.scanRecord
             val iBeaconManufactureData = scanRecord?.getManufacturerSpecificData(0X004c)
-            if (iBeaconManufactureData != null && iBeaconManufactureData.size >= 23) {
-                val iBeaconUUID =
-                    Utils.toHexString(iBeaconManufactureData.copyOfRange(2, 18))
 
-                if (iBeaconUUID == selectBeacon) {
-                    val major = Integer.parseInt(
-                        Utils.toHexString(
-                            iBeaconManufactureData.copyOfRange(
-                                18,
-                                20
-                            )
-                        ), 16
-                    )
-                    val minor = Integer.parseInt(
-                        Utils.toHexString(
-                            iBeaconManufactureData.copyOfRange(
-                                20,
-                                22
-                            )
-                        ), 16
-                    )
+            Log.d(TAG, "Size of the data: ${iBeaconManufactureData?.size}")
 
-                    Log.e(TAG, "iBeaconUUID:$iBeaconUUID major:$major minor:$minor")
+            if (ActivityCompat.checkSelfPermission(
+                    this@MyBLEService,
+                    Manifest.permission.BLUETOOTH_CONNECT
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                return
+            }
+            Log.d(TAG, "Device Name: ${result?.device?.name}")
 
-                    // Check if the notification cooldown has passed
-                    val currentTime = System.currentTimeMillis()
-                    if (currentTime - lastNotificationTime >= notificationCoolDown) {
-                        // Show notification
-                        showNotification("Entered iBeacon Region")
-                        lastNotificationTime = currentTime
-                    }
-                } else {
-                    beaconExit()
+            if (result?.device?.name == selectBeacon) {
+                // Check if the notification cooldown has passed
+                val currentTime = System.currentTimeMillis()
+                if (currentTime - lastNotificationTime >= notificationCoolDown) {
+                    // Show notification
+                    showNotification("Entered iBeacon Region")
+                    lastNotificationTime = currentTime
                 }
             } else {
                 beaconExit()
             }
+
         }
 
         private fun beaconExit() {
