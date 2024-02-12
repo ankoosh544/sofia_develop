@@ -291,9 +291,9 @@ class BleProvider extends ChangeNotifier {
 
           final floorrequest = characteristic.firstWhere((ch) =>
               ch.characteristicUuid.toString() ==
-              floorRequestCharacteristicGuid);
+                  floorrequestcharacteristicguid);
 
-          await floorrequest.write(floor.codeUnits);
+          await floorrequest.write([int.parse(floor), 0]);
           print(
               '*******Data written****** : ${String.fromCharCodes(floor.codeUnits)}');
           await connectToCarDevice();

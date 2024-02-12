@@ -156,12 +156,12 @@ class MyBLEService : Service() {
 
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
-            Log.d(TAG, "Scan Result: $result")
+//            Log.d(TAG, "Scan Result: $result")
 
             val scanRecord = result?.scanRecord
             val iBeaconManufactureData = scanRecord?.getManufacturerSpecificData(0X004c)
 
-            Log.d(TAG, "Size of the data: ${iBeaconManufactureData?.size}")
+//            Log.d(TAG, "Size of the data: ${iBeaconManufactureData?.size}")
 
             if (ActivityCompat.checkSelfPermission(
                     this@MyBLEService,
