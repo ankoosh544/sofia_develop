@@ -10,12 +10,18 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
+import android.bluetooth.le.ScanSettings.CALLBACK_TYPE_ALL_MATCHES
+import android.bluetooth.le.ScanSettings.CALLBACK_TYPE_FIRST_MATCH
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
+import android.os.ParcelUuid
 import android.util.Log
 import androidx.core.app.ActivityCompat
 
@@ -28,9 +34,11 @@ class MyBLEService : Service() {
     // Flag to prevent showing notifications too frequently
     private var lastNotificationTime: Long = 0
     private val notificationCoolDown = 60 * 1000 // 1 minute cooldown
-    private val notificationExitSeconds = 90 * 1000 // 1:30 minute cooldown
-//    private val selectBeacon = "2D7A9F0CE0E84CC9A71BA21DB2D034A1"
-    private val selectBeacon = "demo1" // replace your ble device name
+    private val notificationExitSeconds = 70 * 1000 // 1:10 minute cooldown
+    private val selectBeacon = "6C962546-6011-4E1B-9D8C-05027ADB3A01"
+//    private val selectBeacon = "demo1" // replace your ble device name
+
+    val handler = Handler(Looper.getMainLooper())
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -61,7 +69,21 @@ class MyBLEService : Service() {
 
         startForeground(1, notification)
 
-        startScanning()
+        object : Runnable {
+            override fun run() {
+                // Your code to be executed every minute
+                Log.d("Handler", "Executing task after 1 minute")
+                stopScanning()
+                startScanning()
+                beaconExit()
+                // Schedule the task again for next execution
+                handler.postDelayed(this, 15000) // 60000 milliseconds is 1 minute
+            }
+        }.also {
+            // Schedule initial execution
+            handler.post(it)
+        }
+
         return START_STICKY
     }
 
@@ -77,8 +99,13 @@ class MyBLEService : Service() {
 
     private fun startScanning() {
         val scanSettings = ScanSettings.Builder()
-            .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
+            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+            .setCallbackType(CALLBACK_TYPE_FIRST_MATCH)
             .build()
+
+        val serviceUuid = ParcelUuid.fromString(selectBeacon) // Replace with the actual UUID
+        val filter = ScanFilter.Builder().setServiceUuid(serviceUuid).build()
+
 
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -87,7 +114,7 @@ class MyBLEService : Service() {
         ) {
             return
         }
-        bluetoothLeScanner.startScan(null, scanSettings, scanCallback)
+        bluetoothLeScanner.startScan(listOf(filter), scanSettings, scanCallback)
         Log.d(TAG, "Scanning started")
     }
 
@@ -156,44 +183,44 @@ class MyBLEService : Service() {
 
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
-//            Log.d(TAG, "Scan Result: $result")
+            Log.d(TAG, "Scan Result: $result")
 
-            val scanRecord = result?.scanRecord
-            val iBeaconManufactureData = scanRecord?.getManufacturerSpecificData(0X004c)
+//            val scanRecord = result?.scanRecord
+//            val iBeaconManufactureData = scanRecord?.getManufacturerSpecificData(0X004c)
 
 //            Log.d(TAG, "Size of the data: ${iBeaconManufactureData?.size}")
 
-            if (ActivityCompat.checkSelfPermission(
-                    this@MyBLEService,
-                    Manifest.permission.BLUETOOTH_CONNECT
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                return
-            }
-            Log.d(TAG, "Device Name: ${result?.device?.name}")
+//            if (ActivityCompat.checkSelfPermission(
+//                    this@MyBLEService,
+//                    Manifest.permission.BLUETOOTH_CONNECT
+//                ) != PackageManager.PERMISSION_GRANTED
+//            ) {
+//                return
+//            }
+//            Log.d(TAG, "Device Name: ${result?.device?.name}")
 
-            if (result?.device?.name == selectBeacon) {
+//            if (result?.device?.name == selectBeacon) {
                 // Check if the notification cooldown has passed
                 val currentTime = System.currentTimeMillis()
                 if (currentTime - lastNotificationTime >= notificationCoolDown) {
                     // Show notification
                     showNotification("Entered iBeacon Region")
                     lastNotificationTime = currentTime
-                }
+//                }
             } else {
                 beaconExit()
             }
 
         }
+    }
 
-        private fun beaconExit() {
-            if (lastNotificationTime == 0L) return
-            val currentTime = System.currentTimeMillis()
-            if (currentTime - lastNotificationTime >= notificationExitSeconds) {
-                // Show notification
-                showNotification("Exit iBeacon Region")
-                lastNotificationTime = 0
-            }
+    private fun beaconExit() {
+        if (lastNotificationTime == 0L) return
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastNotificationTime >= notificationExitSeconds) {
+            // Show notification
+            showNotification("Exit iBeacon Region")
+            lastNotificationTime = 0
         }
     }
 

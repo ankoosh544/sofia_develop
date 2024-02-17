@@ -68,33 +68,30 @@ class _SofiaAppState extends State<SofiaApp> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => BleProvider(BleImpl()),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('en'), // English
-          Locale('it'), // Italian
-          Locale('es'), // Spanish
-        ],
-        locale: _locale,
-        routes: {
-          '/': (context) => launchLoginScreen(),
-          '/register': (context) => launchRegistrationScreen(),
-          '/home': (context) => _launchHomeScreen(),
-          '/car': (context) => _launchCarStatusScreen(),
-        },
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
       ),
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en'), // English
+        Locale('it'), // Italian
+        Locale('es'), // Spanish
+      ],
+      locale: _locale,
+      routes: {
+        '/': (context) => launchLoginScreen(),
+        '/register': (context) => launchRegistrationScreen(),
+        '/home': (context) => _launchHomeScreen(),
+        '/car': (context) => _launchCarStatusScreen(),
+      },
     );
   }
 }

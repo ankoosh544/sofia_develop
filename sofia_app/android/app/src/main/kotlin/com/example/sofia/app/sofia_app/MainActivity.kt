@@ -5,7 +5,6 @@ import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Looper
 import androidx.core.app.ActivityCompat
-import com.example.sofia.app.sofia_app.MyBLEService
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 
