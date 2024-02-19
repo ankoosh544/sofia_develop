@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:sofia_app/screens/emergency_contacts/emergency_contacts_screen.dart';
 import 'package:sofia_app/providers/ble_provider.dart';
 import 'package:sofia_app/providers/profile_provider.dart';
 import 'package:sofia_app/providers/settings_provider.dart';
 import 'package:sofia_app/screens/profile/profile_screen.dart';
 import 'package:sofia_app/screens/settings/settings_screen.dart';
-import 'package:sofia_app/screens/testing/testing_screen.dart';
 
 import '../../configs/index.dart';
 import 'device_connected.dart';
@@ -20,27 +20,39 @@ class HomeScreen extends StatelessWidget {
       initialIndex: 0,
       length: tabsCount,
       child: Scaffold(
+        backgroundColor: Colors.teal,
         bottomNavigationBar: Container(
-          color: Colors.white,
           child: TabBar(
             tabs: <Widget>[
               _buildTab(
-                const Icon(Icons.home_filled),
+                const Icon(
+                  Icons.home_filled,
+                ),
                 titles[0],
               ),
               _buildTab(
-                const Icon(Icons.settings),
+                const Icon(
+                  Icons.settings,
+                ),
                 titles[1],
               ),
               _buildTab(
-                const Icon(Icons.account_circle_rounded),
+                const Icon(
+                  Icons.account_circle_rounded,
+                ),
                 titles[2],
               ),
-              if (isTestingMode)
-                _buildTab(
-                  const Icon(Icons.account_tree),
-                  titles[3],
+              // if (isTestingMode)
+              //   _buildTab(
+              //     const Icon(Icons.account_tree),
+              //     titles[3],
+              //   ),
+              _buildTab(
+                const Icon(
+                  Icons.account_circle_rounded,
                 ),
+                titles[4],
+              ),
             ],
           ),
         ),
@@ -58,7 +70,7 @@ class HomeScreen extends StatelessWidget {
               create: (_) => ProfileProvider()..init(),
               child: const ProfileScreen(),
             ),
-            if (isTestingMode) const TestingScreen(),
+            EmergencyContactsScreen(),
           ],
         ),
         floatingActionButton: StreamBuilder<bool>(
@@ -92,8 +104,16 @@ class HomeScreen extends StatelessWidget {
   }
 
   Tab _buildTab(Icon icon, String title) => Tab(
-        icon: icon,
-        text: title,
+        icon: Icon(
+          icon.icon,
+          color: Colors.white,
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
         iconMargin: const EdgeInsets.only(bottom: 6.0),
       );
 }

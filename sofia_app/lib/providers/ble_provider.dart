@@ -8,9 +8,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:sofia_app/enums/direction.dart';
 import 'package:sofia_app/enums/operation_mode.dart';
 import 'package:sofia_app/enums/type_mission_status.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../configs/index.dart';
-import 'package:sofia_app/screens/no_device_found_screen.dart';
 
 abstract class Ble {
   Future<void> startScan({
@@ -132,11 +130,10 @@ class BleProvider extends ChangeNotifier {
   TypeMissionStatus missionStatus = TypeMissionStatus.missionNoInit;
   int eta = -1;
   late OperationMode operationMode;
-  bool _showNotification = false;
 
   BleProvider(this.ble) {
     // if your terminal doesn't support color you'll see annoying logs like `\x1B[1;35m`
-    //FlutterBluePlus.setLogLevel(LogLevel.verbose, color: false);
+    FlutterBluePlus.setLogLevel(LogLevel.verbose, color: false);
     // Initialize local notifications
 
     _getBluetoothState();
@@ -160,9 +157,8 @@ class BleProvider extends ChangeNotifier {
           await removedAllConnectedDevice();
           final connectedDevices = await ble.connectedSystemDevices;
           log('Connected Device List ${connectedDevices.length}');
-          // await _showNotification(
-          //     'BLE Device Connected', 'Your BLE device is now connected.');
-          await writeCharacteristic(d.localName);
+
+          //await writeCharacteristic(d.localName);
           await readCharacteristic();
         }
       } else {
@@ -176,44 +172,6 @@ class BleProvider extends ChangeNotifier {
       }
     }, onError: (error) {});
   }
-
-//get elevator to connected floor
-
-  // Future<void> getPianoCabina() async {
-  //   try {
-  //     carFloor = "999";
-  //     if (await ble.nearestScan.re.toString() != "") {
-  //       try {
-  //         await bleService.getValueFromCharacteristicGuid(
-  //             IBLEService.floorServiceGuid, floorChangeCharacteristicGuid);
-  //       } catch (e) {
-  //         return;
-  //         //await App.current.mainPage.displayAlert("Alert", e.toString());
-  //       }
-  //       if (bleService.valueFromCharacteristic != null) {
-  //         try {
-  //           carFloor =
-  //               (bleService.valueFromCharacteristic[0] & 0x3F).toString();
-  //         } catch (e) {
-  //           if (Preferences.get("DevOptions", false) == true) {
-  //             carFloor = "*****";
-  //             //debugPrint("***** Caratteristica non trovata ******");
-  //           }
-  //         }
-  //       } else {
-  //         carFloor = "999";
-  //       }
-  //     }
-  //   } catch (ex) {
-  //     print(ex);
-  //   }
-  // }
-  // void navigateToNoDeviceFoundScreen(BuildContext context) {
-  //   Navigator.push(
-  //     context,
-  //     MaterialPageRoute(builder: (context) => NoDeviceFoundScreen()),
-  //   );
-  // }
 
   bool isFloor(ScanResult scanResult) =>
       scanResult.advertisementData.serviceUuids.contains(FLOOR_SERVICE_GUID);
@@ -272,6 +230,12 @@ class BleProvider extends ChangeNotifier {
 
         await outOfService.read();
         await getOutOfService(outOfService);
+
+        final missionStatus = characteristic.firstWhere((ch) =>
+            ch.characteristicUuid.toString() ==
+            missionStatusCharacteristicGuid);
+        await missionStatus.read();
+        await getMissionStatus(missionStatus);
       }
     } catch (e) {
       log(e.toString());
@@ -279,6 +243,7 @@ class BleProvider extends ChangeNotifier {
   }
 
   Future<void> writeCharacteristic(String floor) async {
+    print("=========================Shek  write characteristics ${floor}");
     try {
       if (floor.isNotEmpty) {
         final state = await (await ble.nearestDevice).connectionState.first;
@@ -291,7 +256,7 @@ class BleProvider extends ChangeNotifier {
 
           final floorrequest = characteristic.firstWhere((ch) =>
               ch.characteristicUuid.toString() ==
-                  floorrequestcharacteristicguid);
+              floorrequestcharacteristicguid);
 
           await floorrequest.write([int.parse(floor), 0]);
           print(
@@ -328,54 +293,6 @@ class BleProvider extends ChangeNotifier {
       log(e.toString());
     }
   }
-
-  // Future<void> bleServiceOnCharacteristicUpdated1(
-  //     BluetoothCharacteristic e) async {
-  //   try {
-  //     switch (e.characteristicUuid.toString()) {
-  //       // case floorChangeCharacteristicGuid:
-  //       //   print("*******Case 1 Floor Change CharacteristicGuid***********");
-  //       //   try {
-  //       //     await getFloorChangeRequest(e);
-  //       //   } catch (ex) {
-  //       //     print("$ex");
-  //       //   }
-  //       //   break;
-  //       case missionStatusCharacteristicGuid:
-  //         print("********Case 2 MissionStatus*********");
-  //         try {
-  //           await getMissionStatus(e);
-  //         } catch (ex) {
-  //           print("$ex");
-  //         }
-  //         break;
-  //
-  //       case outOfServiceCharacteristicGuid:
-  //         print("*********Case 3 Out-ofService**********");
-  //         try {
-  //           await getOutOfService(e);
-  //         } catch (ex) {
-  //           print(ex);
-  //         }
-  //         break;
-  //
-  //       case movementDirectionCar:
-  //         print("*******Case 4 Car Direction******+");
-  //         try {
-  //           await getMovementDirectionCar(e);
-  //         } catch (ex) {
-  //           print(ex);
-  //         }
-  //         break;
-  //       default:
-  //         print("**************Default******+**********}");
-  //         break;
-  //     }
-  //   } catch (ex) {
-  //     print(ex);
-  //   }
-  //   notifyListeners();
-  // }
 
   Future removedAllConnectedDevice() async {
     final state = await (await ble.nearestDevice).connectionState.first;

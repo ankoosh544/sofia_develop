@@ -12,13 +12,18 @@ import 'package:sofia_app/screens/car_status/car_status_screen.dart';
 import 'device_screen.dart';
 
 class DeviceConnected extends StatelessWidget {
-  const DeviceConnected({super.key});
+  const DeviceConnected({Key? key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.teal,
       appBar: AppBar(
-        title: const Text(tabHome),
+        backgroundColor: Colors.teal,
+        title: const Text(
+          tabHome,
+          style: TextStyle(color: Colors.white),
+        ),
         notificationPredicate: (notification) => notification.depth == 1,
         scrolledUnderElevation: 4.0,
         shadowColor: Theme.of(context).shadowColor,
@@ -30,38 +35,23 @@ class DeviceConnected extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // ElevatedButton(
-              //     onPressed: () {
-              //       NotificationService service = NotificationService();
-              //       service.initNotification();
-              //       service.sendNotification(
-              //         notificationId: 0,
-              //         title: 'Sample Notification',
-              //         body: 'Notification details',
-              //       );
-              //     },
-              //     child: const Text('Notify')),
-              Text(
-                '$welcomeMessage ${context.watch<ProfileProvider>().username}'
-                    .trim(),
-                style: TextStyle(color: Colors.blueGrey, fontSize: 28),
-              ),
               const SizedBox(
                 height: size_16,
               ),
-              const Text(
-                greetingMessage,
-                style: TextStyle(color: Colors.blueGrey, fontSize: 20),
+              Text(
+                '$greetingMessage ${context.watch<ProfileProvider>().username}', // Add missing comma here
+                style: TextStyle(color: Colors.white, fontSize: 20),
               ),
+
               const SizedBox(
                 height: size_16,
               ),
               const Text(
                 sourceFrom,
                 style: TextStyle(
-                  fontSize: 20, // Example font size
-                  fontWeight: FontWeight.bold, // Example font weight
-                  color: Colors.blueGrey, // Example text color
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
               const SizedBox(
@@ -74,13 +64,13 @@ class DeviceConnected extends StatelessWidget {
                   if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                     final device = snapshot.data!.first;
 
-                    NotificationService service = NotificationService();
-                    service.initNotification();
-                    service.sendNotification(
-                      notificationId: 0,
-                      title: 'Sofia App is Near to Elevator',
-                      body: 'Sofia is Connected to Elevator',
-                    );
+                    // NotificationService service = NotificationService();
+                    // service.initNotification();
+                    // service.sendNotification(
+                    //   notificationId: 0,
+                    //   title: 'Sofia App is Near to Elevator',
+                    //   body: 'Sofia is Connected to Elevator',
+                    // );
 
                     return StreamBuilder<BluetoothConnectionState>(
                       stream: device.connectionState,
@@ -92,9 +82,9 @@ class DeviceConnected extends StatelessWidget {
                             width: MediaQuery.sizeOf(context).height * .09,
                             height: MediaQuery.sizeOf(context).height * .09,
                             decoration: BoxDecoration(
-                              border: Border.all(width: 2, color: Colors.green),
+                              border: Border.all(width: 2, color: Colors.white),
                               shape: BoxShape.circle,
-                              color: Colors.blue,
+                              color: Colors.black,
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -118,12 +108,20 @@ class DeviceConnected extends StatelessWidget {
                           );
                         } else {
                           context.read<BleProvider>().clearConnectedDevice();
-                          return const ConnectionInProgress();
+                          return Positioned.fill(
+                            child: Center(
+                              child: ConnectionInProgress(),
+                            ),
+                          );
                         }
                       },
                     );
                   } else {
-                    return const ConnectionInProgress();
+                    return Positioned.fill(
+                      child: Center(
+                        child: ConnectionInProgress(),
+                      ),
+                    );
                   }
                 },
               ),
@@ -133,9 +131,9 @@ class DeviceConnected extends StatelessWidget {
               const Text(
                 sourceTo,
                 style: TextStyle(
-                  fontSize: 20, // Example font size
-                  fontWeight: FontWeight.bold, // Example font weight
-                  color: Colors.blueGrey, // Example text color
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
               const SizedBox(
@@ -144,34 +142,48 @@ class DeviceConnected extends StatelessWidget {
               Container(
                 padding:
                     const EdgeInsets.symmetric(vertical: 0, horizontal: 100),
-                decoration: const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: Colors.blueAccent,
-                      width: 1,
-                    ), // Underline style
-                  ),
-                ),
-                child: TextFormField(
-                  decoration: const InputDecoration(
-                    hintText: hintDestination,
-                    hintStyle: TextStyle(fontSize: 20, color: Colors.blueGrey),
-                    border: UnderlineInputBorder(
-                      borderSide: BorderSide.none, // Remove the border
+                // decoration: const BoxDecoration(
+                //   border: Border(
+                //     bottom: BorderSide(
+                //       color: Colors.blueAccent,
+                //       width: 1,
+                //     ),
+                //   ),
+                // ),
+                child: Center(
+                  child: Container(
+                    width: MediaQuery.sizeOf(context).height * .09,
+                    height: MediaQuery.sizeOf(context).height * .09,
+                    decoration: BoxDecoration(
+                      border: Border.all(width: 2, color: Colors.white),
+                      shape: BoxShape.circle,
+                      color: Colors.black,
+                    ),
+                    child: TextFormField(
+                      decoration: const InputDecoration(
+                        hintText: hintDestination,
+                        hintStyle: TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
+                        ),
+                        contentPadding: EdgeInsets.only(left: 12, top: 5),
+                        border: UnderlineInputBorder(
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.done,
+                      style: const TextStyle(fontSize: 30, color: Colors.white),
+                      onFieldSubmitted: (value) {
+                        context.read<BleProvider>().writeCharacteristic(value);
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const CarStatusScreen(),
+                          ),
+                        );
+                      },
                     ),
                   ),
-                  keyboardType: TextInputType.number,
-                  textInputAction: TextInputAction.done,
-                  style: const TextStyle(fontSize: 30, color: Colors.blueGrey),
-                  onFieldSubmitted: (value) {
-                    // Redirect to the status screen when done button is pressed
-                    context.read<BleProvider>().writeCharacteristic(value);
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const CarStatusScreen(),
-                      ),
-                    );
-                  },
                 ),
               ),
               const SizedBox(
@@ -184,44 +196,43 @@ class DeviceConnected extends StatelessWidget {
               ),
               if (context.watch<BleProvider>().outOfService)
                 OutOfServiceMessage(message: warningAttentionForOutOfService),
-              if (isTestingMode)
-                StreamBuilder<List<BluetoothDevice>>(
-                  stream: context.read<BleProvider>().connectedDeviceStream,
-                  initialData: const [],
-                  builder: (c, snapshot) {
-                    return Column(
-                      children: snapshot.data!.map((device) {
-                        //log('Psk : ${device.toString()}');
-                        int floorNumber = context
-                            .read<BleProvider>()
-                            .getFloorNumber(device.localName);
-                        return ListTile(
-                          title: Text(floorNumber.toString()),
-                          subtitle: Text(device.remoteId.toString()),
-                          trailing: StreamBuilder<BluetoothConnectionState>(
-                            stream: device.connectionState,
-                            initialData: BluetoothConnectionState.disconnected,
-                            builder: (c, snapshot) {
-                              if (snapshot.data ==
-                                  BluetoothConnectionState.connected) {
-                                return ElevatedButton(
-                                  child: const Text('OPEN'),
-                                  onPressed: () => Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          DeviceScreen(device: device),
-                                    ),
-                                  ),
-                                );
-                              }
-                              return Text(snapshot.data.toString());
-                            },
-                          ),
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
+              // if (isTestingMode)
+              //   StreamBuilder<List<BluetoothDevice>>(
+              //     stream: context.read<BleProvider>().connectedDeviceStream,
+              //     initialData: const [],
+              //     builder: (c, snapshot) {
+              //       return Column(
+              //         children: snapshot.data!.map((device) {
+              //           int floorNumber = context
+              //               .read<BleProvider>()
+              //               .getFloorNumber(device.localName);
+              //           return ListTile(
+              //             title: Text(floorNumber.toString()),
+              //             subtitle: Text(device.remoteId.toString()),
+              //             trailing: StreamBuilder<BluetoothConnectionState>(
+              //               stream: device.connectionState,
+              //               initialData: BluetoothConnectionState.disconnected,
+              //               builder: (c, snapshot) {
+              //                 if (snapshot.data ==
+              //                     BluetoothConnectionState.connected) {
+              //                   return ElevatedButton(
+              //                     child: const Text('OPEN'),
+              //                     onPressed: () => Navigator.of(context).push(
+              //                       MaterialPageRoute(
+              //                         builder: (context) =>
+              //                             DeviceScreen(device: device),
+              //                       ),
+              //                     ),
+              //                   );
+              //                 }
+              //                 return Text(snapshot.data.toString());
+              //               },
+              //             ),
+              //           );
+              //         }).toList(),
+              //       );
+              //     },
+              //   ),
             ],
           ),
         ),
@@ -231,7 +242,7 @@ class DeviceConnected extends StatelessWidget {
 }
 
 class ConnectionInProgress extends StatelessWidget {
-  const ConnectionInProgress({super.key});
+  const ConnectionInProgress({Key? key});
 
   @override
   Widget build(BuildContext context) {
@@ -240,9 +251,8 @@ class ConnectionInProgress extends StatelessWidget {
       child: const Text(
         waitingForConnection,
         style: TextStyle(
-          fontSize: 18, // Example font size
-
-          color: Colors.blueGrey, // Example text color
+          fontSize: 18,
+          color: Colors.white,
         ),
       ),
     );

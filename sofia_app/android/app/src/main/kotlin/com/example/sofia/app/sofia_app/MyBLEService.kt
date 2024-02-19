@@ -204,7 +204,7 @@ class MyBLEService : Service() {
                 val currentTime = System.currentTimeMillis()
                 if (currentTime - lastNotificationTime >= notificationCoolDown) {
                     // Show notification
-                    showNotification("Entered iBeacon Region")
+                    showNotification("Sofia is Near to Elevator Zone")
                     lastNotificationTime = currentTime
 //                }
             } else {
@@ -219,7 +219,7 @@ class MyBLEService : Service() {
         val currentTime = System.currentTimeMillis()
         if (currentTime - lastNotificationTime >= notificationExitSeconds) {
             // Show notification
-            showNotification("Exit iBeacon Region")
+            showNotification("Sofia is Exited from Elevator Zone")
             lastNotificationTime = 0
         }
     }
@@ -233,7 +233,7 @@ class MyBLEService : Service() {
         )
 
         val notification: Notification = Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle("iBeacon Notification")
+            .setContentTitle("Sofia Notification")
             .setContentText(message)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentIntent(pendingIntent)

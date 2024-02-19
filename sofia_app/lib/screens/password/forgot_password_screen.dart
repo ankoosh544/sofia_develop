@@ -13,10 +13,11 @@ class ForgotPasswordScreen extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => ForgotPasswordProvider(),
       child: Scaffold(
+        backgroundColor: Colors.teal,
         appBar: AppBar(
           title: const Text(
             'Forgot Password Screen',
-            style: TextStyle(color: Colors.blueGrey),
+            style: TextStyle(color: Colors.white),
           ),
         ),
         body: Padding(
@@ -25,19 +26,19 @@ class ForgotPasswordScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TextFormField(
-                style: const TextStyle(color: Colors.blueGrey),
+                style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   hintText: AppLocalizations.of(context)!.email,
-                  hintStyle: const TextStyle(color: Colors.blueGrey),
+                  hintStyle: const TextStyle(color: Colors.white),
                   enabledBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blueGrey),
+                    borderSide: BorderSide(color: Colors.white),
                   ),
                   focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blueGrey),
+                    borderSide: BorderSide(color: Colors.white),
                   ),
                   prefixIcon: const Icon(
                     Icons.email,
-                    color: Colors.blueGrey,
+                    color: Colors.white,
                   ),
                 ),
                 onChanged: (value) {
@@ -70,7 +71,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 16),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueGrey,
+                  backgroundColor: Colors.white,
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   shape: RoundedRectangleBorder(

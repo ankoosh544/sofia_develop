@@ -5,12 +5,14 @@ const String tabHome = 'Home';
 const String tabSettings = 'Settings';
 const String tabProfile = 'Profile';
 const String tabTesting = 'Testing';
+const String tabEmergencyContacts = 'Contacts';
 
 const List<String> titles = <String>[
   tabHome,
   tabSettings,
   tabProfile,
   tabTesting,
+  tabEmergencyContacts,
 ];
 
 const String scannedDevices = 'Scanned Devices';

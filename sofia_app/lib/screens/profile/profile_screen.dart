@@ -12,6 +12,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.teal,
       appBar: const SofiaAppBar(
         title: tabProfile,
       ),
@@ -32,16 +33,18 @@ class ProfileScreen extends StatelessWidget {
             Text(
               context.watch<ProfileProvider>().username,
               style: const TextStyle(
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
-              ),
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
             ),
             const SizedBox(height: 8.0),
             const SizedBox(height: 16.0),
             ListTile(
               leading: const Icon(Icons.email),
-              title:
-                  Text(context.watch<ProfileProvider>().emailId ?? 'EmailId'),
+              title: Text(
+                context.watch<ProfileProvider>().emailId ?? 'EmailId',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
             const SizedBox(height: 16.0),
             ElevatedButton(
@@ -54,7 +57,13 @@ class ProfileScreen extends StatelessWidget {
                   (route) => false,
                 );
               },
-              child: const Text('Logout'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black, // Set background color to black
+              ),
+              child: const Text(
+                'Logout',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         ),

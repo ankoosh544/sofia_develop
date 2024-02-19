@@ -13,6 +13,7 @@ import 'providers/login_provider.dart';
 import 'screens/home/home_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:sofia_app/introduction_animation/introduction_animation_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,13 +58,28 @@ class SofiaApp extends StatefulWidget {
   }
 }
 
-class _SofiaAppState extends State<SofiaApp> {
+class _SofiaAppState extends State<SofiaApp> with TickerProviderStateMixin {
   Locale? _locale;
+  AnimationController? _animationController;
 
   setLocale(Locale locale) {
     setState(() {
       _locale = locale;
     });
+  }
+
+  @override
+  void initState() {
+    _animationController =
+        AnimationController(vsync: this, duration: Duration(seconds: 8));
+    _animationController?.animateTo(0.0);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _animationController?.dispose();
+    super.dispose();
   }
 
   @override
@@ -87,7 +103,8 @@ class _SofiaAppState extends State<SofiaApp> {
       ],
       locale: _locale,
       routes: {
-        '/': (context) => launchLoginScreen(),
+        '/': (context) => IntroductionAnimationScreen(),
+        '/login': (context) => launchLoginScreen(),
         '/register': (context) => launchRegistrationScreen(),
         '/home': (context) => _launchHomeScreen(),
         '/car': (context) => _launchCarStatusScreen(),

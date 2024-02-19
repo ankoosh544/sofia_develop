@@ -14,10 +14,18 @@ class CarStatusScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.teal,
       appBar: AppBar(
-        title: const Text(carStatus),
+        backgroundColor: Colors.teal,
+        title: const Text(
+          carStatus,
+          style: TextStyle(color: Colors.white),
+        ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back), // Back arrow icon
+          icon: Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+          ), // Back arrow icon
           onPressed: () {
             Navigator.of(context).pop(); // Navigate back to previous screen
           },
@@ -36,15 +44,15 @@ class CarStatusScreen extends StatelessWidget {
                     const Text(
                       carPosition,
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.white),
                     ),
                     Container(
                       decoration: BoxDecoration(
-                        border: Border.all(width: 10, color: Colors.blue),
+                        border: Border.all(width: 10, color: Colors.black),
                         shape: BoxShape.circle,
-                        color: Colors.blue,
+                        color: Colors.black,
                       ),
                       child: Text(
                         context.watch<BleProvider>().carFloor.toString(),
@@ -60,7 +68,7 @@ class CarStatusScreen extends StatelessWidget {
                 Image.asset(
                   elevator,
                   width: 80,
-                  height: 80,
+                  height: 120,
                 ),
                 if (context.watch<BleProvider>().carDirection == Direction.up)
                   Image.asset(
@@ -81,9 +89,7 @@ class CarStatusScreen extends StatelessWidget {
                       "In Progress of Destination Floor Data ") // Show a progress indicator if inProgress is true
                   : const Text(
                       etaToFloor,
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
+                      style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
             ),
             const SizedBox(height: 8),
@@ -93,9 +99,7 @@ class CarStatusScreen extends StatelessWidget {
             Center(
               child: Text(
                 estimatedTime,
-                style: TextStyle(
-                  fontSize: 16,
-                ),
+                style: TextStyle(fontSize: 16, color: Colors.white),
               ),
             ),
             const SizedBox(height: 16),
@@ -109,7 +113,7 @@ class CarStatusScreen extends StatelessWidget {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey,
+                        backgroundColor: Colors.black,
                       ),
                       child: const Text(
                         changeDestination,

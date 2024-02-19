@@ -20,8 +20,13 @@ class SettingsScreen extends StatelessWidget {
     final isDisablePeopleEnabled = settingsProvider.isDisablePeopleEnabled;
 
     return Scaffold(
+      backgroundColor: Colors.teal,
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.settings),
+        backgroundColor: Colors.teal,
+        title: Text(
+          AppLocalizations.of(context)!.settings,
+          style: TextStyle(color: Colors.white),
+        ),
         actions: <Widget>[
           Container(
             child: Padding(
@@ -30,7 +35,7 @@ class SettingsScreen extends StatelessWidget {
                 underline: SizedBox(),
                 icon: Icon(
                   Icons.language,
-                  color: Colors.black,
+                  color: Colors.white,
                 ),
                 onChanged: (Language? language) {
                   if (language != null) {
@@ -49,7 +54,10 @@ class SettingsScreen extends StatelessWidget {
                               e.flag,
                               style: TextStyle(fontSize: 30),
                             ),
-                            Text(e.name),
+                            Text(
+                              e.name,
+                              style: TextStyle(color: Colors.teal),
+                            ),
                           ],
                         ),
                       ),
@@ -117,7 +125,7 @@ class SettingsScreen extends StatelessWidget {
             title,
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: Colors.white,
               fontSize: 18,
             ),
           ),
@@ -134,7 +142,9 @@ class SettingsScreen extends StatelessWidget {
     Function(bool) onChanged,
   ) {
     return RadioListTile<String>(
-      title: Text(title),
+      title: Text(
+        title,
+      ),
       value: value,
       groupValue: currentValue ? value : null,
       onChanged: (newValue) {
@@ -152,7 +162,10 @@ class SettingsScreen extends StatelessWidget {
     Function(bool) onChanged,
   ) {
     return ListTile(
-      title: Text(title),
+      title: Text(
+        title,
+        style: TextStyle(color: Colors.white),
+      ),
       trailing: Switch(
         value: value,
         onChanged: onChanged,
