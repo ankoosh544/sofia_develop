@@ -16,45 +16,44 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.read<BleProvider>().connectToNearestDevice();
     return DefaultTabController(
       initialIndex: 0,
       length: tabsCount,
       child: Scaffold(
         backgroundColor: Colors.teal,
-        bottomNavigationBar: Container(
-          child: TabBar(
-            tabs: <Widget>[
-              _buildTab(
-                const Icon(
-                  Icons.home_filled,
-                ),
-                titles[0],
+        bottomNavigationBar: TabBar(
+          tabs: <Widget>[
+            _buildTab(
+              const Icon(
+                Icons.home_filled,
               ),
-              _buildTab(
-                const Icon(
-                  Icons.settings,
-                ),
-                titles[1],
+              titles[0],
+            ),
+            _buildTab(
+              const Icon(
+                Icons.settings,
               ),
-              _buildTab(
-                const Icon(
-                  Icons.account_circle_rounded,
-                ),
-                titles[2],
+              titles[1],
+            ),
+            _buildTab(
+              const Icon(
+                Icons.account_circle_rounded,
               ),
-              // if (isTestingMode)
-              //   _buildTab(
-              //     const Icon(Icons.account_tree),
-              //     titles[3],
-              //   ),
-              _buildTab(
-                const Icon(
-                  Icons.account_circle_rounded,
-                ),
-                titles[4],
+              titles[2],
+            ),
+            // if (isTestingMode)
+            //   _buildTab(
+            //     const Icon(Icons.account_tree),
+            //     titles[3],
+            //   ),
+            _buildTab(
+              const Icon(
+                Icons.account_circle_rounded,
               ),
-            ],
-          ),
+              titles[4],
+            ),
+          ],
         ),
         body: TabBarView(
           children: <Widget>[
@@ -92,7 +91,7 @@ class HomeScreen extends StatelessWidget {
                   child: const Icon(Icons.search),
                   onPressed: () async {
                     try {
-                      context.read<BleProvider>().startScanning();
+                      // context.read<BleProvider>().startScanning();
                     } catch (e) {}
                   });
             }

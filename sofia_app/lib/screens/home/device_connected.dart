@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:sofia_app/configs/index.dart';
 import 'package:sofia_app/custom/light_warning_message.dart';
 import 'package:sofia_app/custom/out_of_service_message.dart';
-import 'package:sofia_app/notifications/notificaiton_service.dart';
-import 'package:sofia_app/providers/index.dart';
-import 'package:sofia_app/screens/car_status/car_status_screen.dart';
 
-import 'device_screen.dart';
+import '../../providers/ble_provider.dart';
+import '../../providers/profile_provider.dart';
 
 class DeviceConnected extends StatelessWidget {
-  const DeviceConnected({Key? key});
+  const DeviceConnected({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +37,7 @@ class DeviceConnected extends StatelessWidget {
               ),
               Text(
                 '$greetingMessage ${context.watch<ProfileProvider>().username}', // Add missing comma here
-                style: TextStyle(color: Colors.white, fontSize: 20),
+                style: const TextStyle(color: Colors.white, fontSize: 20),
               ),
 
               const SizedBox(
@@ -57,74 +54,39 @@ class DeviceConnected extends StatelessWidget {
               const SizedBox(
                 height: size_16,
               ),
-              StreamBuilder<List<BluetoothDevice>>(
-                stream: context.read<BleProvider>().connectedDeviceStream,
-                initialData: const [],
-                builder: (context, snapshot) {
-                  if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                    final device = snapshot.data!.first;
-
-                    // NotificationService service = NotificationService();
-                    // service.initNotification();
-                    // service.sendNotification(
-                    //   notificationId: 0,
-                    //   title: 'Sofia App is Near to Elevator',
-                    //   body: 'Sofia is Connected to Elevator',
-                    // );
-
-                    return StreamBuilder<BluetoothConnectionState>(
-                      stream: device.connectionState,
-                      initialData: BluetoothConnectionState.disconnected,
-                      builder: (c, snapshot) {
-                        if (snapshot.data ==
-                            BluetoothConnectionState.connected) {
-                          return Container(
-                            width: MediaQuery.sizeOf(context).height * .09,
-                            height: MediaQuery.sizeOf(context).height * .09,
-                            decoration: BoxDecoration(
-                              border: Border.all(width: 2, color: Colors.white),
-                              shape: BoxShape.circle,
-                              color: Colors.black,
+              context.watch<BleProvider>().deviceConnected
+                  ? Container(
+                      width: MediaQuery.sizeOf(context).height * .09,
+                      height: MediaQuery.sizeOf(context).height * .09,
+                      decoration: BoxDecoration(
+                        border: Border.all(width: 2, color: Colors.white),
+                        shape: BoxShape.circle,
+                        color: Colors.black,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Animate(
+                            effects: const [FadeEffect(), ScaleEffect()],
+                            child: Text(
+                              context.watch<BleProvider>().bleDeviceName.toString(),
+                              style: const TextStyle(
+                                fontSize: 38,
+                                color: Colors.white,
+                              ),
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Animate(
-                                  effects: const [FadeEffect(), ScaleEffect()],
-                                  child: Text(
-                                    context
-                                        .read<BleProvider>()
-                                        .getFloorNumber(device.localName)
-                                        .toString(),
-                                    style: const TextStyle(
-                                      fontSize: 38,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          );
-                        } else {
-                          context.read<BleProvider>().clearConnectedDevice();
-                          return Positioned.fill(
-                            child: Center(
-                              child: ConnectionInProgress(),
-                            ),
-                          );
-                        }
-                      },
-                    );
-                  } else {
-                    return Positioned.fill(
+                          )
+                        ],
+                      ),
+                    )
+                  :
+                  // context.read<BleProvider>().clearConnectedDevice();
+                  const Positioned.fill(
                       child: Center(
                         child: ConnectionInProgress(),
                       ),
-                    );
-                  }
-                },
-              ),
+                    ),
               const SizedBox(
                 height: size_16,
               ),
@@ -175,12 +137,12 @@ class DeviceConnected extends StatelessWidget {
                       textInputAction: TextInputAction.done,
                       style: const TextStyle(fontSize: 30, color: Colors.white),
                       onFieldSubmitted: (value) {
-                        context.read<BleProvider>().writeCharacteristic(value);
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const CarStatusScreen(),
-                          ),
-                        );
+                        // context.read<BleProvider>().writeCharacteristic(value);
+                        // Navigator.of(context).push(
+                        //   MaterialPageRoute(
+                        //     builder: (context) => const CarStatusScreen(),
+                        //   ),
+                        // );
                       },
                     ),
                   ),
@@ -189,7 +151,7 @@ class DeviceConnected extends StatelessWidget {
               const SizedBox(
                 height: size_20,
               ),
-              if (!context.watch<BleProvider>().presenceOfLight)
+              if (!context.watch<BleProvider>().lightStatus)
                 LightWarningMessage(message: warningAttentionforLight),
               const SizedBox(
                 height: size_20,

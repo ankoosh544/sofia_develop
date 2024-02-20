@@ -22,7 +22,7 @@ class CarStatusScreen extends StatelessWidget {
           style: TextStyle(color: Colors.white),
         ),
         leading: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back,
             color: Colors.white,
           ), // Back arrow icon
@@ -93,10 +93,10 @@ class CarStatusScreen extends StatelessWidget {
                     ),
             ),
             const SizedBox(height: 8),
-            if (!context.watch<BleProvider>().presenceOfLight)
+            if (!context.watch<BleProvider>().lightStatus)
               LightWarningMessage(message: warningAttentionforLight),
             const SizedBox(height: 8),
-            Center(
+            const Center(
               child: Text(
                 estimatedTime,
                 style: TextStyle(fontSize: 16, color: Colors.white),
@@ -105,11 +105,11 @@ class CarStatusScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Center(
               child: inProgress
-                  ? const Text("Inprogress of change Destination button")
+                  ? const Text("Progress of change Destination button")
                   : ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (context) => HomeScreen()),
+                          MaterialPageRoute(builder: (context) => const HomeScreen()),
                         );
                       },
                       style: ElevatedButton.styleFrom(

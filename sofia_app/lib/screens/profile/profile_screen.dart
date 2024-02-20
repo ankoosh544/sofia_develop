@@ -4,7 +4,7 @@ import 'package:sofia_app/providers/profile_provider.dart';
 
 import '../../configs/index.dart';
 import '../../main.dart';
-import '../../widgets/index.dart';
+import '../../widgets/sofia_app_bar.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});

@@ -26,13 +26,13 @@ class _TestingScreenState extends State<TestingScreen> {
         actions: [
           ElevatedButton(
             onPressed: () {
-              bleProvider.startScanning();
+              bleProvider.connectToNearestDevice();
             },
             child: const Text('Scan Devices'),
           ),
           ElevatedButton(
             onPressed: () async {
-              await bleProvider.ble.nearestScan;
+              // await bleProvider.ble.nearestScan;
             },
             child: const Text('Nearest Device'),
           ),
@@ -44,7 +44,7 @@ class _TestingScreenState extends State<TestingScreen> {
               onPressed: () {
                 setState(() {
                   isScanning = true;
-                  context.read<BleProvider>().startScanning();
+                  // context.read<BleProvider>().startScanning();
                 });
               },
               child: Text('On')),
@@ -52,54 +52,54 @@ class _TestingScreenState extends State<TestingScreen> {
               onPressed: () {
                 setState(() {
                   isScanning = false;
-                  context.read<BleProvider>().stopScan();
+                  // context.read<BleProvider>().stopScan();
                 });
               },
               child: Text('Off')),
-          isScanning
-              ? StreamBuilder<List<ScanResult>>(
-                  stream: context.read<BleProvider>().ble.scanResults,
-                  initialData: const [],
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                      final devices = snapshot.data ?? [];
-
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        itemBuilder: (context, index) => ListTile(
-                          title: Text(devices[index]
-                              .device
-                              .localName
-                              .codeUnits
-                              .toString()),
-                          subtitle: Text(devices[index].rssi.toString()),
-                        ),
-                        itemCount: devices.length,
-                      );
-                    } else {
-                      return const ConnectionInProgress();
-                    }
-                  },
-                )
-              : Text('Scanning....'),
+          // isScanning
+              // ? StreamBuilder<List<ScanResult>>(
+              //     stream: context.read<BleProvider>().ble.scanResults,
+              //     initialData: const [],
+              //     builder: (context, snapshot) {
+              //       if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+              //         final devices = snapshot.data ?? [];
+              //
+              //         return ListView.builder(
+              //           shrinkWrap: true,
+              //           itemBuilder: (context, index) => ListTile(
+              //             title: Text(devices[index]
+              //                 .device
+              //                 .localName
+              //                 .codeUnits
+              //                 .toString()),
+              //             subtitle: Text(devices[index].rssi.toString()),
+              //           ),
+              //           itemCount: devices.length,
+              //         );
+              //       } else {
+              //         return const ConnectionInProgress();
+              //       }
+              //     },
+              //   )
+              // : Text('Scanning....'),
           // const SizedBox(
           //   height: size_16,
           // ),
           // const FindDevicesScreen(),
-          FutureBuilder(
-            future: context.read<BleProvider>().ble.nearestScan,
-            initialData: null,
-            builder: (context, snapshot) {
-              if (snapshot.hasData && snapshot.data != null) {
-                print('Nearest Device: ${snapshot.data!.device.localName}');
-                return ListTile(
-                  title: Text(snapshot.data!.device.localName),
-                );
-              } else {
-                return const Text('Loading Nearest device');
-              }
-            },
-          )
+          // FutureBuilder(
+          //   future: context.read<BleProvider>().ble.nearestScan,
+          //   initialData: null,
+          //   builder: (context, snapshot) {
+          //     if (snapshot.hasData && snapshot.data != null) {
+          //       print('Nearest Device: ${snapshot.data!.device.localName}');
+          //       return ListTile(
+          //         title: Text(snapshot.data!.device.localName),
+          //       );
+          //     } else {
+          //       return const Text('Loading Nearest device');
+          //     }
+          //   },
+          // )
         ],
       ),
     );
