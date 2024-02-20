@@ -7,6 +7,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../password/forgot_password_screen.dart';
 import '../../configs/app_strings.dart';
 import 'package:sofia_app/storage/local_store.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key});
@@ -37,8 +38,30 @@ class _LoginScreenState extends State<LoginScreen>
 
   @override
   Widget build(BuildContext context) {
+    final _welcomeFirstHalfAnimation =
+        Tween<Offset>(begin: Offset(2, 0), end: Offset(0, 0))
+            .animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Interval(
+        0.6,
+        0.8,
+        curve: Curves.fastOutSlowIn,
+      ),
+    ));
+    final _welcomeImageAnimation =
+        Tween<Offset>(begin: Offset(4, 0), end: Offset(0, 0))
+            .animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Interval(
+        0.6,
+        0.8,
+        curve: Curves.fastOutSlowIn,
+      ),
+    ));
     return Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+          backgroundColor: Colors.teal,
+        ),
         backgroundColor: Colors.teal,
         resizeToAvoidBottomInset: false,
         body: AnimatedBuilder(
@@ -55,8 +78,42 @@ class _LoginScreenState extends State<LoginScreen>
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Image.asset(
-                                logo), // Replace 'assets/logo.png' with the correct image path
+                            SlideTransition(
+                              position: _welcomeImageAnimation,
+                              child: Container(
+                                constraints: BoxConstraints(
+                                    maxWidth: 450, maxHeight: 400),
+                                child: Image.asset(
+                                  'assets/introduction_animation/app_logo.png',
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            SlideTransition(
+                              position: _welcomeFirstHalfAnimation,
+                              child: Text(
+                                AppLocalizations.of(context)!.powered_by,
+                                style: TextStyle(
+                                    fontSize: 15.0, color: Colors.white),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            SlideTransition(
+                              position: _welcomeImageAnimation,
+                              child: Container(
+                                constraints: BoxConstraints(
+                                    maxWidth: 450, maxHeight: 400),
+                                child: Image.asset(
+                                  'assets/introduction_animation/Mcallinn_Logo_Full_Color_Small.png',
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
                             SizedBox(
                               height: 40,
                             ),
@@ -151,8 +208,8 @@ class _LoginScreenState extends State<LoginScreen>
                                     }
                                   },
                                 ),
-                                const Text(
-                                  'Remember Me',
+                                Text(
+                                  AppLocalizations.of(context)!.rememberMe,
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 Spacer(),
@@ -207,7 +264,8 @@ class _LoginScreenState extends State<LoginScreen>
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
-                                child: Text('Login'),
+                                child:
+                                    Text(AppLocalizations.of(context)!.login),
                               ),
                             ),
                           ],
@@ -216,7 +274,7 @@ class _LoginScreenState extends State<LoginScreen>
                       Padding(
                         padding: const EdgeInsets.only(bottom: 16.0),
                         child: Text(
-                          'Powered by McAllinn Italian SRL',
+                          '${AppLocalizations.of(context)!.powered_by} McAllinn Italian SRL',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 12,

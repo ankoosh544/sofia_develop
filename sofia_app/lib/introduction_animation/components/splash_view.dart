@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:sofia_app/main.dart';
+import 'package:sofia_app/models/language.dart';
 
 class SplashView extends StatefulWidget {
   final AnimationController animationController;
@@ -28,8 +31,46 @@ class _SplashViewState extends State<SplashView> {
       child: SingleChildScrollView(
         child: Column(
           children: [
+            Container(
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: DropdownButton<Language>(
+                  underline: SizedBox(),
+                  icon: Icon(
+                    Icons.language,
+                    color: Colors.white,
+                  ),
+                  onChanged: (Language? language) {
+                    if (language != null) {
+                      SofiaApp.setLocale(
+                          context, Locale(language.languageCode, ''));
+                    }
+                  },
+                  items: Language.languageList()
+                      .map<DropdownMenuItem<Language>>(
+                        (e) => DropdownMenuItem<Language>(
+                          value: e,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
+                              Text(
+                                e.flag,
+                                style: TextStyle(fontSize: 30),
+                              ),
+                              Text(
+                                e.name,
+                                style: TextStyle(color: Colors.teal),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+            ),
             SizedBox(
-              height: 100,
+              height: 50,
             ),
             Padding(
               padding: const EdgeInsets.only(top: 40.0),
@@ -44,7 +85,7 @@ class _SplashViewState extends State<SplashView> {
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
               child: Text(
-                "Smart Elevators",
+                AppLocalizations.of(context)!.splash_view_title,
                 style: TextStyle(
                     fontSize: 25.0,
                     fontWeight: FontWeight.bold,
@@ -53,8 +94,7 @@ class _SplashViewState extends State<SplashView> {
             ),
             Padding(
               padding: EdgeInsets.only(left: 64, right: 64),
-              child: Text(
-                  "Lorem ipsum dolor sit amet,consectetur adipiscing elit,sed do eiusmod tempor incididunt ut labore",
+              child: Text(AppLocalizations.of(context)!.splash_view_body,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.white)),
             ),
@@ -81,7 +121,7 @@ class _SplashViewState extends State<SplashView> {
                     color: Color(0xff132137),
                   ),
                   child: Text(
-                    "Let's begin",
+                    AppLocalizations.of(context)!.splash_button,
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.white,

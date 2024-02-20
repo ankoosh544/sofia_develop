@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class RelaxView extends StatelessWidget {
+class SafeSecureView extends StatelessWidget {
   final AnimationController animationController;
 
-  const RelaxView({Key? key, required this.animationController})
+  const SafeSecureView({Key? key, required this.animationController})
       : super(key: key);
 
   @override
@@ -76,7 +77,7 @@ class RelaxView extends StatelessWidget {
               SlideTransition(
                 position: _relaxAnimation,
                 child: Text(
-                  "Safe and Secure",
+                  AppLocalizations.of(context)!.safe_secure_view_title,
                   style: TextStyle(
                       fontSize: 26.0,
                       fontWeight: FontWeight.bold,
@@ -89,7 +90,7 @@ class RelaxView extends StatelessWidget {
                   padding:
                       EdgeInsets.only(left: 64, right: 64, top: 16, bottom: 16),
                   child: Text(
-                    "Lorem ipsum dolor sit amet,consectetur adipiscing elit,sed do eiusmod tempor incididunt ut labore",
+                    AppLocalizations.of(context)!.safe_secure_view_body,
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white),
                   ),
@@ -100,7 +101,7 @@ class RelaxView extends StatelessWidget {
                 child: Container(
                   constraints: BoxConstraints(maxWidth: 450, maxHeight: 350),
                   child: Image.asset(
-                    'assets/introduction_animation/capture2.png',
+                    'assets/introduction_animation/lift.jpg',
                     fit: BoxFit.contain,
                   ),
                 ),

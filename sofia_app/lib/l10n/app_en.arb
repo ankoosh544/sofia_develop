@@ -34,5 +34,29 @@
   "save" : "Save",
   "bledisc": "Bluetooth disconnected",
   "blec" : "Bluetooth Connected",
-  "rememberMe" : "Remember Me"
+  "rememberMe" : "Remember Me",
+  "forgotPassword": "Forgot Password",
+
+  "splash_view_title" : "Smart Elevators",
+  "splash_view_body" : "Mcallinn LLC is a technology company focused on revolutionizing how the majority of people live, work and visit a building through an elevator.",
+  "splash_button" : "Let's begin",
+
+
+  "powered_by" : "Powered by",
+
+  "safe_secure_view_title" : "Safe and Secure",
+   "safe_secure_view_body" : "Our business idea supports this vision by offering a wide range of simple, smart and reliable lift services at prices so low that as many people as possible will be able to afford them.",
+
+   "assistancy_view_title" : "AI Assistancy",
+   "assistancy_view_body" : "The patented Mcallinn LLC system has been designed to increase lift intelligence and connectivity",
+
+   "tested_trusted_view_title" :"Tested and Trusted Sofia",
+   "tested_trusted_view_body" : "The solution is universal and adaptable to any brand and type of lift",
+   "welcome_view_title" : "Welcome",
+   "welcome_view_body" : "Stay organised and Live Smart with Sofia",
+
+   "alreadyHaveAccount" : "Already have an account?",
+   "singUp" : "Sign Up",
+    "skip" : "Skip"
+
 }

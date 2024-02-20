@@ -1,5 +1,6 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CenterNextButton extends StatelessWidget {
   final AnimationController animationController;
@@ -107,7 +108,7 @@ class CenterNextButton extends StatelessWidget {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'Sign Up',
+                                    AppLocalizations.of(context)!.singUp,
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 18,
@@ -147,7 +148,7 @@ class CenterNextButton extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Already have an account? ',
+                      AppLocalizations.of(context)!.alreadyHaveAccount,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 14,
@@ -155,7 +156,7 @@ class CenterNextButton extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Login',
+                      AppLocalizations.of(context)!.login,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -173,7 +174,7 @@ class CenterNextButton extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(bottom: 16.0),
             child: Text(
-              'Powered by McAllinn Italia SRL',
+              '${AppLocalizations.of(context)!.powered_by}McAllinn Italia SRL',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 12,

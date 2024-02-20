@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class MoodDiaryVew extends StatelessWidget {
+class AssistancyView extends StatelessWidget {
   final AnimationController animationController;
 
-  const MoodDiaryVew({Key? key, required this.animationController})
+  const AssistancyView({Key? key, required this.animationController})
       : super(key: key);
 
   @override
@@ -13,8 +14,8 @@ class MoodDiaryVew extends StatelessWidget {
             .animate(CurvedAnimation(
       parent: animationController,
       curve: Interval(
+        0.2,
         0.4,
-        0.6,
         curve: Curves.fastOutSlowIn,
       ),
     ));
@@ -23,14 +24,23 @@ class MoodDiaryVew extends StatelessWidget {
             .animate(CurvedAnimation(
       parent: animationController,
       curve: Interval(
+        0.4,
         0.6,
-        0.8,
         curve: Curves.fastOutSlowIn,
       ),
     ));
-
-    final _moodFirstHalfAnimation =
+    final _relaxFirstHalfAnimation =
         Tween<Offset>(begin: Offset(2, 0), end: Offset(0, 0))
+            .animate(CurvedAnimation(
+      parent: animationController,
+      curve: Interval(
+        0.2,
+        0.4,
+        curve: Curves.fastOutSlowIn,
+      ),
+    ));
+    final _relaxSecondHalfAnimation =
+        Tween<Offset>(begin: Offset(0, 0), end: Offset(-2, 0))
             .animate(CurvedAnimation(
       parent: animationController,
       curve: Interval(
@@ -39,23 +49,14 @@ class MoodDiaryVew extends StatelessWidget {
         curve: Curves.fastOutSlowIn,
       ),
     ));
-    final _moodSecondHalfAnimation =
-        Tween<Offset>(begin: Offset(0, 0), end: Offset(-2, 0))
-            .animate(CurvedAnimation(
-      parent: animationController,
-      curve: Interval(
-        0.6,
-        0.8,
-        curve: Curves.fastOutSlowIn,
-      ),
-    ));
+
     final _imageFirstHalfAnimation =
         Tween<Offset>(begin: Offset(4, 0), end: Offset(0, 0))
             .animate(CurvedAnimation(
       parent: animationController,
       curve: Interval(
+        0.2,
         0.4,
-        0.6,
         curve: Curves.fastOutSlowIn,
       ),
     ));
@@ -64,8 +65,8 @@ class MoodDiaryVew extends StatelessWidget {
             .animate(CurvedAnimation(
       parent: animationController,
       curve: Interval(
+        0.4,
         0.6,
-        0.8,
         curve: Curves.fastOutSlowIn,
       ),
     ));
@@ -79,39 +80,39 @@ class MoodDiaryVew extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                "Tested & Trusted Sofia",
-                style: TextStyle(
-                    fontSize: 26.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
-              ),
-              SlideTransition(
-                position: _moodFirstHalfAnimation,
-                child: SlideTransition(
-                  position: _moodSecondHalfAnimation,
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                        left: 64, right: 64, top: 16, bottom: 16),
-                    child: Text(
-                      "Lorem ipsum dolor sit amet,consectetur adipiscing elit,sed do eiusmod tempor incididunt ut labore",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
-              ),
               SlideTransition(
                 position: _imageFirstHalfAnimation,
                 child: SlideTransition(
                   position: _imageSecondHalfAnimation,
                   child: Container(
-                    constraints: BoxConstraints(maxWidth: 350, maxHeight: 250),
+                    constraints: BoxConstraints(maxWidth: 500, maxHeight: 450),
                     child: Image.asset(
-                      'assets/introduction_animation/capture3.png',
+                      'assets/introduction_animation/capture2.png',
                       fit: BoxFit.contain,
                     ),
                   ),
+                ),
+              ),
+              SlideTransition(
+                position: _relaxFirstHalfAnimation,
+                child: SlideTransition(
+                  position: _relaxSecondHalfAnimation,
+                  child: Text(
+                    AppLocalizations.of(context)!.assistancy_view_title,
+                    style: TextStyle(
+                        fontSize: 26.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ),
+                ),
+              ),
+              Padding(
+                padding:
+                    EdgeInsets.only(left: 64, right: 64, bottom: 16, top: 16),
+                child: Text(
+                  AppLocalizations.of(context)!.assistancy_view_body,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
             ],

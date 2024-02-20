@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TopBackSkipView extends StatelessWidget {
   final AnimationController animationController;
@@ -72,7 +73,7 @@ class TopBackSkipView extends StatelessWidget {
                   child: IconButton(
                     onPressed: onSkipClick,
                     icon: Text(
-                      'Skip',
+                      AppLocalizations.of(context)!.skip,
                       style: TextStyle(color: Colors.white),
                     ),
                   ),

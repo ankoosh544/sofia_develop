@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WelcomeView extends StatelessWidget {
   final AnimationController animationController;
@@ -71,12 +72,42 @@ class WelcomeView extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                height: 40,
+                height: 10,
+              ),
+              SlideTransition(
+                position: _welcomeFirstHalfAnimation,
+                // child: Text(
+                //   "Powered by",
+                //   style: TextStyle(fontSize: 15.0, color: Colors.white),
+                // ),
+                child: Text(
+                  AppLocalizations.of(context)!.powered_by,
+                  style: TextStyle(
+                    fontSize: 15.0,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              SlideTransition(
+                position: _welcomeImageAnimation,
+                child: Container(
+                  constraints: BoxConstraints(maxWidth: 450, maxHeight: 400),
+                  child: Image.asset(
+                    'assets/introduction_animation/Mcallinn_Logo_Full_Color_Small.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 20,
               ),
               SlideTransition(
                 position: _welcomeFirstHalfAnimation,
                 child: Text(
-                  "Welcome",
+                  AppLocalizations.of(context)!.welcome_view_title,
                   style: TextStyle(
                       fontSize: 25.0,
                       fontWeight: FontWeight.bold,
@@ -87,7 +118,7 @@ class WelcomeView extends StatelessWidget {
                 padding:
                     EdgeInsets.only(left: 64, right: 64, top: 16, bottom: 16),
                 child: Text(
-                  "Stay organised and Live Smart with Sofia",
+                  AppLocalizations.of(context)!.welcome_view_body,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.white),
                 ),

@@ -1,7 +1,7 @@
-import 'package:sofia_app/introduction_animation/components/care_view.dart';
+import 'package:sofia_app/introduction_animation/components/assistancy_view.dart';
 import 'package:sofia_app/introduction_animation/components/center_next_button.dart';
-import 'package:sofia_app/introduction_animation/components/mood_diary_vew.dart';
-import 'package:sofia_app/introduction_animation/components/relax_view.dart';
+import 'package:sofia_app/introduction_animation/components/tested_trusted_vew.dart';
+import 'package:sofia_app/introduction_animation/components/safe_secure_view.dart';
 import 'package:sofia_app/introduction_animation/components/splash_view.dart';
 import 'package:sofia_app/introduction_animation/components/top_back_skip_view.dart';
 import 'package:sofia_app/introduction_animation/components/welcome_view.dart';
@@ -45,13 +45,13 @@ class _IntroductionAnimationScreenState
             SplashView(
               animationController: _animationController!,
             ),
-            RelaxView(
+            SafeSecureView(
               animationController: _animationController!,
             ),
-            CareView(
+            AssistancyView(
               animationController: _animationController!,
             ),
-            MoodDiaryVew(
+            TestedTrustedVew(
               animationController: _animationController!,
             ),
             WelcomeView(

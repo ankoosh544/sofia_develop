@@ -34,22 +34,99 @@ class _RegistrationScreenState extends State<RegistrationScreen>
 
   @override
   Widget build(BuildContext context) {
+    final _welcomeFirstHalfAnimation =
+        Tween<Offset>(begin: Offset(2, 0), end: Offset(0, 0))
+            .animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Interval(
+        0.6,
+        0.8,
+        curve: Curves.fastOutSlowIn,
+      ),
+    ));
+    final _welcomeImageAnimation =
+        Tween<Offset>(begin: Offset(4, 0), end: Offset(0, 0))
+            .animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Interval(
+        0.6,
+        0.8,
+        curve: Curves.fastOutSlowIn,
+      ),
+    ));
+
+    final _firstHalfAnimation =
+        Tween<Offset>(begin: Offset(1, 0), end: Offset(0, 0)).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Interval(
+          0.6,
+          0.8,
+          curve: Curves.fastOutSlowIn,
+        ),
+      ),
+    );
+    final _secondHalfAnimation =
+        Tween<Offset>(begin: Offset(0, 0), end: Offset(-1, 0)).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Interval(
+          0.8,
+          1.0,
+          curve: Curves.fastOutSlowIn,
+        ),
+      ),
+    );
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        backgroundColor: Colors.teal,
+      ),
       backgroundColor: Colors.teal,
       body: AnimatedBuilder(
         animation: _animationController,
         builder: (context, child) {
           return SlideTransition(
-            //opacity: _animationController,
-            position: Tween<Offset>(begin: Offset(0.0, 1.0), end: Offset.zero)
-                .animate(_animationController),
+            position: _firstHalfAnimation,
             child: Padding(
               padding: EdgeInsets.all(16.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset(logo),
+                  SlideTransition(
+                    position: _welcomeImageAnimation,
+                    child: Container(
+                      constraints:
+                          BoxConstraints(maxWidth: 450, maxHeight: 400),
+                      child: Image.asset(
+                        'assets/introduction_animation/app_logo.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  SlideTransition(
+                    position: _welcomeFirstHalfAnimation,
+                    child: Text(
+                      "Powered by",
+                      style: TextStyle(fontSize: 15.0, color: Colors.white),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  SlideTransition(
+                    position: _welcomeImageAnimation,
+                    child: Container(
+                      constraints:
+                          BoxConstraints(maxWidth: 450, maxHeight: 400),
+                      child: Image.asset(
+                        'assets/introduction_animation/Mcallinn_Logo_Full_Color_Small.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
                   const SizedBox(
                     height: 40,
                   ),

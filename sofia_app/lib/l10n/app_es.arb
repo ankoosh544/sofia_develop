@@ -31,8 +31,31 @@
   "email" : "Correo electrónico",
   "username" : "Nombre de usuario",
   "password" : "Contraseña",
-   "save" : "Save",
-   "bledisc": "Bluetooth desconectado",
+  "save" : "Save",
+  "bledisc": "Bluetooth desconectado",
   "blec" : "Bluetooth conectado",
-   "rememberMe" : "Acuérdate de mí"
+  "rememberMe" : "Acuérdate de mí",
+  "forgotPassword" : "Has olvidado tu contraseña",
+
+  "splash_view_title" : "Ascensores inteligentes",
+  "splash_view_body" : "Mcallinn LLC es una empresa de tecnología centrada en revolucionar cómo la mayoría de las personas viven, trabajan y visitan un edificio a través de un ascensor.",
+  "splash_button" : "Empecemos",
+
+   "powered_by" : "Energizado por",
+
+   "safe_secure_view_title" : "Seguro y a salvo",
+   "safe_secure_view_body" : "Nuestra idea de negocio respalda esta visión al ofrecer una amplia gama de servicios de ascensores simples, inteligentes y confiables a precios tan bajos que la mayor cantidad de personas posible podrán pagarlos.",
+
+     "assistancy_view_title" : "Asistencia de IA",
+   "assistancy_view_body" : "El sistema patentado Mcallinn LLC ha sido diseñado para aumentar la inteligencia y la conectividad del ascensor.",
+
+   "tested_trusted_view_title" :"Sofía probada y confiable",
+   "tested_trusted_view_body" : "La solución es universal y adaptable a cualquier marca y tipo de ascensor.",
+
+    "welcome_view_title" : "Bienvenido",
+   "welcome_view_body" : "Mantente organizado y vive inteligente con Sofía",
+
+    "alreadyHaveAccount" : "¿Ya tienes una cuenta?",
+   "singUp" : "Inscribirse",
+   "skip" : "Saltar"
 }
