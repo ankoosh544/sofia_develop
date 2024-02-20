@@ -4,10 +4,12 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:sofia_app/providers/ble_provider.dart';
 import 'package:sofia_app/providers/forgot_password_provider.dart';
+import 'package:sofia_app/providers/new_ble_provider.dart';
 import 'package:sofia_app/providers/registration_provider.dart';
 import 'package:sofia_app/screens/car_status/car_status_screen.dart';
 import 'package:sofia_app/screens/login/login_screen.dart';
 import 'package:sofia_app/screens/registration/registration_screen.dart';
+import 'package:sofia_app/services/ble_helper.dart';
 import 'database/app_database.dart';
 import 'providers/login_provider.dart';
 import 'screens/home/home_screen.dart';
@@ -37,7 +39,7 @@ void _launchApp() {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => BleProvider(BleImpl())),
+        ChangeNotifierProvider(create: (_) => NewBleProvider(BLEHelper())),
         ChangeNotifierProvider(create: (_) => LoginProvider()),
         ChangeNotifierProvider(create: (_) => RegistrationProvider()),
         ChangeNotifierProvider(create: (_) => ForgotPasswordProvider()),
