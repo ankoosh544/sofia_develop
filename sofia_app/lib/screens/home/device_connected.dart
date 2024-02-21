@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:sofia_app/configs/index.dart';
 import 'package:sofia_app/custom/light_warning_message.dart';
 import 'package:sofia_app/custom/out_of_service_message.dart';
+import 'package:sofia_app/screens/car_status/car_status_screen.dart';
 
 import '../../providers/ble_provider.dart';
 import '../../providers/profile_provider.dart';
@@ -138,11 +139,11 @@ class DeviceConnected extends StatelessWidget {
                       style: const TextStyle(fontSize: 30, color: Colors.white),
                       onFieldSubmitted: (value) {
                         // context.read<BleProvider>().writeCharacteristic(value);
-                        // Navigator.of(context).push(
-                        //   MaterialPageRoute(
-                        //     builder: (context) => const CarStatusScreen(),
-                        //   ),
-                        // );
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const CarStatusScreen(),
+                          ),
+                        );
                       },
                     ),
                   ),

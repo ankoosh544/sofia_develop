@@ -66,7 +66,7 @@ class BLEHelper implements IBLEHelper {
       var newNearestDevice = findNearestScanResult(results);
       if (oldNearestDevice != newNearestDevice) {
         if (isFloor(newNearestDevice)) {
-          oldNearestDevice?.device.disconnect();
+         // oldNearestDevice?.device.disconnect();
           oldNearestDevice = newNearestDevice;
           callback(newNearestDevice.device);
         }
@@ -145,9 +145,10 @@ class BLEHelper implements IBLEHelper {
             element.characteristicUuid.str.toUpperCase() ==
             floorChangeCharacteristicGuid);
     floorChangeCharacteristic?.setNotifyValue(true);
-    if(floorChangeCharacteristic?.properties.read == true) {
+    //if(floorChangeCharacteristic?.properties.read == true) {
+      print("Floor change");
       floorChange(await floorChangeCharacteristic?.read() ?? []);
-    }
+    //}
     floorChangeCharacteristic?.lastValueStream.listen((event) {
       debugPrint("floorChangeCharacteristicGuid: $event");
       floorChange(event);
