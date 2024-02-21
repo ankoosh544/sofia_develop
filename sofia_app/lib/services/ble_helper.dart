@@ -8,6 +8,7 @@ import 'package:sofia_app/interfaces/characteristic_callback.dart';
 import '../enums/direction.dart';
 import '../enums/type_mission_status.dart';
 import '../interfaces/i_ble_helper.dart';
+import '../models/ble/device_data.dart';
 
 class BLEHelper implements IBLEHelper {
   static const FLOOR_SERVICE_GUID = "6C962546-6011-4E1B-9D8C-05027ADB3A01";
@@ -39,11 +40,12 @@ class BLEHelper implements IBLEHelper {
     // Guid(ESP_SERVICE_GUID), // ESP32
   ];
 
-  // DeviceData? deviceData;
   ScanResult? oldNearestDevice;
 
   final int _interval = const Duration(milliseconds: 10000).inMilliseconds;
   Timer? _timer;
+
+  BluetoothService? floorService;
 
   @override
   void scanNearestBleDevice(Function callback) async {
@@ -110,6 +112,7 @@ class BLEHelper implements IBLEHelper {
   @override
   void listenCharacteristics(
       BluetoothService bleService, CharacteristicCallback callback) async {
+    floorService = bleService;
     // floor Change Characteristic data
     void floorChange(List<int> event) {
       if (event.isEmpty) return;
@@ -242,21 +245,15 @@ class BLEHelper implements IBLEHelper {
     return FlutterBluePlus.stopScan();
   }
 
-  // void writeFloor(int floor) {
-  //   BluetoothService? myService = deviceData?.bluetoothServices
-  //       .firstWhereOrNull((service) =>
-  //           service.bluetoothService.uuid.str.toUpperCase() ==
-  //           FLOOR_SERVICE_GUID)
-  //       ?.bluetoothService;
-  //
-  //   BluetoothCharacteristic? floorRequestCharacteristic =
-  //       myService?.characteristics.firstWhereOrNull((element) =>
-  //           element.uuid.str.toUpperCase() == floorRequestCharacteristicGuid);
-  //
-  //   debugPrint("writeFloor: $floorRequestCharacteristic");
-  //
-  //   floorRequestCharacteristic?.write([floor, 0]);
-  // }
+  void writeFloor(int floor) {
+    BluetoothCharacteristic? floorRequestCharacteristic =
+        floorService?.characteristics.firstWhereOrNull((element) =>
+            element.uuid.str.toUpperCase() == floorRequestCharacteristicGuid);
+
+    debugPrint("writeFloor: $floorRequestCharacteristic");
+
+    floorRequestCharacteristic?.write([floor, 0]);
+  }
 
   @override
   void connectToBleDevice(BluetoothDevice device, Function callback) async {

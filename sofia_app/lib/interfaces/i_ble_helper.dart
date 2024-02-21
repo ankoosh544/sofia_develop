@@ -7,4 +7,5 @@ abstract class IBLEHelper {
   void connectToBleDevice(BluetoothDevice bleDevice, Function callback);
   void listenCharacteristics(BluetoothService bleService, CharacteristicCallback callback);
   void bluetoothOnOff(Function callback);
+  void writeFloor(int floor);
 }

@@ -9,9 +9,10 @@ import '../configs/constants.dart';
 import '../enums/direction.dart';
 import '../enums/type_mission_status.dart';
 import '../interfaces/characteristic_callback.dart';
+import '../interfaces/i_ble_helper.dart';
 
 class BleProvider extends ChangeNotifier implements CharacteristicCallback {
-  BLEHelper bleHelper;
+  IBLEHelper bleHelper;
 
   var carFloor = 0;
 
@@ -59,8 +60,11 @@ class BleProvider extends ChangeNotifier implements CharacteristicCallback {
       final String numberAsString = match.group(0)!;
       return int.parse(numberAsString);
     }
-
     return 0;
+  }
+
+  void writeFloor(int floor) {
+    bleHelper.writeFloor(floor);
   }
 
   void bluetoothOnOff() {
