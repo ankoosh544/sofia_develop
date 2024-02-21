@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
@@ -66,8 +65,8 @@ class BLEHelper implements IBLEHelper {
       debugPrint("Results: ${results.toString()}");
       var newNearestDevice = findNearestScanResult(results);
       if (oldNearestDevice != newNearestDevice) {
-        await oldNearestDevice?.device.disconnect();
         if (isFloor(newNearestDevice)) {
+          oldNearestDevice?.device.disconnect();
           oldNearestDevice = newNearestDevice;
           callback(newNearestDevice.device);
         }
@@ -112,16 +111,8 @@ class BLEHelper implements IBLEHelper {
   void listenCharacteristics(
       BluetoothService bleService, CharacteristicCallback callback) async {
     // floor Change Characteristic data
-    var floorChangeCharacteristic = bleService.characteristics.firstWhereOrNull(
-        (element) =>
-            element.characteristicUuid.str.toUpperCase() ==
-            floorChangeCharacteristicGuid);
-    floorChangeCharacteristic?.setNotifyValue(true);
-    floorChangeCharacteristic?.lastValueStream.listen((event) {
-      debugPrint("floorChangeCharacteristicGuid: $event");
-
+    void floorChange(List<int> event) {
       if (event.isEmpty) return;
-
       String carFloor = ((event[0] & 0x3F)).toString();
       debugPrint("Car Floor: $carFloor");
 
@@ -147,19 +138,24 @@ class BLEHelper implements IBLEHelper {
         debugPrint("CarDirection = Direction.Stopped");
         callback.movement(Direction.stopped);
       }
+    }
+
+    var floorChangeCharacteristic = bleService.characteristics.firstWhereOrNull(
+        (element) =>
+            element.characteristicUuid.str.toUpperCase() ==
+            floorChangeCharacteristicGuid);
+    floorChangeCharacteristic?.setNotifyValue(true);
+    if(floorChangeCharacteristic?.properties.read == true) {
+      floorChange(await floorChangeCharacteristic?.read() ?? []);
+    }
+    floorChangeCharacteristic?.lastValueStream.listen((event) {
+      debugPrint("floorChangeCharacteristicGuid: $event");
+      floorChange(event);
     });
 
     // mission Status Characteristic data
-    var missionStatusCharacteristic = bleService.characteristics
-        .firstWhereOrNull((element) =>
-            element.characteristicUuid.str.toUpperCase() ==
-            missionStatusCharacteristicGuid);
-    missionStatusCharacteristic?.setNotifyValue(true);
-    missionStatusCharacteristic?.lastValueStream.listen((event) {
-      debugPrint("missionStatusCharacteristicGuid: $event");
-
+    void missionStatus(List<int> event) {
       if (event.isEmpty) return;
-
       if (event.length > 2) {
         var missionStatus = event[0];
         var eta = event[1] * 256 + event[2];
@@ -167,17 +163,23 @@ class BLEHelper implements IBLEHelper {
         debugPrint("Mission Stat: $missionStatus, ETA: $eta");
         callback.missionStatus(TypeMissionStatus.values[missionStatus], eta);
       }
+    }
+
+    var missionStatusCharacteristic = bleService.characteristics
+        .firstWhereOrNull((element) =>
+            element.characteristicUuid.str.toUpperCase() ==
+            missionStatusCharacteristicGuid);
+    missionStatusCharacteristic?.setNotifyValue(true);
+    if(missionStatusCharacteristic?.properties.read == true) {
+      missionStatus(await missionStatusCharacteristic?.read() ?? []);
+    }
+    missionStatusCharacteristic?.lastValueStream.listen((event) {
+      debugPrint("missionStatusCharacteristicGuid: $event");
+      missionStatus(event);
     });
 
     // out Of Service Characteristic data
-    var outOfServiceCharacteristic = bleService.characteristics
-        .firstWhereOrNull((element) =>
-            element.characteristicUuid.str.toUpperCase() ==
-            outOfServiceCharacteristicGuid);
-    outOfServiceCharacteristic?.setNotifyValue(true);
-    outOfServiceCharacteristic?.lastValueStream.listen((event) {
-      debugPrint("outOfServiceCharacteristicGuid: $event");
-
+    void outOfService(List<int> event) {
       if (event.isEmpty) return;
 
       if (event[0] == 0) {
@@ -185,15 +187,22 @@ class BLEHelper implements IBLEHelper {
       } else {
         debugPrint("this.OutOfService = true;");
       }
+    }
+    var outOfServiceCharacteristic = bleService.characteristics
+        .firstWhereOrNull((element) =>
+            element.characteristicUuid.str.toUpperCase() ==
+            outOfServiceCharacteristicGuid);
+    outOfServiceCharacteristic?.setNotifyValue(true);
+    if(outOfServiceCharacteristic?.properties.read == true) {
+      outOfService(await outOfServiceCharacteristic?.read() ?? []);
+    }
+    outOfServiceCharacteristic?.lastValueStream.listen((event) {
+      debugPrint("outOfServiceCharacteristicGuid: $event");
+      outOfService(event);
     });
 
     // Movement Direction Characteristic data
-    var movementDirectionCharacteristic = bleService.characteristics
-        .firstWhereOrNull((element) =>
-            element.characteristicUuid.str.toUpperCase() ==
-            movementDirectionCar);
-    movementDirectionCharacteristic?.setNotifyValue(true);
-    movementDirectionCharacteristic?.lastValueStream.listen((event) {
+    void movementDirection(List<int> event) {
       if (event.isEmpty) return;
 
       debugPrint("movementDirectionCar: $event");
@@ -206,6 +215,17 @@ class BLEHelper implements IBLEHelper {
       } else {
         debugPrint("CarDirection = Direction.Stopped");
       }
+    }
+    var movementDirectionCharacteristic = bleService.characteristics
+        .firstWhereOrNull((element) =>
+            element.characteristicUuid.str.toUpperCase() ==
+            movementDirectionCar);
+    movementDirectionCharacteristic?.setNotifyValue(true);
+    if(movementDirectionCharacteristic?.properties.read == true) {
+      movementDirection(await movementDirectionCharacteristic?.read() ?? []);
+    }
+    movementDirectionCharacteristic?.lastValueStream.listen((event) {
+      movementDirection(event);
     });
   }
 
