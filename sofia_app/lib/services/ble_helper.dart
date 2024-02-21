@@ -66,12 +66,18 @@ class BLEHelper implements IBLEHelper {
       if (results.isEmpty) return;
       debugPrint("Results: ${results.toString()}");
       var newNearestDevice = findNearestScanResult(results);
+      var rssi = (-newNearestDevice.rssi);
+      print("rssi: $rssi");
+      if(rssi > 60) {
+        print("Device: ${newNearestDevice.device.platformName.codeUnits.toString()}");
       if (oldNearestDevice != newNearestDevice) {
+        print("Changing");
         if (isFloor(newNearestDevice)) {
-         // oldNearestDevice?.device.disconnect();
+          //await oldNearestDevice?.device.disconnect();
           oldNearestDevice = newNearestDevice;
           callback(newNearestDevice.device);
         }
+      }
       }
     });
   }
@@ -110,8 +116,7 @@ class BLEHelper implements IBLEHelper {
 
 // Discover services and characteristics after connecting
   @override
-  void listenCharacteristics(
-      BluetoothService bleService, CharacteristicCallback callback) async {
+  void listenCharacteristics(BluetoothService bleService, CharacteristicCallback callback) async {
     floorService = bleService;
     // floor Change Characteristic data
     void floorChange(List<int> event) {
@@ -147,15 +152,17 @@ class BLEHelper implements IBLEHelper {
         (element) =>
             element.characteristicUuid.str.toUpperCase() ==
             floorChangeCharacteristicGuid);
-    floorChangeCharacteristic?.setNotifyValue(true);
-    //if(floorChangeCharacteristic?.properties.read == true) {
-      print("Floor change");
+    if(floorChangeCharacteristic?.properties.read == true) {
       floorChange(await floorChangeCharacteristic?.read() ?? []);
-    //}
-    floorChangeCharacteristic?.lastValueStream.listen((event) {
+    }
+    floorChangeCharacteristic?.setNotifyValue(true);
+
+    floorChangeCharacteristic?.onValueReceived.listen((event) async {
       debugPrint("floorChangeCharacteristicGuid: $event");
       floorChange(event);
     });
+  
+
 
     // mission Status Characteristic data
     void missionStatus(List<int> event) {
@@ -173,14 +180,17 @@ class BLEHelper implements IBLEHelper {
         .firstWhereOrNull((element) =>
             element.characteristicUuid.str.toUpperCase() ==
             missionStatusCharacteristicGuid);
-    missionStatusCharacteristic?.setNotifyValue(true);
+    
     if(missionStatusCharacteristic?.properties.read == true) {
       missionStatus(await missionStatusCharacteristic?.read() ?? []);
     }
+
+    missionStatusCharacteristic?.setNotifyValue(true);
     missionStatusCharacteristic?.lastValueStream.listen((event) {
       debugPrint("missionStatusCharacteristicGuid: $event");
       missionStatus(event);
     });
+  
 
     // out Of Service Characteristic data
     void outOfService(List<int> event) {
@@ -196,14 +206,16 @@ class BLEHelper implements IBLEHelper {
         .firstWhereOrNull((element) =>
             element.characteristicUuid.str.toUpperCase() ==
             outOfServiceCharacteristicGuid);
-    outOfServiceCharacteristic?.setNotifyValue(true);
+    
     if(outOfServiceCharacteristic?.properties.read == true) {
       outOfService(await outOfServiceCharacteristic?.read() ?? []);
     }
+    outOfServiceCharacteristic?.setNotifyValue(true);
     outOfServiceCharacteristic?.lastValueStream.listen((event) {
       debugPrint("outOfServiceCharacteristicGuid: $event");
       outOfService(event);
     });
+  
 
     // Movement Direction Characteristic data
     void movementDirection(List<int> event) {
@@ -224,13 +236,15 @@ class BLEHelper implements IBLEHelper {
         .firstWhereOrNull((element) =>
             element.characteristicUuid.str.toUpperCase() ==
             movementDirectionCar);
-    movementDirectionCharacteristic?.setNotifyValue(true);
+    
     if(movementDirectionCharacteristic?.properties.read == true) {
       movementDirection(await movementDirectionCharacteristic?.read() ?? []);
     }
+    movementDirectionCharacteristic?.setNotifyValue(true);
     movementDirectionCharacteristic?.lastValueStream.listen((event) {
       movementDirection(event);
     });
+    
   }
 
   Future<void> _scanDevices() {
@@ -245,6 +259,7 @@ class BLEHelper implements IBLEHelper {
     return FlutterBluePlus.stopScan();
   }
 
+  @override
   void writeFloor(int floor) {
     BluetoothCharacteristic? floorRequestCharacteristic =
         floorService?.characteristics.firstWhereOrNull((element) =>

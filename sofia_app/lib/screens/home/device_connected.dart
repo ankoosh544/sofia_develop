@@ -138,7 +138,7 @@ class DeviceConnected extends StatelessWidget {
                       textInputAction: TextInputAction.done,
                       style: const TextStyle(fontSize: 30, color: Colors.white),
                       onFieldSubmitted: (value) {
-                        // context.read<BleProvider>().writeCharacteristic(value);
+                      context.read<BleProvider>().writeFloor(int.parse(value));
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => const CarStatusScreen(),
