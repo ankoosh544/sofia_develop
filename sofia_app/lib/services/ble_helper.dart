@@ -42,10 +42,21 @@ class BLEHelper implements IBLEHelper {
 
   ScanResult? oldNearestDevice;
 
+  List<ScanResult> devices = [];
+
   final int _interval = const Duration(milliseconds: 10000).inMilliseconds;
   Timer? _timer;
 
   BluetoothService? floorService;
+
+  void addItem(ScanResult device) {
+    int index = devices.indexWhere((item) => item == device);  // Check for existing object
+    if (index != -1) {
+      devices[index] = device;  // Replace existing object
+    } else {
+      devices.add(device);  // Add new object
+    }
+  }
 
   @override
   void scanNearestBleDevice(Function callback) async {
@@ -61,14 +72,19 @@ class BLEHelper implements IBLEHelper {
       _scanDevices();
     });
 
+
     FlutterBluePlus.scanResults.listen((results) async {
       debugPrint("Scanning:");
       if (results.isEmpty) return;
       debugPrint("Results: ${results.toString()}");
-      var newNearestDevice = findNearestScanResult(results);
+      for(var result in results) {
+        addItem(result);
+      }
+      print("Devices: ${devices.length}");
+      var newNearestDevice = findNearestScanResult(devices);
       var rssi = (-newNearestDevice.rssi);
       print("rssi: $rssi");
-      if(rssi > 60) {
+
         print("Device: ${newNearestDevice.device.platformName.codeUnits.toString()}");
       if (oldNearestDevice != newNearestDevice) {
         print("Changing");
@@ -77,7 +93,6 @@ class BLEHelper implements IBLEHelper {
           oldNearestDevice = newNearestDevice;
           callback(newNearestDevice.device);
         }
-      }
       }
     });
   }
@@ -102,7 +117,9 @@ class BLEHelper implements IBLEHelper {
   ScanResult findNearestScanResult(List<ScanResult> scanResults) {
     ScanResult nearestResult = scanResults.first;
     for (ScanResult result in scanResults) {
-      if (-(result.rssi) < -(nearestResult.rssi)) {
+      var rssi = -(result.rssi);
+      print("RSSI: $rssi");
+      if (rssi < -(nearestResult.rssi)) {
         // Smaller RSSI indicates closer proximity
         nearestResult = result;
       }
