@@ -19,7 +19,7 @@ class BleProvider extends ChangeNotifier implements CharacteristicCallback {
 
   var outOfService = false;
 
-  String? bleDeviceName;
+  int? bleDeviceName;
 
   bool lightStatus = false;
 
@@ -36,7 +36,8 @@ class BleProvider extends ChangeNotifier implements CharacteristicCallback {
       bleHelper.connectToBleDevice(bleDevice, (state) async {
         if (state == BluetoothConnectionState.connected) {
           deviceConnected = true;
-          bleDeviceName = bleDevice.platformName.codeUnits.toString();
+          bleDeviceName = getFloorNumber(bleDevice.platformName);
+          print("localName${bleDeviceName}");
           List<BluetoothService> services = await bleDevice.discoverServices();
           BluetoothService? myService = services.firstWhereOrNull((service) =>
               service.uuid.str.toUpperCase() == FLOOR_SERVICE_GUID);
@@ -49,6 +50,17 @@ class BleProvider extends ChangeNotifier implements CharacteristicCallback {
         notifyListeners();
       });
     });
+  }
+
+  int getFloorNumber(String inputString) {
+    final RegExp regex = RegExp(r'\d+');
+    final Match? match = regex.firstMatch(inputString);
+    if (match != null) {
+      final String numberAsString = match.group(0)!;
+      return int.parse(numberAsString);
+    }
+
+    return 0;
   }
 
   void bluetoothOnOff() {

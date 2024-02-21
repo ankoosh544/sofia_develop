@@ -33,7 +33,7 @@ class _SplashViewState extends State<SplashView> {
           children: [
             Container(
               child: Padding(
-                padding: EdgeInsets.all(20.0),
+                padding: EdgeInsets.only(top: 10),
                 child: DropdownButton<Language>(
                   underline: SizedBox(),
                   icon: Icon(
@@ -70,7 +70,7 @@ class _SplashViewState extends State<SplashView> {
               ),
             ),
             SizedBox(
-              height: 50,
+              height: 10,
             ),
             Padding(
               padding: const EdgeInsets.only(top: 40.0),
