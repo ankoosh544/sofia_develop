@@ -105,10 +105,10 @@ class _SofiaAppState extends State<SofiaApp> with TickerProviderStateMixin {
       ],
       locale: _locale,
       routes: {
-        '/': (context) => IntroductionAnimationScreen(),
+        '/test': (context) => IntroductionAnimationScreen(),
         '/login': (context) => launchLoginScreen(),
         '/register': (context) => launchRegistrationScreen(),
-        '/home': (context) => _launchHomeScreen(),
+        '/': (context) => _launchHomeScreen(),
         '/car': (context) => _launchCarStatusScreen(),
       },
     );

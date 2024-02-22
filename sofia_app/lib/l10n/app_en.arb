@@ -57,6 +57,11 @@
 
    "alreadyHaveAccount" : "Already have an account?",
    "singUp" : "Sign Up",
-    "skip" : "Skip"
+    "skip" : "Skip",
+  "greetingMessage" : "Happy to see you again",
+  "enterDestination" : "Please enter Destination Floor",
+  "sourceFrom" : "From",
+  "sourceTo" : "To",
+  "floor" : "Floor"
 
 }

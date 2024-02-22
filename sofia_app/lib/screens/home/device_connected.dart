@@ -5,6 +5,7 @@ import 'package:sofia_app/configs/index.dart';
 import 'package:sofia_app/custom/light_warning_message.dart';
 import 'package:sofia_app/custom/out_of_service_message.dart';
 import 'package:sofia_app/screens/car_status/car_status_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../providers/ble_provider.dart';
 import '../../providers/profile_provider.dart';
@@ -37,15 +38,15 @@ class DeviceConnected extends StatelessWidget {
                 height: size_16,
               ),
               Text(
-                '$greetingMessage ${context.watch<ProfileProvider>().username}', // Add missing comma here
+                '${AppLocalizations.of(context)!.greetingMessage} ${context.watch<ProfileProvider>().username} ${AppLocalizations.of(context)!.enterDestination}',
                 style: const TextStyle(color: Colors.white, fontSize: 20),
               ),
 
               const SizedBox(
                 height: size_16,
               ),
-              const Text(
-                sourceFrom,
+              Text(
+                AppLocalizations.of(context)!.sourceFrom,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -71,7 +72,10 @@ class DeviceConnected extends StatelessWidget {
                           Animate(
                             effects: const [FadeEffect(), ScaleEffect()],
                             child: Text(
-                              context.watch<BleProvider>().bleDeviceName.toString(),
+                              context
+                                  .watch<BleProvider>()
+                                  .bleDeviceName
+                                  .toString(),
                               style: const TextStyle(
                                 fontSize: 38,
                                 color: Colors.white,
@@ -91,8 +95,8 @@ class DeviceConnected extends StatelessWidget {
               const SizedBox(
                 height: size_16,
               ),
-              const Text(
-                sourceTo,
+              Text(
+                AppLocalizations.of(context)!.sourceTo,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -138,7 +142,9 @@ class DeviceConnected extends StatelessWidget {
                       textInputAction: TextInputAction.done,
                       style: const TextStyle(fontSize: 30, color: Colors.white),
                       onFieldSubmitted: (value) {
-                      context.read<BleProvider>().writeFloor(int.parse(value));
+                        context
+                            .read<BleProvider>()
+                            .writeFloor(int.parse(value));
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => const CarStatusScreen(),

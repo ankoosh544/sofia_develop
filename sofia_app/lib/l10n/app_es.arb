@@ -57,5 +57,11 @@
 
     "alreadyHaveAccount" : "¿Ya tienes una cuenta?",
    "singUp" : "Inscribirse",
-   "skip" : "Saltar"
+   "skip" : "Saltar",
+
+  "greetingMessage": "Feliz de verte de nuevo",
+  "enterDestination": "Por favor, ingresa el piso de destino",
+  "sourceFrom": "Desde",
+  "sourceTo": "A",
+  "floor": "Piso"
 }
