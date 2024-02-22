@@ -15,20 +15,20 @@ class MainActivity : FlutterActivity() {
 
     override fun onResume() {
         super.onResume()
-        Handler(Looper.getMainLooper()).postDelayed({
-            if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(
-                    this,
-                    android.Manifest.permission.BLUETOOTH_SCAN
-                ) || PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(
-                    this,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION
-                )
-            ) {
-                askPermissions()
-            } else {
-                startForegroundService(Intent(this@MainActivity, MyBLEService::class.java))
-            }
-        }, 10000)
+//        Handler(Looper.getMainLooper()).postDelayed({
+//            if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(
+//                    this,
+//                    android.Manifest.permission.BLUETOOTH_SCAN
+//                ) || PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(
+//                    this,
+//                    android.Manifest.permission.ACCESS_FINE_LOCATION
+//                )
+//            ) {
+//                askPermissions()
+//            } else {
+//                startForegroundService(Intent(this@MainActivity, MyBLEService::class.java))
+//            }
+//        }, 10000)
     }
 
     private fun askPermissions() {

@@ -44,7 +44,7 @@ class BLEHelper implements IBLEHelper {
 
   List<ScanResult> devices = [];
 
-  final int _interval = const Duration(milliseconds: 10000).inMilliseconds;
+  final int _interval = const Duration(seconds: 2).inMilliseconds;
   Timer? _timer;
 
   BluetoothService? floorService;
@@ -68,7 +68,7 @@ class BLEHelper implements IBLEHelper {
     _timer = Timer.periodic(Duration(milliseconds: _interval), (timer) async {
       // Your periodic task to be executed here
       debugPrint("Executing task");
-      await _stopScanDevices();
+      // await _stopScanDevices();
       _scanDevices();
     });
 
@@ -264,12 +264,13 @@ class BLEHelper implements IBLEHelper {
     
   }
 
-  Future<void> _scanDevices() {
-    return FlutterBluePlus.startScan(
-        withServices: serviceGuids,
-        timeout: const Duration(milliseconds: 15000),
-        androidUsesFineLocation: false,
-        androidScanMode: AndroidScanMode.lowLatency);
+  void _scanDevices() {
+    if(!FlutterBluePlus.isScanningNow) {
+      FlutterBluePlus.startScan(
+          withServices: serviceGuids,
+          timeout: const Duration(milliseconds: 120),
+          androidUsesFineLocation: false);
+    }
   }
 
   Future<void> _stopScanDevices() {
@@ -289,7 +290,7 @@ class BLEHelper implements IBLEHelper {
 
   @override
   void connectToBleDevice(BluetoothDevice device, Function callback) async {
-    await device.connect(autoConnect: true, mtu: null);
+    await device.connect(autoConnect: false, timeout: const Duration(seconds: 35));
     _listenDeviceConnection(device, (state) {
       callback(state);
     });
