@@ -36,7 +36,7 @@ class BLEHelper implements IBLEHelper {
 
   final List<Guid> serviceGuids = [
     Guid(FLOOR_SERVICE_GUID), // FLOOR_SERVICE_GUID
-    // Guid(CAR_SERVICE_GUID), // CAR_SERVICE_GUID
+    Guid(CAR_SERVICE_GUID), // CAR_SERVICE_GUID
     // Guid(ESP_SERVICE_GUID), // ESP32
   ];
 
