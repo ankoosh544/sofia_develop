@@ -57,6 +57,12 @@
 
     "alreadyHaveAccount" : "Hai già un account?",
    "singUp" : "Iscrizione",
-   "skip" : "Saltare"
+   "skip" : "Saltare",
+
+  "greetingMessage": "Felice di rivederti",
+  "enterDestination": "Per favore, inserisci il piano di destinazione",
+  "sourceFrom": "Da",
+  "sourceTo": "A",
+  "floor": "Piano"
    
 }
