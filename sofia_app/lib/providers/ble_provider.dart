@@ -1,11 +1,9 @@
-import 'dart:io';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:sofia_app/models/BLECharacteristics.dart';
 import 'package:sofia_app/services/ble_helper.dart';
 
-import '../configs/constants.dart';
 import '../enums/direction.dart';
 import '../enums/type_mission_status.dart';
 import '../interfaces/characteristic_callback.dart';
@@ -30,34 +28,46 @@ class BleProvider extends ChangeNotifier implements CharacteristicCallback {
 
   var deviceConnected = false;
 
+  BluetoothService? floorService;
+
   BleProvider(this.bleHelper);
 
   void connectToNearestDevice() {
-    bleHelper.scanNearestBleDevice((BluetoothDevice bleDevice) {
-      bleHelper.connectToBleDevice(bleDevice, (state) async {
-        if (state == BluetoothConnectionState.connected) {
-          try {
-            deviceConnected = true;
-            bleDeviceName = bleDevice.platformName.codeUnits.toString();
-            print("localName${bleDeviceName}");
-            List<BluetoothService> services =
-                await bleDevice.discoverServices();
-            BluetoothService? myService = services.firstWhereOrNull((service) =>
-                service.uuid.str.toUpperCase() == BLEHelper.FLOOR_SERVICE_GUID);
-
-            if (myService != null) {
-              bleHelper.listenCharacteristics(myService, this);
-              //writeFloor(2);
-            }
-          } catch (e) {
-            print("Exception $e");
+    bleHelper.scanNearestBleDevice((final ScanResult result) {
+      if(result.device.isConnected) {
+        connected(result);
+      } else {
+        bleHelper.connectToBleDevice(result, (final BluetoothConnectionState state) async {
+          if (state == BluetoothConnectionState.connected) {
+            connected(result);
+          } else {
+            deviceConnected = false;
+            notifyListeners();
           }
-        } else {
-          deviceConnected = false;
-        }
-        notifyListeners();
-      });
+        });
+      }
     });
+  }
+
+  void connected(final ScanResult result) async {
+    try {
+      deviceConnected = true;
+      bleDeviceName = result.device.platformName.codeUnits.toString();
+      debugPrint("localName: $bleDeviceName");
+      List<BluetoothService> services =
+      await result.device.discoverServices();
+      floorService = services.firstWhereOrNull((service) =>
+      service.uuid.str == BLEHelper.FLOOR_SERVICE_GUID) ??
+          floorService;
+
+      if (floorService != null) {
+        bleHelper.listenCharacteristics(result.device, floorService!, this);
+        //writeFloor(2);
+      }
+    } catch (e) {
+      debugPrint("Exception $e");
+    }
+    notifyListeners();
   }
 
   int getFloorNumber(String inputString) {

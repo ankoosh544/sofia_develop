@@ -16,7 +16,6 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.read<BleProvider>().connectToNearestDevice();
     return DefaultTabController(
       initialIndex: 0,
       length: tabsCount,

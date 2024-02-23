@@ -72,6 +72,7 @@ class _SofiaAppState extends State<SofiaApp> with TickerProviderStateMixin {
 
   @override
   void initState() {
+    context.read<BleProvider>().connectToNearestDevice();
     _animationController =
         AnimationController(vsync: this, duration: Duration(seconds: 8));
     _animationController?.animateTo(0.0);
