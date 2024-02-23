@@ -48,6 +48,11 @@ class BLEHelper implements IBLEHelper {
 
   BluetoothService? floorService;
 
+  List<int>? floorChangeData;
+  List<int>? missionStateData;
+  List<int>? outOfServiceData;
+  List<int>? movementData;
+
   void addItem(ScanResult device) {
     int index = devices
         .indexWhere((item) => item == device); // Check for existing object
@@ -132,9 +137,28 @@ class BLEHelper implements IBLEHelper {
       }
       debugPrint("Charas: ${bleService.characteristics.length}");
 
+      bool areEqual(List<int> list1, List<int>? list2) {
+        if (list1.length != list2?.length) {
+          return false;
+        }
+        for (int i = 0; i < list1.length; i++) {
+          if (list1[i] != list2?[i]) {
+            return false;
+          }
+        }
+        return true;
+      }
+
       void floorChange(List<int> event) {
         if (event.isEmpty) return;
         debugPrint("floorChange: $event");
+
+        if(areEqual(event, floorChangeData)) {
+          debugPrint("Same Data");
+          return;
+        }
+
+        floorChangeData = event;
 
         String carFloor = ((event[0] & 0x3F)).toString();
         debugPrint("Car Floor: $carFloor");
@@ -183,6 +207,14 @@ class BLEHelper implements IBLEHelper {
       void missionStatus(List<int> event) {
         if (event.isEmpty) return;
         debugPrint("Mission Stat: $event");
+
+        if(areEqual(event, missionStateData)) {
+          debugPrint("Same Data");
+          return;
+        }
+
+        missionStateData = event;
+
         if (event.length > 2) {
           var missionStatus = event[0];
           var eta = event[1] * 256 + event[2];
@@ -214,6 +246,13 @@ class BLEHelper implements IBLEHelper {
         if (event.isEmpty) return;
         debugPrint("OutOfService: $event");
 
+        if(areEqual(event, outOfServiceData)) {
+          debugPrint("Same Data");
+          return;
+        }
+
+        outOfServiceData = event;
+
         if (event[0] == 0) {
           debugPrint("this.OutOfService = false;");
         } else {
@@ -242,6 +281,13 @@ class BLEHelper implements IBLEHelper {
       void movementDirection(List<int> event) {
         if (event.isEmpty) return;
         debugPrint("movementDirectionCar: $event");
+
+        if(areEqual(event, movementData)) {
+          debugPrint("Same Data");
+          return;
+        }
+
+        movementData = event;
 
         if ((event[0] & 0x1) == 0x1) {
           if ((event[0] & 0x02) == 0x02) {
