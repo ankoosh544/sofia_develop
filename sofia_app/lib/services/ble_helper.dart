@@ -134,6 +134,8 @@ class BLEHelper implements IBLEHelper {
 
       void floorChange(List<int> event) {
         if (event.isEmpty) return;
+        debugPrint("floorChange: $event");
+
         String carFloor = ((event[0] & 0x3F)).toString();
         debugPrint("Car Floor: $carFloor");
 
@@ -180,6 +182,7 @@ class BLEHelper implements IBLEHelper {
       // mission Status Characteristic data
       void missionStatus(List<int> event) {
         if (event.isEmpty) return;
+        debugPrint("Mission Stat: $event");
         if (event.length > 2) {
           var missionStatus = event[0];
           var eta = event[1] * 256 + event[2];
@@ -209,6 +212,7 @@ class BLEHelper implements IBLEHelper {
       // out Of Service Characteristic data
       void outOfService(List<int> event) {
         if (event.isEmpty) return;
+        debugPrint("OutOfService: $event");
 
         if (event[0] == 0) {
           debugPrint("this.OutOfService = false;");
@@ -237,8 +241,8 @@ class BLEHelper implements IBLEHelper {
       // Movement Direction Characteristic data
       void movementDirection(List<int> event) {
         if (event.isEmpty) return;
-
         debugPrint("movementDirectionCar: $event");
+
         if ((event[0] & 0x1) == 0x1) {
           if ((event[0] & 0x02) == 0x02) {
             debugPrint("CarDirection = Direction.Up");
