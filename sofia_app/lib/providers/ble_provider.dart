@@ -37,10 +37,12 @@ class BleProvider extends ChangeNotifier implements CharacteristicCallback {
       if(result.device.isConnected) {
         connected(result);
       } else {
+        floorService = null;
         bleHelper.connectToBleDevice(result, (final BluetoothConnectionState state) async {
           if (state == BluetoothConnectionState.connected) {
             connected(result);
           } else {
+            floorService = null;
             deviceConnected = false;
             notifyListeners();
           }
