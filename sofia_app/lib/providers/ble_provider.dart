@@ -54,11 +54,12 @@ class BleProvider extends ChangeNotifier implements CharacteristicCallback {
       deviceConnected = true;
       bleDeviceName = result.device.platformName.codeUnits.toString();
       debugPrint("localName: $bleDeviceName");
-      List<BluetoothService> services =
-      await result.device.discoverServices();
-      floorService = services.firstWhereOrNull((service) =>
-      service.uuid.str == BLEHelper.FLOOR_SERVICE_GUID) ??
-          floorService;
+      if(floorService == null) {
+        List<BluetoothService> services =
+        await result.device.discoverServices();
+        floorService = services.firstWhereOrNull((service) =>
+        service.uuid.str == BLEHelper.FLOOR_SERVICE_GUID);
+      }
 
       if (floorService != null) {
         bleHelper.listenCharacteristics(result.device, floorService!, this);

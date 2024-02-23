@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:sofia_app/providers/ble_provider.dart';
@@ -20,6 +21,7 @@ import 'package:sofia_app/introduction_animation/introduction_animation_screen.d
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SofiaDatabase.initDatabase();
+  FlutterBluePlus.setLogLevel(LogLevel.none, color:false);
   if (Platform.isAndroid) {
     [
       Permission.location,

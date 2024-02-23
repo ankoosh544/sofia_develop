@@ -118,17 +118,19 @@ class BLEHelper implements IBLEHelper {
 
 // Discover services and characteristics after connecting
   @override
-  void listenCharacteristics(final BluetoothDevice bleDevice, final BluetoothService bleService, final CharacteristicCallback callback) async {
+  void listenCharacteristics(
+      final BluetoothDevice bleDevice,
+      final BluetoothService bleService,
+      final CharacteristicCallback callback) async {
     floorService = bleService;
     _timerForChar?.cancel();
     _timerForChar = Timer.periodic(const Duration(seconds: 1), (timer) async {
-      if(bleDevice.isDisconnected) {
+      if (bleDevice.isDisconnected) {
         debugPrint("Disconnected Device");
         _timerForChar?.cancel();
         return;
       }
-      debugPrint(
-          "Charas: ${bleService.characteristics.length}");
+      debugPrint("Charas: ${bleService.characteristics.length}");
 
       void floorChange(List<int> event) {
         if (event.isEmpty) return;
@@ -159,13 +161,20 @@ class BLEHelper implements IBLEHelper {
         }
       }
 
-      var floorChangeCharacteristic = bleService.characteristics.firstWhereOrNull(
-              (element) =>
-          element.characteristicUuid.str ==
-              floorChangeCharacteristicGuid);
+      var floorChangeCharacteristic = bleService.characteristics
+          .firstWhereOrNull((element) =>
+              element.characteristicUuid.str == floorChangeCharacteristicGuid);
 
-      if(floorChangeCharacteristic?.properties.read == true) {
-        floorChange(await floorChangeCharacteristic?.read() ?? []);
+      try {
+        if (floorChangeCharacteristic?.properties.read == true) {
+          if (bleDevice.isConnected) {
+            floorChange(await floorChangeCharacteristic?.read() ?? []);
+          } else {
+            debugPrint("Device Disconnect While Read Char");
+          }
+        }
+      } catch (e) {
+        debugPrint("Read Char Error: $e");
       }
 
       // mission Status Characteristic data
@@ -182,11 +191,19 @@ class BLEHelper implements IBLEHelper {
 
       var missionStatusCharacteristic = bleService.characteristics
           .firstWhereOrNull((element) =>
-      element.characteristicUuid.str ==
-          missionStatusCharacteristicGuid);
+              element.characteristicUuid.str ==
+              missionStatusCharacteristicGuid);
 
-      if(missionStatusCharacteristic?.properties.read == true) {
-        missionStatus(await missionStatusCharacteristic?.read() ?? []);
+      try {
+        if (missionStatusCharacteristic?.properties.read == true) {
+          if (bleDevice.isConnected) {
+            missionStatus(await missionStatusCharacteristic?.read() ?? []);
+          } else {
+            debugPrint("Device Disconnect While Read Char");
+          }
+        }
+      } catch (e) {
+        debugPrint("Read Char Error: $e");
       }
 
       // out Of Service Characteristic data
@@ -199,16 +216,23 @@ class BLEHelper implements IBLEHelper {
           debugPrint("this.OutOfService = true;");
         }
       }
+
       var outOfServiceCharacteristic = bleService.characteristics
           .firstWhereOrNull((element) =>
-      element.characteristicUuid.str ==
-          outOfServiceCharacteristicGuid);
+              element.characteristicUuid.str == outOfServiceCharacteristicGuid);
 
-      // outOfServiceCharacteristic?.setNotifyValue(true);
-      if(outOfServiceCharacteristic?.properties.read == true) {
-        outOfService(await outOfServiceCharacteristic?.read() ?? []);
+      try {
+        // outOfServiceCharacteristic?.setNotifyValue(true);
+        if (outOfServiceCharacteristic?.properties.read == true) {
+          if(bleDevice.isConnected) {
+            outOfService(await outOfServiceCharacteristic?.read() ?? []);
+          } else {
+            debugPrint("Device Disconnect While Read Char");
+          }
+        }
+      } catch (e) {
+        debugPrint("Read Char Error: $e");
       }
-
 
       // Movement Direction Characteristic data
       void movementDirection(List<int> event) {
@@ -225,15 +249,23 @@ class BLEHelper implements IBLEHelper {
           debugPrint("CarDirection = Direction.Stopped");
         }
       }
+
       var movementDirectionCharacteristic = bleService.characteristics
           .firstWhereOrNull((element) =>
-      element.characteristicUuid.str ==
-          movementDirectionCar);
+              element.characteristicUuid.str == movementDirectionCar);
 
-      if(movementDirectionCharacteristic?.properties.read == true) {
-        movementDirection(await movementDirectionCharacteristic?.read() ?? []);
+      try {
+        if (movementDirectionCharacteristic?.properties.read == true) {
+          if(bleDevice.isConnected) {
+            movementDirection(
+                await movementDirectionCharacteristic?.read() ?? []);
+          } else {
+          debugPrint("Device Disconnect While Read Char");
+        }
+        }
+      } catch (e) {
+        debugPrint("Read Char Error: $e");
       }
-
     });
   }
 
