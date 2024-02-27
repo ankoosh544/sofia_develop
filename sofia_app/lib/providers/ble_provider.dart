@@ -91,7 +91,9 @@ class BleProvider extends ChangeNotifier implements CharacteristicCallback {
     bleHelper.bluetoothOnOff((BluetoothAdapterState state) {
       if (state == BluetoothAdapterState.on) {
         // usually start scanning, connecting, etc
+        debugPrint("BLE on");
       } else {
+        debugPrint("BLE off");
         // show an error to the user, etc
         // turn on bluetooth ourself if we can
 // for iOS, the user controls bluetooth enable/disable

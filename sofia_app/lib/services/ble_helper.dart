@@ -25,8 +25,8 @@ class BLEHelper implements IBLEHelper {
   static const outOfServiceCharacteristicGuid =
       "beb5483e-36e1-4688-b7f5-ea07361b26ab"; // out of service lift default 0
 
-  static const movementDirectionCar =
-      "beb5483e-36e1-4688-b7f5-ea07361b26ac"; // movement and direction of the car
+  // static const movementDirectionCar =
+  //     "beb5483e-36e1-4688-b7f5-ea07361b26ac"; // movement and direction of the car
 // byte 0 = 1 car moving
 // byte 1 = 0 Car up
 // byte 1 = 1 Car down
@@ -121,6 +121,8 @@ class BLEHelper implements IBLEHelper {
   bool isFloor(ScanResult scanResult) =>
       scanResult.advertisementData.serviceUuids.contains(serviceGuids[0]);
 
+  int charIndex = 0;
+
 // Discover services and characteristics after connecting
   @override
   void listenCharacteristics(
@@ -129,13 +131,14 @@ class BLEHelper implements IBLEHelper {
       final CharacteristicCallback callback) async {
     floorService = bleService;
     _timerForChar?.cancel();
-    _timerForChar = Timer.periodic(const Duration(seconds: 1), (timer) async {
+    _timerForChar = Timer.periodic(const Duration(milliseconds: 200), (timer) async {
       if (bleDevice.isDisconnected) {
         debugPrint("Disconnected Device");
         _timerForChar?.cancel();
         return;
       }
-      debugPrint("Charas: ${bleService.characteristics.length}");
+
+      // debugPrint("Charas: ${bleService.characteristics.length}");
 
       bool areEqual(List<int> list1, List<int>? list2) {
         if (list1.length != list2?.length) {
@@ -153,10 +156,10 @@ class BLEHelper implements IBLEHelper {
         if (event.isEmpty) return;
         debugPrint("floorChange: $event");
 
-        if(areEqual(event, floorChangeData)) {
-          debugPrint("Same Data");
-          return;
-        }
+        // if(areEqual(event, floorChangeData)) {
+        //   debugPrint("Same Data");
+        //   return;
+        // }
 
         floorChangeData = event;
 
@@ -187,20 +190,23 @@ class BLEHelper implements IBLEHelper {
         }
       }
 
+      if(charIndex == 0) {
+        debugPrint(floorChangeCharacteristicGuid);
       var floorChangeCharacteristic = bleService.characteristics
           .firstWhereOrNull((element) =>
               element.characteristicUuid.str == floorChangeCharacteristicGuid);
 
-      try {
-        if (floorChangeCharacteristic?.properties.read == true) {
-          if (bleDevice.isConnected) {
-            floorChange(await floorChangeCharacteristic?.read() ?? []);
-          } else {
-            debugPrint("Device Disconnect While Read Char");
+        try {
+          if (floorChangeCharacteristic?.properties.read == true) {
+            if (bleDevice.isConnected) {
+              floorChange(await floorChangeCharacteristic?.read() ?? []);
+            } else {
+              debugPrint("Device Disconnect While Read Char");
+            }
           }
+        } catch (e) {
+          debugPrint("Read Char Error: $e");
         }
-      } catch (e) {
-        debugPrint("Read Char Error: $e");
       }
 
       // mission Status Characteristic data
@@ -208,10 +214,10 @@ class BLEHelper implements IBLEHelper {
         if (event.isEmpty) return;
         debugPrint("Mission Stat: $event");
 
-        if(areEqual(event, missionStateData)) {
-          debugPrint("Same Data");
-          return;
-        }
+        // if(areEqual(event, missionStateData)) {
+        //   debugPrint("Same Data");
+        //   return;
+        // }
 
         missionStateData = event;
 
@@ -224,21 +230,24 @@ class BLEHelper implements IBLEHelper {
         }
       }
 
-      var missionStatusCharacteristic = bleService.characteristics
-          .firstWhereOrNull((element) =>
-              element.characteristicUuid.str ==
-              missionStatusCharacteristicGuid);
+      if(charIndex == 1) {
+        debugPrint(missionStatusCharacteristicGuid);
+        var missionStatusCharacteristic = bleService.characteristics
+            .firstWhereOrNull((element) =>
+        element.characteristicUuid.str ==
+            missionStatusCharacteristicGuid);
 
-      try {
-        if (missionStatusCharacteristic?.properties.read == true) {
-          if (bleDevice.isConnected) {
-            missionStatus(await missionStatusCharacteristic?.read() ?? []);
-          } else {
-            debugPrint("Device Disconnect While Read Char");
+        try {
+          if (missionStatusCharacteristic?.properties.read == true) {
+            if (bleDevice.isConnected) {
+              missionStatus(await missionStatusCharacteristic?.read() ?? []);
+            } else {
+              debugPrint("Device Disconnect While Read Char");
+            }
           }
+        } catch (e) {
+          debugPrint("Read Char Error: $e");
         }
-      } catch (e) {
-        debugPrint("Read Char Error: $e");
       }
 
       // out Of Service Characteristic data
@@ -246,10 +255,10 @@ class BLEHelper implements IBLEHelper {
         if (event.isEmpty) return;
         debugPrint("OutOfService: $event");
 
-        if(areEqual(event, outOfServiceData)) {
-          debugPrint("Same Data");
-          return;
-        }
+        // if(areEqual(event, outOfServiceData)) {
+        //   debugPrint("Same Data");
+        //   return;
+        // }
 
         outOfServiceData = event;
 
@@ -260,62 +269,73 @@ class BLEHelper implements IBLEHelper {
         }
       }
 
-      var outOfServiceCharacteristic = bleService.characteristics
-          .firstWhereOrNull((element) =>
-              element.characteristicUuid.str == outOfServiceCharacteristicGuid);
+      if(charIndex == 2) {
+        debugPrint(outOfServiceCharacteristicGuid);
+        var outOfServiceCharacteristic = bleService.characteristics
+            .firstWhereOrNull((element) =>
+        element.characteristicUuid.str == outOfServiceCharacteristicGuid);
 
-      try {
-        // outOfServiceCharacteristic?.setNotifyValue(true);
-        if (outOfServiceCharacteristic?.properties.read == true) {
-          if(bleDevice.isConnected) {
-            outOfService(await outOfServiceCharacteristic?.read() ?? []);
-          } else {
-            debugPrint("Device Disconnect While Read Char");
+        try {
+          // outOfServiceCharacteristic?.setNotifyValue(true);
+          if (outOfServiceCharacteristic?.properties.read == true) {
+            if (bleDevice.isConnected) {
+              outOfService(await outOfServiceCharacteristic?.read() ?? []);
+            } else {
+              debugPrint("Device Disconnect While Read Char");
+            }
           }
+        } catch (e) {
+          debugPrint("Read Char Error: $e");
         }
-      } catch (e) {
-        debugPrint("Read Char Error: $e");
       }
 
       // Movement Direction Characteristic data
-      void movementDirection(List<int> event) {
-        if (event.isEmpty) return;
-        debugPrint("movementDirectionCar: $event");
+      // void movementDirection(List<int> event) {
+      //   if (event.isEmpty) return;
+      //   debugPrint("movementDirectionCar: $event");
+      //
+      //   if(areEqual(event, movementData)) {
+      //     debugPrint("Same Data");
+      //     return;
+      //   }
+      //
+      //   movementData = event;
+      //
+      //   if ((event[0] & 0x1) == 0x1) {
+      //     if ((event[0] & 0x02) == 0x02) {
+      //       debugPrint("CarDirection = Direction.Up");
+      //     } else {
+      //       debugPrint("CarDirection = Direction.Down");
+      //     }
+      //   } else {
+      //     debugPrint("CarDirection = Direction.Stopped");
+      //   }
+      // }
 
-        if(areEqual(event, movementData)) {
-          debugPrint("Same Data");
-          return;
-        }
+      // var movementDirectionCharacteristic = bleService.characteristics
+      //     .firstWhereOrNull((element) =>
+      //         element.characteristicUuid.str == movementDirectionCar);
 
-        movementData = event;
+      // try {
+      //   if (movementDirectionCharacteristic?.properties.read == true) {
+      //     if(bleDevice.isConnected) {
+      //       movementDirection(
+      //           await movementDirectionCharacteristic?.read() ?? []);
+      //     } else {
+      //     debugPrint("Device Disconnect While Read Char");
+      //   }
+      //   }
+      // } catch (e) {
+      //   debugPrint("Read Char Error: $e");
+      // }
 
-        if ((event[0] & 0x1) == 0x1) {
-          if ((event[0] & 0x02) == 0x02) {
-            debugPrint("CarDirection = Direction.Up");
-          } else {
-            debugPrint("CarDirection = Direction.Down");
-          }
-        } else {
-          debugPrint("CarDirection = Direction.Stopped");
-        }
+
+      if(charIndex < 3) {
+        charIndex++;
+      } else {
+        charIndex = 0;
       }
 
-      var movementDirectionCharacteristic = bleService.characteristics
-          .firstWhereOrNull((element) =>
-              element.characteristicUuid.str == movementDirectionCar);
-
-      try {
-        if (movementDirectionCharacteristic?.properties.read == true) {
-          if(bleDevice.isConnected) {
-            movementDirection(
-                await movementDirectionCharacteristic?.read() ?? []);
-          } else {
-          debugPrint("Device Disconnect While Read Char");
-        }
-        }
-      } catch (e) {
-        debugPrint("Read Char Error: $e");
-      }
     });
   }
 
