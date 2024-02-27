@@ -168,28 +168,31 @@ class BLEHelper implements IBLEHelper {
         String carFloor = ((event[0] & 0x3F)).toString();
         debugPrint("Car Floor: $carFloor");
 
-        callback.floorChange(int.parse(carFloor));
+        var light = false;
+        var movement = Direction.stopped;
 
         if ((event[0] & 0x40) == 0x40) {
           debugPrint("PresenceOfLight: true");
-          callback.light(true);
+          light = true;
         } else {
           debugPrint("PresenceOfLight: false");
-          callback.light(true);
+          light = false;
         }
 
         if ((event[1] & 0x1) == 0x1) {
           if ((event[1] & 0x02) == 0x02) {
             debugPrint("CarDirection = Direction.Up");
-            callback.movement(Direction.up);
+            movement = Direction.up;
           } else {
             debugPrint("CarDirection = Direction.Down");
-            callback.movement(Direction.down);
+            movement = Direction.down;
           }
         } else {
           debugPrint("CarDirection = Direction.Stopped");
-          callback.movement(Direction.stopped);
+          movement = Direction.stopped;
         }
+
+        callback.floorChange(int.parse(carFloor), light, movement);
       }
 
       if(charIndex == 0) {

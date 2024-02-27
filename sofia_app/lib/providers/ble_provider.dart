@@ -105,8 +105,10 @@ class BleProvider extends ChangeNotifier implements CharacteristicCallback {
   }
 
   @override
-  void floorChange(int floor) {
+  void floorChange(int floor, bool present, Direction direction) {
     carFloor = floor;
+    carDirection = direction;
+    lightStatus = present;
     notifyListeners();
   }
 
@@ -118,20 +120,8 @@ class BleProvider extends ChangeNotifier implements CharacteristicCallback {
   }
 
   @override
-  void movement(Direction direction) {
-    carDirection = direction;
-    notifyListeners();
-  }
-
-  @override
   void serviceStatus(bool outOfService) {
     this.outOfService = outOfService;
-    notifyListeners();
-  }
-
-  @override
-  void light(bool present) {
-    lightStatus = present;
     notifyListeners();
   }
 }
