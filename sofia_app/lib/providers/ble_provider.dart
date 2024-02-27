@@ -106,22 +106,28 @@ class BleProvider extends ChangeNotifier implements CharacteristicCallback {
 
   @override
   void floorChange(int floor, bool present, Direction direction) {
-    carFloor = floor;
-    carDirection = direction;
-    lightStatus = present;
-    notifyListeners();
+    if(carFloor != floor || carDirection != direction || lightStatus != present) {
+      carFloor = floor;
+      carDirection = direction;
+      lightStatus = present;
+      notifyListeners();
+    }
   }
 
   @override
   void missionStatus(TypeMissionStatus status, int eta) {
-    typeMissionStatus = status;
-    this.eta = eta;
-    notifyListeners();
+    if(typeMissionStatus != status || this.eta != eta) {
+      typeMissionStatus = status;
+      this.eta = eta;
+      notifyListeners();
+    }
   }
 
   @override
   void serviceStatus(bool outOfService) {
-    this.outOfService = outOfService;
-    notifyListeners();
+    if(this.outOfService != outOfService){
+      this.outOfService = outOfService;
+      notifyListeners();
+    }
   }
 }
