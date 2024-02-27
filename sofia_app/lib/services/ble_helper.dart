@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:sofia_app/interfaces/characteristic_callback.dart';
+import 'package:sofia_app/models/ble/BLESample.dart';
 
 import '../enums/direction.dart';
 import '../enums/type_mission_status.dart';
@@ -39,9 +40,9 @@ class BLEHelper implements IBLEHelper {
     // Guid(ESP_SERVICE_GUID), // ESP32
   ];
 
-  ScanResult? oldNearestDevice;
+  BLEDevice? oldNearestDevice;
 
-  List<ScanResult> devices = [];
+  List<BLEDevice> devices = [];
 
   Timer? _timer;
   Timer? _timerForChar;
@@ -55,11 +56,12 @@ class BLEHelper implements IBLEHelper {
 
   void addItem(ScanResult device) {
     int index = devices
-        .indexWhere((item) => item == device); // Check for existing object
+        .indexWhere((item) => item.scanResult == device); // Check for existing object
     if (index != -1) {
-      devices[index] = device; // Replace existing object
+      devices[index].scanResult = device; // Replace existing object
+      devices[index].add(device); // Replace existing object
     } else {
-      devices.add(device); // Add new object
+      devices.add(BLEDevice(device)); // Add new object
     }
   }
 
@@ -90,26 +92,26 @@ class BLEHelper implements IBLEHelper {
       // debugPrint("Results: ${results.toString()}");
 
       var newNearestDevice = findNearestScanResult(devices);
-      var rssi = (-newNearestDevice.rssi);
+      var rssi = (-newNearestDevice.scanResult.rssi);
       print("near rssi: $rssi");
 
       print(
-          "Device: ${newNearestDevice.device.platformName.codeUnits.toString()}");
+          "Device: ${newNearestDevice..scanResult.device.platformName.codeUnits.toString()}");
 
-      if (isFloor(newNearestDevice)) {
+      if (isFloor(newNearestDevice.scanResult)) {
         //await oldNearestDevice?.device.disconnect();
         oldNearestDevice = newNearestDevice;
-        callback(newNearestDevice);
+        callback(newNearestDevice.scanResult);
       }
     });
   }
 
-  ScanResult findNearestScanResult(final List<ScanResult> scanResults) {
-    ScanResult nearestResult = scanResults.first;
-    for (ScanResult result in scanResults) {
-      var rssi = -(result.rssi);
+  BLEDevice findNearestScanResult(final List<BLEDevice> scanResults) {
+    BLEDevice nearestResult = scanResults.first;
+    for (BLEDevice result in scanResults) {
+      var rssi = -(result.average);
       print("RSSI: $rssi");
-      if (rssi < -(nearestResult.rssi)) {
+      if (rssi < -(nearestResult.average)) {
         // Smaller RSSI indicates closer proximity
         nearestResult = result;
       }
@@ -191,7 +193,7 @@ class BLEHelper implements IBLEHelper {
       }
 
       if(charIndex == 0) {
-        debugPrint(floorChangeCharacteristicGuid);
+        // debugPrint(floorChangeCharacteristicGuid);
       var floorChangeCharacteristic = bleService.characteristics
           .firstWhereOrNull((element) =>
               element.characteristicUuid.str == floorChangeCharacteristicGuid);
@@ -231,7 +233,7 @@ class BLEHelper implements IBLEHelper {
       }
 
       if(charIndex == 1) {
-        debugPrint(missionStatusCharacteristicGuid);
+        // debugPrint(missionStatusCharacteristicGuid);
         var missionStatusCharacteristic = bleService.characteristics
             .firstWhereOrNull((element) =>
         element.characteristicUuid.str ==
@@ -270,7 +272,7 @@ class BLEHelper implements IBLEHelper {
       }
 
       if(charIndex == 2) {
-        debugPrint(outOfServiceCharacteristicGuid);
+        // debugPrint(outOfServiceCharacteristicGuid);
         var outOfServiceCharacteristic = bleService.characteristics
             .firstWhereOrNull((element) =>
         element.characteristicUuid.str == outOfServiceCharacteristicGuid);
