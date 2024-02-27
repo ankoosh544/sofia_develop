@@ -111,6 +111,7 @@ class BleProvider extends ChangeNotifier implements CharacteristicCallback {
       carDirection = direction;
       lightStatus = present;
       notifyListeners();
+      debugPrint("floorChange: $floor $direction $present");
     }
   }
 
@@ -127,6 +128,7 @@ class BleProvider extends ChangeNotifier implements CharacteristicCallback {
   void serviceStatus(bool outOfService) {
     if(this.outOfService != outOfService){
       this.outOfService = outOfService;
+      debugPrint("serviceStatus: $outOfService");
       notifyListeners();
     }
   }

@@ -49,10 +49,10 @@ class BLEHelper implements IBLEHelper {
 
   BluetoothService? floorService;
 
-  List<int>? floorChangeData;
-  List<int>? missionStateData;
-  List<int>? outOfServiceData;
-  List<int>? movementData;
+  // List<int>? floorChangeData;
+  // List<int>? missionStateData;
+  // List<int>? outOfServiceData;
+  // List<int>? movementData;
 
   void addItem(ScanResult device) {
     int index = devices
@@ -141,54 +141,54 @@ class BLEHelper implements IBLEHelper {
       }
 
       // debugPrint("Charas: ${bleService.characteristics.length}");
-
-      bool areEqual(List<int> list1, List<int>? list2) {
-        if (list1.length != list2?.length) {
-          return false;
-        }
-        for (int i = 0; i < list1.length; i++) {
-          if (list1[i] != list2?[i]) {
-            return false;
-          }
-        }
-        return true;
-      }
+      //
+      // bool areEqual(List<int> list1, List<int>? list2) {
+      //   if (list1.length != list2?.length) {
+      //     return false;
+      //   }
+      //   for (int i = 0; i < list1.length; i++) {
+      //     if (list1[i] != list2?[i]) {
+      //       return false;
+      //     }
+      //   }
+      //   return true;
+      // }
 
       void floorChange(List<int> event) {
         if (event.isEmpty) return;
-        debugPrint("floorChange: $event");
+        // debugPrint("floorChange: $event");
 
         // if(areEqual(event, floorChangeData)) {
         //   debugPrint("Same Data");
         //   return;
         // }
 
-        floorChangeData = event;
+        // floorChangeData = event;
 
         String carFloor = ((event[0] & 0x3F)).toString();
-        debugPrint("Car Floor: $carFloor");
+        // debugPrint("Car Floor: $carFloor");
 
         var light = false;
         var movement = Direction.stopped;
 
         if ((event[0] & 0x40) == 0x40) {
-          debugPrint("PresenceOfLight: true");
+          // debugPrint("PresenceOfLight: true");
           light = true;
         } else {
-          debugPrint("PresenceOfLight: false");
+          // debugPrint("PresenceOfLight: false");
           light = false;
         }
 
         if ((event[1] & 0x1) == 0x1) {
           if ((event[1] & 0x02) == 0x02) {
-            debugPrint("CarDirection = Direction.Up");
+            // debugPrint("CarDirection = Direction.Up");
             movement = Direction.up;
           } else {
-            debugPrint("CarDirection = Direction.Down");
+            // debugPrint("CarDirection = Direction.Down");
             movement = Direction.down;
           }
         } else {
-          debugPrint("CarDirection = Direction.Stopped");
+          // debugPrint("CarDirection = Direction.Stopped");
           movement = Direction.stopped;
         }
 
@@ -217,20 +217,20 @@ class BLEHelper implements IBLEHelper {
       // mission Status Characteristic data
       void missionStatus(List<int> event) {
         if (event.isEmpty) return;
-        debugPrint("Mission Stat: $event");
+        // debugPrint("Mission Stat: $event");
 
         // if(areEqual(event, missionStateData)) {
         //   debugPrint("Same Data");
         //   return;
         // }
 
-        missionStateData = event;
+        // missionStateData = event;
 
         if (event.length > 2) {
           var missionStatus = event[0];
           var eta = event[1] * 256 + event[2];
 
-          debugPrint("Mission Stat: $missionStatus, ETA: $eta");
+          // debugPrint("Mission Stat: $missionStatus, ETA: $eta");
           callback.missionStatus(TypeMissionStatus.values[missionStatus], eta);
         }
       }
@@ -258,19 +258,21 @@ class BLEHelper implements IBLEHelper {
       // out Of Service Characteristic data
       void outOfService(List<int> event) {
         if (event.isEmpty) return;
-        debugPrint("OutOfService: $event");
+        // debugPrint("OutOfService: $event");
 
         // if(areEqual(event, outOfServiceData)) {
         //   debugPrint("Same Data");
         //   return;
         // }
 
-        outOfServiceData = event;
+        // outOfServiceData = event;
 
         if (event[0] == 0) {
-          debugPrint("this.OutOfService = false;");
+          callback.serviceStatus(false);
+          // debugPrint("this.OutOfService = false;");
         } else {
-          debugPrint("this.OutOfService = true;");
+          callback.serviceStatus(true);
+          // debugPrint("this.OutOfService = true;");
         }
       }
 
