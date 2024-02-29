@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:sofia_app/models/BLECharacteristics.dart';
+import 'package:sofia_app/models/ble/BLESample.dart';
 import 'package:sofia_app/services/ble_helper.dart';
 
 import '../enums/direction.dart';
@@ -28,21 +29,25 @@ class BleProvider extends ChangeNotifier implements CharacteristicCallback {
 
   var deviceConnected = false;
 
-  BluetoothService? floorService;
+  BLEDevice? connectedDevice;
 
   BleProvider(this.bleHelper);
 
   void connectToNearestDevice() {
-    bleHelper.scanNearestBleDevice((final ScanResult result) {
-      if(result.device.isConnected) {
+    bleHelper.scanDevices((final BLEDevice result) async {
+      if (result.scanResult.device.isConnected) {
         connected(result);
       } else {
-        floorService = null;
-        bleHelper.connectToBleDevice(result, (final BluetoothConnectionState state) async {
+        if(connectedDevice != result) {
+          await connectedDevice?.scanResult.device.disconnect();
+        }
+
+        bleHelper.connectToBleDevice(result,
+            (final BluetoothConnectionState state) async {
           if (state == BluetoothConnectionState.connected) {
+            connectedDevice = result;
             connected(result);
           } else {
-            floorService = null;
             deviceConnected = false;
             notifyListeners();
           }
@@ -51,21 +56,23 @@ class BleProvider extends ChangeNotifier implements CharacteristicCallback {
     });
   }
 
-  void connected(final ScanResult result) async {
+  void connected(final BLEDevice result) async {
     try {
       deviceConnected = true;
-      bleDeviceName = result.device.platformName.codeUnits.toString();
+      bleDeviceName =
+          result.scanResult.device.platformName.codeUnits.toString();
       debugPrint("localName: $bleDeviceName");
-      if(floorService == null) {
-        List<BluetoothService> services =
-        await result.device.discoverServices();
-        floorService = services.firstWhereOrNull((service) =>
-        service.uuid.str == BLEHelper.FLOOR_SERVICE_GUID);
-      }
+      BluetoothService? floorService;
+
+      List<BluetoothService> services =
+          await result.scanResult.device.discoverServices();
+      floorService = services.firstWhereOrNull(
+          (service) => service.uuid.str == BLEHelper.FLOOR_SERVICE_GUID);
 
       if (floorService != null) {
-        bleHelper.listenCharacteristics(result.device, floorService!, this);
-        //writeFloor(2);
+        bleHelper.listenCharacteristics(
+            result.scanResult.device, floorService, this);
+
       }
     } catch (e) {
       debugPrint("Exception $e");
@@ -106,7 +113,9 @@ class BleProvider extends ChangeNotifier implements CharacteristicCallback {
 
   @override
   void floorChange(int floor, bool present, Direction direction) {
-    if(carFloor != floor || carDirection != direction || lightStatus != present) {
+    if (carFloor != floor ||
+        carDirection != direction ||
+        lightStatus != present) {
       carFloor = floor;
       carDirection = direction;
       lightStatus = present;
@@ -117,7 +126,7 @@ class BleProvider extends ChangeNotifier implements CharacteristicCallback {
 
   @override
   void missionStatus(TypeMissionStatus status, int eta) {
-    if(typeMissionStatus != status || this.eta != eta) {
+    if (typeMissionStatus != status || this.eta != eta) {
       typeMissionStatus = status;
       this.eta = eta;
       notifyListeners();
@@ -126,7 +135,7 @@ class BleProvider extends ChangeNotifier implements CharacteristicCallback {
 
   @override
   void serviceStatus(bool outOfService) {
-    if(this.outOfService != outOfService){
+    if (this.outOfService != outOfService) {
       this.outOfService = outOfService;
       debugPrint("serviceStatus: $outOfService");
       notifyListeners();

@@ -1,37 +1,47 @@
 import 'dart:collection';
 
+import 'package:equatable/equatable.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
-class BLEDevice {
-  var limitQueue = LimitedQueue<ScanResult>(5);
-  ScanResult scanResult;
+class BLEDevice extends Equatable {
+  final LimitedQueue<ScanResult> _limitQueue;
+  final ScanResult scanResult;
 
-  BLEDevice(this.scanResult) {
-    limitQueue.add(scanResult);
+  BLEDevice(this.scanResult, this._limitQueue) {
+    _limitQueue.add(scanResult);
   }
 
-  void add(ScanResult scanResult) {
-    limitQueue.add(scanResult);
+  BLEDevice copyWith(ScanResult device) {
+    _add(device);
+    return BLEDevice(scanResult, _limitQueue);
+  }
+
+  BLEDevice _add(ScanResult scanResult) {
+    _limitQueue.add(scanResult);
+    return this;
   }
 
   double get average {
-    if (limitQueue.size == 0) {
+    if (_limitQueue.size == 0) {
       return 0.0;
     }
 
     // Calculate sum
     double sum = 0.0;
-    for (final ScanResult value in limitQueue.list) {
+    for (final ScanResult value in _limitQueue.list) {
       sum += value.rssi;
     }
 
-    return sum / limitQueue.size;
+    return sum / _limitQueue.size;
   }
 
   @override
   String toString() {
     return scanResult.toString();
   }
+
+  @override
+  List<Object?> get props => [scanResult];
 }
 
 class LimitedQueue<T> {
