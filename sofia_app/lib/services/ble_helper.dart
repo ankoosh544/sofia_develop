@@ -42,7 +42,7 @@ class BLEHelper implements IBLEHelper {
 
   List<BLEDevice> devices = [];
 
-  Timer? _timerForChar;
+  // Timer? _timerForChar;
 
   BluetoothService? floorService;
 
@@ -93,7 +93,7 @@ class BLEHelper implements IBLEHelper {
   bool isFloor(ScanResult scanResult) =>
       scanResult.advertisementData.serviceUuids.contains(serviceGuids[0]);
 
-  int charIndex = 0;
+  // int charIndex = 0;
 
 // Discover services and characteristics after connecting
   @override
@@ -102,16 +102,16 @@ class BLEHelper implements IBLEHelper {
       final BluetoothService bleService,
       final CharacteristicCallback callback) async {
     floorService = bleService;
-    _timerForChar?.cancel();
-    _timerForChar =
-        Timer.periodic(const Duration(milliseconds: 100), (timer) async {
-      if (bleDevice.isDisconnected) {
-        devices.remove(bleDevice);
-        nearestDevice = null;
-        debugPrint("Disconnected Device");
-        _timerForChar?.cancel();
-        return;
-      }
+    // _timerForChar?.cancel();
+    // _timerForChar =
+    //     Timer.periodic(const Duration(milliseconds: 100), (timer) async {
+    //   if (bleDevice.isDisconnected) {
+    //     devices.remove(bleDevice);
+    //     nearestDevice = null;
+    //     debugPrint("Disconnected Device");
+    //     _timerForChar?.cancel();
+    //     return;
+    //   }
 
       // if(charIndex == 0) {
       //   // debugPrint(floorChangeCharacteristicGuid);
@@ -132,98 +132,98 @@ class BLEHelper implements IBLEHelper {
       //   }
       // }
 
-      if (charIndex == 1) {
+    //   if (charIndex == 1) {
+    //
+    //     // mission Status Characteristic data
+    //     void missionStatus(List<int> event) {
+    //       if (event.isEmpty) return;
+    //       // debugPrint("Mission Stat: $event");
+    //
+    //       // if(areEqual(event, missionStateData)) {
+    //       //   debugPrint("Same Data");
+    //       //   return;
+    //       // }
+    //
+    //       // missionStateData = event;
+    //
+    //       if (event.length > 2) {
+    //         var missionStatus = event[0];
+    //         var eta = event[1] * 256 + event[2];
+    //
+    //         // debugPrint("Mission Stat: $missionStatus, ETA: $eta");
+    //         callback.missionStatus(TypeMissionStatus.values[missionStatus], eta);
+    //       }
+    //     }
+    //
+    //     // debugPrint(missionStatusCharacteristicGuid);
+    //     var missionStatusCharacteristic = bleService.characteristics
+    //         .firstWhereOrNull((element) =>
+    //             element.characteristicUuid.str ==
+    //             missionStatusCharacteristicGuid);
+    //
+    //     try {
+    //       if (missionStatusCharacteristic?.properties.read == true) {
+    //         if (bleDevice.isConnected) {
+    //           missionStatus(await missionStatusCharacteristic?.read() ?? []);
+    //         } else {
+    //           debugPrint("Device Disconnect While Read Char");
+    //         }
+    //       }
+    //     } catch (e) {
+    //       debugPrint("Read Char Error: $e");
+    //     }
+    //   }
+    //
+    //   if (charIndex == 2) {
+    //
+    //     // out Of Service Characteristic data
+    //     void outOfService(List<int> event) {
+    //       if (event.isEmpty) return;
+    //       // debugPrint("OutOfService: $event");
+    //
+    //       // if(areEqual(event, outOfServiceData)) {
+    //       //   debugPrint("Same Data");
+    //       //   return;
+    //       // }
+    //
+    //       // outOfServiceData = event;
+    //
+    //       if (event[0] == 0) {
+    //         callback.serviceStatus(false);
+    //         // debugPrint("this.OutOfService = false;");
+    //       } else {
+    //         callback.serviceStatus(true);
+    //         // debugPrint("this.OutOfService = true;");
+    //       }
+    //     }
+    //
+    //     // debugPrint(outOfServiceCharacteristicGuid);
+    //     var outOfServiceCharacteristic = bleService.characteristics
+    //         .firstWhereOrNull((element) =>
+    //             element.characteristicUuid.str ==
+    //             outOfServiceCharacteristicGuid);
+    //
+    //     try {
+    //       // outOfServiceCharacteristic?.setNotifyValue(true);
+    //       if (outOfServiceCharacteristic?.properties.read == true) {
+    //         if (bleDevice.isConnected) {
+    //           outOfService(await outOfServiceCharacteristic?.read() ?? []);
+    //         } else {
+    //           debugPrint("Device Disconnect While Read Char");
+    //         }
+    //       }
+    //     } catch (e) {
+    //       debugPrint("Read Char Error: $e");
+    //     }
+    //   }
+    //   if (charIndex < 3) {
+    //     charIndex++;
+    //   } else {
+    //     charIndex = 0;
+    //   }
+    // });
 
-        // mission Status Characteristic data
-        void missionStatus(List<int> event) {
-          if (event.isEmpty) return;
-          // debugPrint("Mission Stat: $event");
-
-          // if(areEqual(event, missionStateData)) {
-          //   debugPrint("Same Data");
-          //   return;
-          // }
-
-          // missionStateData = event;
-
-          if (event.length > 2) {
-            var missionStatus = event[0];
-            var eta = event[1] * 256 + event[2];
-
-            // debugPrint("Mission Stat: $missionStatus, ETA: $eta");
-            callback.missionStatus(TypeMissionStatus.values[missionStatus], eta);
-          }
-        }
-
-        // debugPrint(missionStatusCharacteristicGuid);
-        var missionStatusCharacteristic = bleService.characteristics
-            .firstWhereOrNull((element) =>
-                element.characteristicUuid.str ==
-                missionStatusCharacteristicGuid);
-
-        try {
-          if (missionStatusCharacteristic?.properties.read == true) {
-            if (bleDevice.isConnected) {
-              missionStatus(await missionStatusCharacteristic?.read() ?? []);
-            } else {
-              debugPrint("Device Disconnect While Read Char");
-            }
-          }
-        } catch (e) {
-          debugPrint("Read Char Error: $e");
-        }
-      }
-
-      if (charIndex == 2) {
-
-        // out Of Service Characteristic data
-        void outOfService(List<int> event) {
-          if (event.isEmpty) return;
-          // debugPrint("OutOfService: $event");
-
-          // if(areEqual(event, outOfServiceData)) {
-          //   debugPrint("Same Data");
-          //   return;
-          // }
-
-          // outOfServiceData = event;
-
-          if (event[0] == 0) {
-            callback.serviceStatus(false);
-            // debugPrint("this.OutOfService = false;");
-          } else {
-            callback.serviceStatus(true);
-            // debugPrint("this.OutOfService = true;");
-          }
-        }
-
-        // debugPrint(outOfServiceCharacteristicGuid);
-        var outOfServiceCharacteristic = bleService.characteristics
-            .firstWhereOrNull((element) =>
-                element.characteristicUuid.str ==
-                outOfServiceCharacteristicGuid);
-
-        try {
-          // outOfServiceCharacteristic?.setNotifyValue(true);
-          if (outOfServiceCharacteristic?.properties.read == true) {
-            if (bleDevice.isConnected) {
-              outOfService(await outOfServiceCharacteristic?.read() ?? []);
-            } else {
-              debugPrint("Device Disconnect While Read Char");
-            }
-          }
-        } catch (e) {
-          debugPrint("Read Char Error: $e");
-        }
-      }
-      if (charIndex < 3) {
-        charIndex++;
-      } else {
-        charIndex = 0;
-      }
-    });
-
-
+    ///////////////////////////Change Floor//////////////////////////////
 
     void floorChange(List<int> event) {
       if (event.isEmpty) return;
@@ -286,6 +286,97 @@ class BLEHelper implements IBLEHelper {
     } catch (e) {
       debugPrint("Read Char Error: $e");
     }
+
+    ///////////////////////////Out Of Service//////////////////////////////
+
+        // out Of Service Characteristic data
+        void outOfService(List<int> event) {
+          if (event.isEmpty) return;
+          // debugPrint("OutOfService: $event");
+
+          // if(areEqual(event, outOfServiceData)) {
+          //   debugPrint("Same Data");
+          //   return;
+          // }
+
+          // outOfServiceData = event;
+
+          if (event[0] == 0) {
+            callback.serviceStatus(false);
+            // debugPrint("this.OutOfService = false;");
+          } else {
+            callback.serviceStatus(true);
+            // debugPrint("this.OutOfService = true;");
+          }
+        }
+
+    // debugPrint(outOfServiceCharacteristicGuid);
+        var outOfServiceCharacteristic = bleService.characteristics
+            .firstWhereOrNull((element) =>
+                element.characteristicUuid.str ==
+                outOfServiceCharacteristicGuid);
+
+        try {
+          outOfServiceCharacteristic?.setNotifyValue(true);
+          StreamSubscription<List<int>>? sub =
+          outOfServiceCharacteristic?.onValueReceived.listen((event) {
+            if(bleDevice.isConnected) {
+              outOfService(event);
+              debugPrint("Device connected: ${bleDevice.platformName.codeUnits.toString()}");
+            } else {
+              debugPrint("Device not connected: ${bleDevice.platformName.codeUnits.toString()}");
+            }
+          });
+          if (sub != null) bleDevice.cancelWhenDisconnected(sub);
+        } catch (e) {
+          debugPrint("Read Char Error: $e");
+        }
+
+
+    ///////////////////////////Mission Status//////////////////////////////
+        // mission Status Characteristic data
+        void missionStatus(List<int> event) {
+          if (event.isEmpty) return;
+          // debugPrint("Mission Stat: $event");
+
+          // if(areEqual(event, missionStateData)) {
+          //   debugPrint("Same Data");
+          //   return;
+          // }
+
+          // missionStateData = event;
+
+          if (event.length > 2) {
+            var missionStatus = event[0];
+            var eta = event[1] * 256 + event[2];
+
+            // debugPrint("Mission Stat: $missionStatus, ETA: $eta");
+            callback.missionStatus(TypeMissionStatus.values[missionStatus], eta);
+          }
+        }
+
+        // debugPrint(missionStatusCharacteristicGuid);
+        var missionStatusCharacteristic = bleService.characteristics
+            .firstWhereOrNull((element) =>
+                element.characteristicUuid.str ==
+                missionStatusCharacteristicGuid);
+
+    try {
+      missionStatusCharacteristic?.setNotifyValue(true);
+      StreamSubscription<List<int>>? sub =
+      missionStatusCharacteristic?.onValueReceived.listen((event) {
+        if(bleDevice.isConnected) {
+          outOfService(event);
+          debugPrint("Device connected: ${bleDevice.platformName.codeUnits.toString()}");
+        } else {
+          debugPrint("Device not connected: ${bleDevice.platformName.codeUnits.toString()}");
+        }
+      });
+      if (sub != null) bleDevice.cancelWhenDisconnected(sub);
+    } catch (e) {
+      debugPrint("Read Char Error: $e");
+    }
+
   }
 
   @override
